@@ -1,13 +1,13 @@
 """
 gemini_client.py
-Hard-coded to use gemini-3.6-flash with your API key.
-Key is loaded from .env file automatically — no manual entry needed.
+Robust Google Gemini Client with multi-model automatic cascading fallback.
+Tested models: gemini-3.8-flash, gemini-3.6-flash, gemini-3.7-flash, gemini-flash-latest.
 """
 
 import os
 import time
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List
 from google import genai
 from google.genai import types
 
@@ -20,8 +20,15 @@ if _env_path.exists():
             k, v = line.split("=", 1)
             os.environ.setdefault(k.strip(), v.strip())
 
-# ── Fixed config ───────────────────────────────────────────────────────────────
-FIXED_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.6-flash")
+# ── Robust Cascading Models ───────────────────────────────────────────────────
+DEFAULT_PRIMARY_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.8-flash")
+FALLBACK_MODELS: List[str] = [
+    DEFAULT_PRIMARY_MODEL,
+    "gemini-3.8-flash",
+    "gemini-3.6-flash",
+    "gemini-3.7-flash",
+    "gemini-flash-latest",
+]
 
 _client: Optional[genai.Client] = None
 
@@ -31,11 +38,13 @@ def get_api_key() -> str:
     return os.getenv("GEMINI_API_KEY", "").strip()
 
 
-
 def _get_client() -> genai.Client:
     global _client
     if _client is None:
-        _client = genai.Client(api_key=get_api_key())
+        key = get_api_key()
+        if not key:
+            raise ValueError("GEMINI_API_KEY is not set. Please add it to your .env file.")
+        _client = genai.Client(api_key=key)
     return _client
 
 
@@ -46,48 +55,55 @@ def reset():
 
 
 def find_working_model() -> str:
-    """Always returns the fixed working model."""
-    return FIXED_MODEL
+    """Returns the primary verified model."""
+    return FALLBACK_MODELS[0]
 
 
 def generate(prompt: str, model: Optional[str] = None, max_tokens: int = 2048) -> str:
     """
-    Generate text using gemini-3.6-flash.
-    Retries up to 5 times with backoff on 503 (server busy).
+    Generate text using Gemini with multi-model automatic cascading fallback.
+    Tries each verified model with backoff retries if rate limited or overloaded.
     """
     client = _get_client()
-    use_model = FIXED_MODEL  # Always use the fixed model — ignore any passed model arg
 
-    for attempt in range(5):
-        try:
-            resp = client.models.generate_content(
-                model=use_model,
-                contents=prompt,
-                config=types.GenerateContentConfig(
-                    temperature=0.2,
-                    max_output_tokens=max_tokens,
-                ),
-            )
-            return resp.text.strip()
+    # Determine priority candidate list
+    models_to_try = [model] if model and model in FALLBACK_MODELS else []
+    for m in FALLBACK_MODELS:
+        if m not in models_to_try:
+            models_to_try.append(m)
 
-        except Exception as e:
-            err = str(e)
+    last_error = None
 
-            if "503" in err or "UNAVAILABLE" in err:
-                wait = (attempt + 1) * 4  # 4s, 8s, 12s, 16s, 20s
-                print(f"[Gemini] Server busy (503) — retrying in {wait}s... (attempt {attempt+1}/5)")
-                time.sleep(wait)
-                continue
+    for m in models_to_try:
+        for attempt in range(3):
+            try:
+                resp = client.models.generate_content(
+                    model=m,
+                    contents=prompt,
+                    config=types.GenerateContentConfig(
+                        temperature=0.2,
+                        max_output_tokens=max_tokens,
+                    ),
+                )
+                if resp and resp.text:
+                    return resp.text.strip()
+            except Exception as e:
+                last_error = e
+                err_str = str(e).lower()
 
-            elif "429" in err or "RESOURCE_EXHAUSTED" in err:
-                wait = (attempt + 1) * 5
-                print(f"[Gemini] Rate limited (429) — retrying in {wait}s...")
-                time.sleep(wait)
-                continue
+                # If model is not found, jump immediately to next model in fallback list
+                if "404" in err_str or "not_found" in err_str or "no longer available" in err_str:
+                    break
 
-            else:
-                raise RuntimeError(f"Gemini error with {use_model}: {e}")
+                # If rate limited (429) or overloaded (503), wait and retry
+                if "429" in err_str or "503" in err_str or "unavailable" in err_str or "resource_exhausted" in err_str:
+                    wait = (attempt + 1) * 3
+                    time.sleep(wait)
+                    continue
+                else:
+                    # Other errors, try next model
+                    break
 
     raise RuntimeError(
-        "Gemini is currently overloaded (503). Please wait 30 seconds and try again."
+        f"Gemini generation error across all models: {last_error}"
     )
