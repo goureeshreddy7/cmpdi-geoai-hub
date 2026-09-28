@@ -1,18 +1,18 @@
 """
 server.py ─ CMPDI GeoAI Hub  (SIH 2024 | Problem ID: 26023)
 ══════════════════════════════════════════════════════════════
-Modules implemented here:
-  Module 1  ─ Admin Multimodal Document Ingestion Engine
-  Module 4  ─ Word Cloud & Topic Identification API
-  Module 6  ─ Role-Based Auth + Auto Swagger Docs
+Modules:
+  Module 1  ─ Admin Multimodal Document Ingestion & Persistent DB Storage
+  Module 4  ─ Word Cloud & Topic Identification Engine
+  Module 6  ─ Auth (JWT, Password, Google OAuth) + Auto Swagger Docs
 
-Stub endpoints provided for your friend's modules:
+Stubs for Team Members:
   Module 2  ─ Automated Report Generation  (/api/reports/*)
   Module 3  ─ RAG Query & Parliamentary Q&A (/api/chat/*)
   Module 5  ─ Executive Analytics & KPIs    (/api/analytics/*)
 
-Run:  uvicorn server:app --reload --host 0.0.0.0 --port 8000
-Docs: http://localhost:8000/docs
+Works 100% Free locally (SQLite + ChromaDB + Local storage)
+Ready for Free Cloud Deployment on Vercel (Neon PostgreSQL + Supabase)
 """
 
 from __future__ import annotations
@@ -26,13 +26,23 @@ from typing import Optional, List
 
 from fastapi import (
     FastAPI, UploadFile, File, Form, HTTPException,
-    Query, Path as FPath,
+    Query, Path as FPath, Depends, Header
 )
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, JSONResponse
 from pydantic import BaseModel, Field
+from sqlalchemy.orm import Session
 
-# ── RAG modules ───────────────────────────────────────────────────────────────
+# ── Database & Auth ───────────────────────────────────────────────────────────
+from db.connection import get_db, init_db
+from db.models import User, Document
+from auth.security import (
+    hash_password, verify_password, create_access_token,
+    decode_access_token, verify_google_token
+)
+from storage.store import save_file, delete_file
+
+# ── RAG & AI modules ──────────────────────────────────────────────────────────
 from rag.smart_loader import load_document
 from rag.chunker import chunk_pages
 from rag.vector_store import (
@@ -44,7 +54,7 @@ from rag.gemini_client import reset as reset_gemini_client, generate
 import rag.topic_engine as topic_engine
 
 # ═══════════════════════════════════════════════════════════════════════════════
-#  APP SETUP
+#  APP INITIALIZATION & LIFESPAN
 # ═══════════════════════════════════════════════════════════════════════════════
 
 app = FastAPI(
@@ -52,41 +62,29 @@ app = FastAPI(
     description=(
         "**SIH 2024 | Problem ID 26023 | Ministry of Coal / CIL / CMPDI**\n\n"
         "AI-Powered Geological, Mining and other Reporting Solution.\n\n"
-        "**Modules:**\n"
-        "- Module 1: Admin Multimodal Document Ingestion\n"
-        "- Module 2: Automated Report Generation *(by team member)*\n"
-        "- Module 3: RAG Parliamentary Q&A *(by team member)*\n"
-        "- Module 4: Word Cloud & Topic Identification\n"
-        "- Module 5: Executive Analytics *(by team member)*\n"
-        "- Module 6: Auth & Documentation\n\n"
-        "**Demo Admin:** `admin.cmpdi@gov.in` / `cmpdi@2024`\n"
-        "**Demo User:** `ministry@coal.gov.in` / `coal@2024`"
+        "**Features:**\n"
+        "- Persistent Document & User Storage (SQLite / Neon PostgreSQL)\n"
+        "- JWT & Google OAuth 2.0 Authentication\n"
+        "- Module 1: Admin Multimodal Ingestion (PDF, Scans, Excel, DOCX, Images)\n"
+        "- Module 4: Topic Modeling & Dynamic Word Cloud\n"
+        "- Module 6: Role-Based Access Control & Live API Docs\n\n"
+        "**Demo Credentials:**\n"
+        "- Admin: `admin.cmpdi@gov.in` / `cmpdi@2024`\n"
+        "- Ministry: `ministry@coal.gov.in` / `coal@2024`"
     ),
-    version="2.0.0",
-    contact={
-        "name": "CMPDI GeoAI Hub Team",
-    },
-    license_info={
-        "name": "SIH 2024 Prototype — Ministry of Coal, GoI",
-    },
+    version="2.1.0",
 )
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# ── HTML frontend directory ───────────────────────────────────────────────────
 FRONTEND_DIR = Path(__file__).parent / "frontend"
 
-# ── In-memory metadata store (augments ChromaDB) ─────────────────────────────
-_file_meta: dict[str, dict] = {}
-# schema: { filename: { subsidiary, doc_category, financial_year, description,
-#                       pages, chunks, uploaded_at, upload_time_sec, ocr_method } }
-
-# ── Subsidiary & category constants (shared with frontend) ───────────────────
 SUBSIDIARIES = [
     "All Subsidiaries", "ECL", "BCCL", "CCL", "WCL",
     "SECL", "MCL", "NCL", "CMPDI", "NEC", "General",
@@ -97,8 +95,67 @@ DOC_CATEGORIES = [
     "Environmental Clearance", "Mine Plan", "Other",
 ]
 
+
+# Initialize DB and seed default admin/ministry accounts on startup
+@app.on_event("startup")
+def on_startup():
+    try:
+        init_db()
+        from db.connection import SessionLocal
+        db = SessionLocal()
+
+        # Seed default users if they don't exist
+        defaults = [
+            ("admin.cmpdi@gov.in", "cmpdi@2024", "CMPDI Admin", "admin", "CMPDI"),
+            ("ministry@coal.gov.in", "coal@2024", "Ministry of Coal", "user", "General"),
+            ("secl@cil.gov.in", "secl@2024", "SECL Data Officer", "admin", "SECL"),
+            ("mcl@cil.gov.in", "mcl@2024", "MCL Data Officer", "admin", "MCL"),
+            ("bccl@cil.gov.in", "bccl@2024", "BCCL Data Officer", "admin", "BCCL"),
+        ]
+        for email, pwd, name, role, sub in defaults:
+            existing = db.query(User).filter(User.email == email).first()
+            if not existing:
+                u = User(
+                    email=email,
+                    password_hash=hash_password(pwd),
+                    name=name,
+                    role=role,
+                    subsidiary=sub,
+                )
+                db.add(u)
+        db.commit()
+
+        # Sync existing docs into topic engine
+        docs = db.query(Document).all()
+        for doc in docs:
+            preview = get_document_preview(doc.filename)
+            if preview and preview != "No preview available.":
+                topic_engine.add_document(text=preview, source=doc.filename, subsidiary=doc.subsidiary)
+        db.close()
+    except Exception as e:
+        print(f"[Startup Warning] {e}")
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
-#  HTML PAGE SERVING
+#  AUTH DEPENDENCY
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def get_current_user(
+    authorization: Optional[str] = Header(None),
+    db: Session = Depends(get_db)
+) -> Optional[User]:
+    """Extract user from Bearer JWT token if provided."""
+    if not authorization or not authorization.startswith("Bearer "):
+        return None
+    token = authorization.split(" ")[1]
+    payload = decode_access_token(token)
+    if not payload or "sub" not in payload:
+        return None
+    return db.query(User).filter(User.email == payload["sub"]).first()
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+#  HTML PAGES
 # ═══════════════════════════════════════════════════════════════════════════════
 
 @app.get("/", response_class=HTMLResponse, include_in_schema=False)
@@ -118,104 +175,234 @@ async def serve_user():
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-#  MODULE 6: AUTH & HEALTH
+#  MODULE 6: AUTHENTICATION & USERS
 # ═══════════════════════════════════════════════════════════════════════════════
-
-# ── 6A: Auth ──────────────────────────────────────────────────────────────────
 
 class LoginRequest(BaseModel):
     email: str = Field(..., example="admin.cmpdi@gov.in")
     password: str = Field(..., example="cmpdi@2024")
 
-class LoginResponse(BaseModel):
-    status: str
-    role: str
-    email: str
-    name: str
+class RegisterRequest(BaseModel):
+    email: str = Field(..., example="officer@secl.gov.in")
+    password: str = Field(..., example="password123")
+    name: str = Field(..., example="Mining Officer")
+    role: Optional[str] = Field(default="user", example="user")
+    subsidiary: Optional[str] = Field(default="SECL", example="SECL")
 
-# Hardcoded user table (swap for DB in production)
-_USERS = {
-    "admin.cmpdi@gov.in":   {"password": "cmpdi@2024",  "role": "admin",  "name": "CMPDI Admin"},
-    "ministry@coal.gov.in": {"password": "coal@2024",   "role": "user",   "name": "Ministry of Coal"},
-    "ecl@cil.gov.in":       {"password": "ecl@2024",    "role": "admin",  "name": "ECL Admin"},
-    "bccl@cil.gov.in":      {"password": "bccl@2024",   "role": "admin",  "name": "BCCL Admin"},
-    "secl@cil.gov.in":      {"password": "secl@2024",   "role": "admin",  "name": "SECL Admin"},
-    "mcl@cil.gov.in":       {"password": "mcl@2024",    "role": "admin",  "name": "MCL Admin"},
-}
+class GoogleLoginRequest(BaseModel):
+    id_token: str = Field(..., description="Google OAuth ID token from Google Sign-In SDK")
+
 
 @app.post(
     "/api/login",
-    response_model=LoginResponse,
     tags=["Module 6 — Auth"],
-    summary="Authenticate user and get role (admin / user)",
+    summary="Email & Password Login (Returns JWT)",
 )
-async def login(req: LoginRequest):
+async def login(req: LoginRequest, db: Session = Depends(get_db)):
     email = req.email.strip().lower()
-    pwd   = req.password.strip()
+    pwd = req.password.strip()
 
-    if email in _USERS:
-        user = _USERS[email]
-        if pwd == user["password"] or pwd == "password123":
-            return {"status": "ok", "role": user["role"], "email": email, "name": user["name"]}
+    user = db.query(User).filter(User.email == email).first()
 
-    # Flexible demo login — useful during hackathon presentations
-    if "admin" in email and pwd in ("cmpdi@2024", "admin123", "admin", "password123"):
-        return {"status": "ok", "role": "admin", "email": email, "name": "Admin User"}
-    if pwd in ("coal@2024", "ministry", "user123", "password123"):
-        return {"status": "ok", "role": "user", "email": email, "name": "Ministry User"}
+    # Verify password hash or allow fallback demo password for presentation convenience
+    valid = False
+    if user and user.password_hash:
+        valid = verify_password(pwd, user.password_hash) or pwd == "password123"
 
-    raise HTTPException(status_code=401, detail="Invalid email or password.")
+    if not valid:
+        # Fallback check for demo
+        if "admin" in email and pwd in ("cmpdi@2024", "password123", "admin"):
+            role = "admin"
+            name = "CMPDI Admin"
+            sub = "CMPDI"
+        elif pwd in ("coal@2024", "password123", "user"):
+            role = "user"
+            name = "Ministry User"
+            sub = "General"
+        else:
+            raise HTTPException(status_code=401, detail="Invalid email or password.")
+
+        # Ensure user exists in DB
+        if not user:
+            user = User(
+                email=email,
+                password_hash=hash_password(pwd),
+                name=name,
+                role=role,
+                subsidiary=sub
+            )
+            db.add(user)
+            db.commit()
+            db.refresh(user)
+
+    token = create_access_token({"sub": user.email, "role": user.role, "id": user.id})
+
+    return {
+        "status": "ok",
+        "access_token": token,
+        "token_type": "bearer",
+        "user": {
+            "id": user.id,
+            "email": user.email,
+            "name": user.name,
+            "role": user.role,
+            "subsidiary": user.subsidiary,
+        }
+    }
 
 
-# ── 6B: Health check ──────────────────────────────────────────────────────────
+@app.post(
+    "/api/auth/register",
+    tags=["Module 6 — Auth"],
+    summary="Register a new user",
+)
+async def register(req: RegisterRequest, db: Session = Depends(get_db)):
+    email = req.email.strip().lower()
+    existing = db.query(User).filter(User.email == email).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="An account with this email already exists.")
+
+    new_user = User(
+        email=email,
+        password_hash=hash_password(req.password.strip()),
+        name=req.name.strip(),
+        role=req.role.strip() if req.role in ("admin", "user") else "user",
+        subsidiary=req.subsidiary.strip() if req.subsidiary else "General",
+    )
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+
+    token = create_access_token({"sub": new_user.email, "role": new_user.role, "id": new_user.id})
+    return {
+        "status": "ok",
+        "access_token": token,
+        "token_type": "bearer",
+        "user": {
+            "id": new_user.id,
+            "email": new_user.email,
+            "name": new_user.name,
+            "role": new_user.role,
+            "subsidiary": new_user.subsidiary,
+        }
+    }
+
+
+@app.post(
+    "/api/auth/google",
+    tags=["Module 6 — Auth"],
+    summary="Google 1-Tap / OAuth Sign-In (Returns JWT)",
+)
+async def google_login(req: GoogleLoginRequest, db: Session = Depends(get_db)):
+    """Verifies Google ID token, registers or logs in user, and returns JWT."""
+    info = verify_google_token(req.id_token)
+    if not info:
+        raise HTTPException(status_code=400, detail="Invalid or expired Google token.")
+
+    email = info["email"].lower()
+    user = db.query(User).filter(User.email == email).first()
+
+    if not user:
+        # Determine role from email (or default user)
+        role = "admin" if "admin" in email or "cmpdi" in email else "user"
+        user = User(
+            email=email,
+            name=info.get("name") or email.split("@")[0],
+            google_id=info.get("google_id"),
+            avatar_url=info.get("picture"),
+            role=role,
+            subsidiary="General",
+        )
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+    else:
+        # Link google_id if missing
+        if not user.google_id:
+            user.google_id = info.get("google_id")
+            user.avatar_url = info.get("picture")
+            db.commit()
+
+    token = create_access_token({"sub": user.email, "role": user.role, "id": user.id})
+    return {
+        "status": "ok",
+        "access_token": token,
+        "token_type": "bearer",
+        "user": {
+            "id": user.id,
+            "email": user.email,
+            "name": user.name,
+            "role": user.role,
+            "subsidiary": user.subsidiary,
+            "avatar_url": user.avatar_url,
+        }
+    }
+
+
+@app.get(
+    "/api/auth/me",
+    tags=["Module 6 — Auth"],
+    summary="Get current user profile from JWT Bearer token",
+)
+async def get_me(current_user: Optional[User] = Depends(get_current_user)):
+    if not current_user:
+        raise HTTPException(status_code=401, detail="Not authenticated or token expired.")
+    return {
+        "status": "ok",
+        "user": {
+            "id": current_user.id,
+            "email": current_user.email,
+            "name": current_user.name,
+            "role": current_user.role,
+            "subsidiary": current_user.subsidiary,
+            "avatar_url": current_user.avatar_url,
+        }
+    }
+
 
 @app.get(
     "/api/health",
     tags=["Module 6 — Auth"],
     summary="Server health & model info",
 )
-async def health():
+async def health(db: Session = Depends(get_db)):
     try:
         stats = get_collection_stats()
+        doc_count = db.query(Document).count()
+        user_count = db.query(User).count()
     except Exception:
         stats = {"total": 0}
+        doc_count, user_count = 0, 0
+
     return {
         "status": "ok",
         "service": "CMPDI GeoAI Hub",
-        "version": "2.0.0",
+        "version": "2.1.0",
         "sih_problem_id": "26023",
         "primary_model": os.getenv("GEMINI_MODEL", "gemini-3.8-flash"),
         "total_chunks_indexed": stats.get("total", 0),
+        "total_documents": doc_count,
+        "total_users": user_count,
+        "database": "postgresql/neon" if os.getenv("DATABASE_URL", "").startswith("postgre") else "sqlite",
+        "storage": "supabase" if os.getenv("SUPABASE_URL") else "local",
         "server_time": datetime.now().strftime("%d %b %Y, %I:%M %p IST"),
     }
 
 
-# ── 6C: Config helpers ────────────────────────────────────────────────────────
-
-@app.get(
-    "/api/config/subsidiaries",
-    tags=["Module 6 — Auth"],
-    summary="List all CIL subsidiaries",
-)
+@app.get("/api/config/subsidiaries", tags=["Module 6 — Auth"], summary="List CIL subsidiaries")
 async def get_subsidiaries():
     return {"subsidiaries": SUBSIDIARIES}
 
-@app.get(
-    "/api/config/doc-categories",
-    tags=["Module 6 — Auth"],
-    summary="List document categories",
-)
+
+@app.get("/api/config/doc-categories", tags=["Module 6 — Auth"], summary="List document categories")
 async def get_doc_categories():
     return {"categories": DOC_CATEGORIES}
+
 
 class SetKeyRequest(BaseModel):
     api_key: str
 
-@app.post(
-    "/api/set-key",
-    tags=["Module 6 — Auth"],
-    summary="Update Gemini API key at runtime",
-)
+@app.post("/api/set-key", tags=["Module 6 — Auth"], summary="Update Gemini API key at runtime")
 async def set_api_key(req: SetKeyRequest):
     os.environ["GEMINI_API_KEY"] = req.api_key.strip()
     reset_gemini_client()
@@ -223,28 +410,22 @@ async def set_api_key(req: SetKeyRequest):
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-#  MODULE 1: ADMIN MULTIMODAL DOCUMENT INGESTION ENGINE
+#  MODULE 1: ADMIN MULTIMODAL DOCUMENT INGESTION & STORAGE
 # ═══════════════════════════════════════════════════════════════════════════════
-
-# ── 1A: Upload ────────────────────────────────────────────────────────────────
 
 @app.post(
     "/api/upload",
     tags=["Module 1 — Admin Ingestion"],
-    summary="Upload document(s) for ingestion into the knowledge base",
-    description=(
-        "Accepts PDF, DOCX, PPTX, XLSX, images (PNG/JPG), TXT.\n\n"
-        "Automatically extracts text (native or OCR via Gemini Vision for images/scanned PDFs), "
-        "chunks the content, generates embeddings, and stores in ChromaDB.\n\n"
-        "Returns extraction stats and a `doc_id` for future reference."
-    ),
+    summary="Upload & index document with persistent storage",
 )
 async def upload_document(
-    file: UploadFile = File(..., description="Document to upload (PDF, DOCX, XLSX, PPTX, PNG, JPG, TXT)"),
-    subsidiary: str = Form(default="General", description="CIL subsidiary this document belongs to"),
-    doc_category: str = Form(default="Other", description="Document category"),
-    financial_year: str = Form(default="", description="Financial year (e.g. 2023-24)"),
-    description: str = Form(default="", description="Optional description of this document"),
+    file: UploadFile = File(...),
+    subsidiary: str = Form(default="General"),
+    doc_category: str = Form(default="Other"),
+    financial_year: str = Form(default=""),
+    description: str = Form(default=""),
+    db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user),
 ):
     SUPPORTED = {".pdf", ".docx", ".pptx", ".xlsx", ".xls", ".png", ".jpg", ".jpeg", ".webp", ".bmp", ".tiff", ".txt"}
     ext = Path(file.filename).suffix.lower()
@@ -256,42 +437,64 @@ async def upload_document(
         file_bytes = await file.read()
         filename = file.filename
 
-        # Extract text using smart_loader
+        # 1. Save file to storage (local disk or Supabase bucket)
+        storage_path, storage_type = save_file(file_bytes, filename)
+
+        # 2. Extract text (native or OCR via Gemini Vision)
         pages = load_document(file_bytes, filename)
         if not pages:
-            raise HTTPException(status_code=422, detail="Could not extract any text from this file. It may be encrypted or corrupt.")
+            raise HTTPException(status_code=422, detail="Could not extract text. File may be empty or corrupted.")
 
-        # Chunk extracted text
+        # 3. Chunk text & store in Vector Store (ChromaDB)
         chunks = chunk_pages(pages)
-        if not chunks:
-            raise HTTPException(status_code=422, detail="Document was too short or empty after chunking.")
-
-        # Index into ChromaDB
         indexed = index_chunks(chunks, source=filename, subsidiary=subsidiary)
 
-        # Register into topic engine for Module 4
+        # 4. Register into Topic Engine (Module 4)
         full_text = " ".join(p["text"] for p in pages)
         topic_engine.add_document(text=full_text, source=filename, subsidiary=subsidiary)
 
         elapsed = round(time.time() - t_start, 2)
+        size_kb = round(len(file_bytes) / 1024, 1)
+        ocr_method = "vision" if ext in {".png", ".jpg", ".jpeg", ".webp", ".bmp", ".tiff"} else "native"
 
-        # Store metadata
-        _file_meta[filename] = {
-            "subsidiary": subsidiary,
-            "doc_category": doc_category,
-            "financial_year": financial_year,
-            "description": description,
-            "pages": len(pages),
-            "chunks": len(chunks),
-            "indexed_chunks": indexed,
-            "uploaded_at": datetime.now().strftime("%d %b %Y, %I:%M %p"),
-            "upload_time_sec": elapsed,
-            "file_size_kb": round(len(file_bytes) / 1024, 1),
-            "ocr_method": "vision" if ext in {".png", ".jpg", ".jpeg", ".webp", ".bmp", ".tiff"} else "native",
-        }
+        # 5. Persist record in Database
+        existing_doc = db.query(Document).filter(Document.filename == filename).first()
+        if existing_doc:
+            existing_doc.storage_path = storage_path
+            existing_doc.subsidiary = subsidiary
+            existing_doc.category = doc_category
+            existing_doc.financial_year = financial_year
+            existing_doc.description = description
+            existing_doc.pages = len(pages)
+            existing_doc.chunks = len(chunks)
+            existing_doc.file_size_kb = size_kb
+            existing_doc.ocr_method = ocr_method
+            existing_doc.uploaded_at = datetime.utcnow()
+            doc_id = existing_doc.id
+        else:
+            new_doc = Document(
+                filename=filename,
+                storage_path=storage_path,
+                subsidiary=subsidiary,
+                category=doc_category,
+                financial_year=financial_year,
+                description=description,
+                pages=len(pages),
+                chunks=len(chunks),
+                file_size_kb=size_kb,
+                ocr_method=ocr_method,
+                uploaded_by_id=current_user.id if current_user else None,
+            )
+            db.add(new_doc)
+            db.commit()
+            db.refresh(new_doc)
+            doc_id = new_doc.id
+
+        db.commit()
 
         return {
             "status": "ok",
+            "doc_id": doc_id,
             "filename": filename,
             "subsidiary": subsidiary,
             "doc_category": doc_category,
@@ -299,7 +502,9 @@ async def upload_document(
             "chunks": len(chunks),
             "indexed_chunks": indexed,
             "upload_time_sec": elapsed,
-            "file_size_kb": _file_meta[filename]["file_size_kb"],
+            "file_size_kb": size_kb,
+            "storage_type": storage_type,
+            "storage_path": storage_path,
         }
 
     except HTTPException:
@@ -308,161 +513,149 @@ async def upload_document(
         raise HTTPException(status_code=500, detail=f"Ingestion failed: {str(e)}")
 
 
-# ── 1B: List documents ────────────────────────────────────────────────────────
-
 @app.get(
     "/api/documents",
     tags=["Module 1 — Admin Ingestion"],
-    summary="List all indexed documents with metadata",
+    summary="List all indexed documents with metadata from DB",
 )
 async def get_documents(
-    subsidiary: Optional[str] = Query(default=None, description="Filter by subsidiary name"),
-    category: Optional[str] = Query(default=None, description="Filter by document category"),
+    subsidiary: Optional[str] = Query(default=None),
+    category: Optional[str] = Query(default=None),
+    db: Session = Depends(get_db),
 ):
     try:
-        all_docs = get_all_documents()
-        result = []
-        for doc in all_docs:
-            src = doc["source"]
-            meta = _file_meta.get(src, {})
-            sub = doc.get("subsidiary") or meta.get("subsidiary", "General")
+        q = db.query(Document)
+        if subsidiary and subsidiary.lower() not in ("all", "all subsidiaries"):
+            q = q.filter(Document.subsidiary == subsidiary)
+        if category and category.lower() != "all":
+            q = q.filter(Document.category == category)
 
-            # Apply filters
-            if subsidiary and sub.lower() != subsidiary.lower():
-                continue
-            if category and meta.get("doc_category", "").lower() != category.lower():
-                continue
-
-            result.append({
-                "filename": src,
-                "subsidiary": sub,
-                "doc_category": meta.get("doc_category", "Other"),
-                "financial_year": meta.get("financial_year", ""),
-                "description": meta.get("description", ""),
-                "pages": meta.get("pages", len(doc.get("pages", []))),
-                "chunks": doc.get("chunks", meta.get("chunks", 0)),
-                "file_size_kb": meta.get("file_size_kb", 0),
-                "upload_time_sec": meta.get("upload_time_sec", 0),
-                "ocr_method": meta.get("ocr_method", "native"),
-                "uploaded_at": meta.get("uploaded_at", "—"),
+        docs = q.order_by(Document.uploaded_at.desc()).all()
+        result = [
+            {
+                "id": d.id,
+                "filename": d.filename,
+                "subsidiary": d.subsidiary,
+                "doc_category": d.category,
+                "financial_year": d.financial_year or "—",
+                "description": d.description or "",
+                "pages": d.pages,
+                "chunks": d.chunks,
+                "file_size_kb": d.file_size_kb,
+                "ocr_method": d.ocr_method,
+                "storage_path": d.storage_path,
+                "uploaded_at": d.uploaded_at.strftime("%d %b %Y, %I:%M %p") if d.uploaded_at else "—",
                 "status": "Indexed ✓",
-            })
-
-        return {
-            "status": "ok",
-            "total": len(result),
-            "documents": result,
-        }
+            }
+            for d in docs
+        ]
+        return {"status": "ok", "total": len(result), "documents": result}
     except Exception as e:
         return {"status": "ok", "total": 0, "documents": [], "error": str(e)}
 
 
-# ── 1C: Preview a document ────────────────────────────────────────────────────
-
 @app.get(
     "/api/documents/{filename}/preview",
     tags=["Module 1 — Admin Ingestion"],
-    summary="Preview extracted text of a specific document",
+    summary="Preview extracted text of a document",
 )
-async def preview_document(filename: str = FPath(..., description="Filename to preview")):
+async def preview_document(filename: str = FPath(...), db: Session = Depends(get_db)):
     try:
         preview = get_document_preview(filename)
-        meta = _file_meta.get(filename, {})
+        doc = db.query(Document).filter(Document.filename == filename).first()
         return {
             "status": "ok",
             "filename": filename,
-            "subsidiary": meta.get("subsidiary", "General"),
-            "doc_category": meta.get("doc_category", "Other"),
-            "pages": meta.get("pages", 0),
-            "chunks": meta.get("chunks", 0),
+            "subsidiary": doc.subsidiary if doc else "General",
+            "doc_category": doc.category if doc else "Other",
+            "pages": doc.pages if doc else 0,
+            "chunks": doc.chunks if doc else 0,
             "preview": preview,
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
-# ── 1D: Delete a document ─────────────────────────────────────────────────────
-
 @app.delete(
     "/api/documents/{filename}",
     tags=["Module 1 — Admin Ingestion"],
-    summary="Delete a document from the knowledge base",
+    summary="Delete a document from DB, Vector Store, and Storage",
 )
-async def delete_document(filename: str = FPath(..., description="Filename to delete")):
+async def delete_document_endpoint(filename: str = FPath(...), db: Session = Depends(get_db)):
     try:
+        # Delete from ChromaDB
         delete_source(filename)
-        _file_meta.pop(filename, None)
-        return {"status": "ok", "message": f"'{filename}' successfully deleted from knowledge base."}
+
+        # Delete file from disk/cloud
+        delete_file(filename)
+
+        # Delete from Database
+        doc = db.query(Document).filter(Document.filename == filename).first()
+        if doc:
+            db.delete(doc)
+            db.commit()
+
+        return {"status": "ok", "message": f"'{filename}' deleted from database and storage."}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
-# ── 1E: Admin metrics dashboard ───────────────────────────────────────────────
-
 @app.get(
     "/api/admin/metrics",
     tags=["Module 1 — Admin Ingestion"],
-    summary="Admin ingestion health metrics & storage breakdown",
+    summary="Admin ingestion health metrics",
 )
-async def get_admin_metrics():
+async def get_admin_metrics(db: Session = Depends(get_db)):
     try:
+        docs = db.query(Document).all()
         stats = get_collection_stats()
-        by_subsidiary = get_stats_by_subsidiary()
-        sources = list_sources()
 
-        total_pages = sum(m.get("pages", 0) for m in _file_meta.values())
-        total_size_kb = sum(m.get("file_size_kb", 0) for m in _file_meta.values())
-        avg_upload_time = (
-            sum(m.get("upload_time_sec", 0) for m in _file_meta.values()) / len(_file_meta)
-            if _file_meta else 0
-        )
-
-        # Category breakdown
+        by_subsidiary: dict[str, int] = {}
         by_category: dict[str, int] = {}
-        for m in _file_meta.values():
-            cat = m.get("doc_category", "Other")
-            by_category[cat] = by_category.get(cat, 0) + 1
-
-        # OCR method breakdown
         by_method: dict[str, int] = {}
-        for m in _file_meta.values():
-            method = m.get("ocr_method", "native")
-            by_method[method] = by_method.get(method, 0) + 1
+
+        total_pages = 0
+        total_size = 0.0
+
+        for d in docs:
+            by_subsidiary[d.subsidiary] = by_subsidiary.get(d.subsidiary, 0) + 1
+            by_category[d.category] = by_category.get(d.category, 0) + 1
+            by_method[d.ocr_method] = by_method.get(d.ocr_method, 0) + 1
+            total_pages += d.pages or 0
+            total_size += d.file_size_kb or 0.0
 
         return {
             "status": "ok",
             "summary": {
-                "total_documents": len(sources),
+                "total_documents": len(docs),
                 "total_chunks": stats.get("total", 0),
                 "total_pages": total_pages,
-                "total_size_kb": round(total_size_kb, 1),
-                "avg_upload_time_sec": round(avg_upload_time, 2),
+                "total_size_kb": round(total_size, 1),
             },
             "by_subsidiary": by_subsidiary,
             "by_category": by_category,
             "by_ocr_method": by_method,
             "recent_uploads": [
-                {"filename": fn, "subsidiary": m["subsidiary"], "uploaded_at": m["uploaded_at"]}
-                for fn, m in list(_file_meta.items())[-5:]
-            ],
+                {
+                    "filename": d.filename,
+                    "subsidiary": d.subsidiary,
+                    "uploaded_at": d.uploaded_at.strftime("%d %b %Y, %I:%M %p") if d.uploaded_at else "—"
+                }
+                for d in docs[-5:]
+            ]
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
-# ── 1F: Clear entire knowledge base ──────────────────────────────────────────
-
-@app.delete(
-    "/api/admin/clear",
-    tags=["Module 1 — Admin Ingestion"],
-    summary="[DANGER] Clear the entire knowledge base",
-)
-async def clear_knowledge_base():
+@app.delete("/api/admin/clear", tags=["Module 1 — Admin Ingestion"], summary="[DANGER] Clear knowledge base")
+async def clear_knowledge_base(db: Session = Depends(get_db)):
     try:
         clear_collection()
-        _file_meta.clear()
         topic_engine.reset()
-        return {"status": "ok", "message": "Knowledge base cleared. All documents removed."}
+        db.query(Document).delete()
+        db.commit()
+        return {"status": "ok", "message": "Knowledge base and database documents cleared."}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -475,24 +668,12 @@ async def clear_knowledge_base():
     "/api/topics/wordcloud",
     tags=["Module 4 — Word Cloud & Topics"],
     summary="Word cloud frequency data for all indexed documents",
-    description=(
-        "Returns weighted keyword frequency data in the format "
-        "`[{text: 'coal', value: 85}, ...]`.\n\n"
-        "This is directly compatible with libraries like **react-wordcloud**, "
-        "**wordcloud2.js**, **d3-cloud**, and **Plotly**."
-    ),
 )
 async def get_wordcloud(
-    subsidiary: Optional[str] = Query(default=None, description="Filter by subsidiary (or 'All')"),
-    top_n: int = Query(default=100, ge=10, le=300, description="Max number of words to return"),
+    subsidiary: Optional[str] = Query(default=None),
+    top_n: int = Query(default=100, ge=10, le=300),
 ):
     data = topic_engine.get_wordcloud_data(subsidiary=subsidiary, top_n=top_n)
-    if not data:
-        return {
-            "status": "ok",
-            "wordcloud": [],
-            "message": "No documents indexed yet. Please upload documents first.",
-        }
     return {
         "status": "ok",
         "count": len(data),
@@ -504,23 +685,10 @@ async def get_wordcloud(
 @app.get(
     "/api/topics/clusters",
     tags=["Module 4 — Word Cloud & Topics"],
-    summary="Topic clusters extracted from all indexed documents",
-    description=(
-        "Identifies named thematic clusters such as "
-        "*Coal Production & Offtake*, *Geological Exploration*, "
-        "*Safety & Compliance*, etc. with scores and top keywords."
-    ),
+    summary="Thematic topic clusters across CIL documents",
 )
-async def get_topic_clusters(
-    subsidiary: Optional[str] = Query(default=None, description="Filter by subsidiary"),
-):
+async def get_topic_clusters(subsidiary: Optional[str] = Query(default=None)):
     clusters = topic_engine.get_topic_clusters(subsidiary=subsidiary)
-    if not clusters:
-        return {
-            "status": "ok",
-            "clusters": [],
-            "message": "No documents indexed yet. Please upload documents first.",
-        }
     return {
         "status": "ok",
         "total_clusters": len(clusters),
@@ -533,190 +701,92 @@ async def get_topic_clusters(
     "/api/topics/per-document",
     tags=["Module 4 — Word Cloud & Topics"],
     summary="Per-document keyword summary",
-    description="Returns top keywords extracted from each uploaded document individually.",
 )
-async def get_per_document_keywords(
-    top_n: int = Query(default=10, ge=5, le=30, description="Top keywords per document"),
-):
+async def get_per_document_keywords(top_n: int = Query(default=10, ge=5, le=30)):
     data = topic_engine.get_per_document_keywords(top_n=top_n)
-    return {
-        "status": "ok",
-        "total_documents": len(data),
-        "documents": data,
-    }
+    return {"status": "ok", "total_documents": len(data), "documents": data}
 
 
 @app.get(
     "/api/topics/insights",
     tags=["Module 4 — Word Cloud & Topics"],
-    summary="AI-generated operational insights from document topics",
-    description=(
-        "Uses Gemini to generate a natural-language intelligence briefing "
-        "from the extracted topic clusters — ready for Ministry of Coal leadership."
-    ),
+    summary="AI-generated intelligence briefing from topics",
 )
-async def get_topic_insights(
-    subsidiary: Optional[str] = Query(default=None, description="Filter by subsidiary"),
-):
+async def get_topic_insights(subsidiary: Optional[str] = Query(default=None)):
     try:
         insights = topic_engine.get_ai_insights(subsidiary=subsidiary)
-        return {
-            "status": "ok",
-            "subsidiary_filter": subsidiary or "All",
-            "insights": insights,
-        }
+        return {"status": "ok", "subsidiary_filter": subsidiary or "All", "insights": insights}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-#  STUBS FOR YOUR FRIEND'S MODULES (2, 3, 5)
-#  These keep the API contract consistent and Swagger fully documented.
-#  Your friend replaces the bodies with real implementations.
+#  TEAM MEMBER STUBS: MODULES 2, 3, 5
 # ═══════════════════════════════════════════════════════════════════════════════
-
-# ── Module 3: RAG Chat ────────────────────────────────────────────────────────
 
 class ChatRequest(BaseModel):
     query: str = Field(..., example="What was the total coal production of SECL in 2022-23?")
     subsidiary: Optional[str] = Field(default=None, example="SECL")
     top_k: int = Field(default=5, ge=1, le=20)
 
-@app.post(
-    "/api/chat",
-    tags=["Module 3 — RAG Q&A (Team Member)"],
-    summary="Ask a question against indexed documents (RAG with citations)",
-)
+@app.post("/api/chat", tags=["Module 3 — RAG Q&A (Team Member)"], summary="RAG Question & Answer with Citations")
 async def chat(req: ChatRequest):
-    # ⚠️ Your friend implements this body
     return JSONResponse(
         status_code=501,
-        content={
-            "status": "not_implemented",
-            "message": "Module 3 (RAG Chat) is implemented by team member. Replace this stub.",
-            "request_received": req.dict(),
-        },
+        content={"status": "not_implemented", "message": "Module 3 implemented by team member. Replace this stub."}
     )
 
-@app.post(
-    "/api/chat/clear",
-    tags=["Module 3 — RAG Q&A (Team Member)"],
-    summary="Clear conversational memory",
-)
+@app.post("/api/chat/clear", tags=["Module 3 — RAG Q&A (Team Member)"], summary="Clear chat history")
 async def clear_chat():
-    return JSONResponse(
-        status_code=501,
-        content={"status": "not_implemented", "message": "Module 3 stub — implement by team member."},
-    )
+    return JSONResponse(status_code=501, content={"status": "not_implemented"})
 
-
-# ── Module 2: Reports ─────────────────────────────────────────────────────────
 
 class ReportRequest(BaseModel):
-    report_type: str = Field(
-        default="parliamentary",
-        example="parliamentary",
-        description="parliamentary | monthly_production | geological_reserve | ob_removal | safety",
-    )
-    subsidiary: str = Field(default="All Subsidiaries", example="SECL")
-    keywords: str = Field(default="", example="coking coal production stripping ratio")
-    financial_year: str = Field(default="", example="2023-24")
+    report_type: str = Field(default="parliamentary")
+    subsidiary: str = Field(default="All Subsidiaries")
+    keywords: str = Field(default="")
+    financial_year: str = Field(default="")
 
-@app.post(
-    "/api/generate-report",
-    tags=["Module 2 — Report Generation (Team Member)"],
-    summary="Generate a structured CIL/CMPDI report",
-)
+@app.post("/api/generate-report", tags=["Module 2 — Reports (Team Member)"], summary="Generate CIL Report")
 async def generate_report(req: ReportRequest):
-    # ⚠️ Your friend implements this body
     return JSONResponse(
         status_code=501,
-        content={
-            "status": "not_implemented",
-            "message": "Module 2 (Report Generation) is implemented by team member. Replace this stub.",
-            "request_received": req.dict(),
-        },
+        content={"status": "not_implemented", "message": "Module 2 implemented by team member. Replace this stub."}
     )
 
-@app.get(
-    "/api/reports/templates",
-    tags=["Module 2 — Report Generation (Team Member)"],
-    summary="List available report templates",
-)
+@app.get("/api/reports/templates", tags=["Module 2 — Reports (Team Member)"], summary="Report templates")
 async def get_report_templates():
-    # Your friend can expand this — we provide the template list now
     return {
         "status": "ok",
         "templates": [
-            {
-                "id": "parliamentary",
-                "label": "Parliamentary Inquiry Response",
-                "description": "Formatted answer for Lok Sabha / Rajya Sabha starred & unstarred questions",
-            },
-            {
-                "id": "monthly_production",
-                "label": "Monthly Coal Production & Offtake Summary",
-                "description": "Production vs target, dispatch to power plants, YoY growth",
-            },
-            {
-                "id": "geological_reserve",
-                "label": "Geological Exploration & Reserve Estimate",
-                "description": "CMPDI borehole drilling, proved/indicated/inferred reserve breakdown",
-            },
-            {
-                "id": "ob_removal",
-                "label": "Overburden Removal & Stripping Ratio Analytics",
-                "description": "Composite stripping ratio (m³/tonne), HEMM machinery deployment",
-            },
-            {
-                "id": "safety",
-                "label": "Mines Safety & Statutory Compliance",
-                "description": "DGMS compliance, accident frequency rate, statutory obligations",
-            },
-        ],
+            {"id": "parliamentary", "label": "Parliamentary Inquiry Response"},
+            {"id": "monthly_production", "label": "Monthly Coal Production & Offtake Summary"},
+            {"id": "geological_reserve", "label": "Geological Exploration & Reserve Estimate"},
+            {"id": "ob_removal", "label": "Overburden Removal & Stripping Ratio Analytics"},
+            {"id": "safety", "label": "Mines Safety & Statutory Compliance"},
+        ]
     }
 
 
-# ── Module 5: Analytics ───────────────────────────────────────────────────────
-
-@app.get(
-    "/api/analytics/summary",
-    tags=["Module 5 — Analytics (Team Member)"],
-    summary="Executive KPI summary (totals and indicators)",
-)
-async def get_analytics_summary():
-    # ⚠️ Your friend implements this
-    # We provide a partially functional default using available data
+@app.get("/api/analytics/summary", tags=["Module 5 — Analytics (Team Member)"], summary="Executive KPIs")
+async def get_analytics_summary(db: Session = Depends(get_db)):
     try:
         stats = get_collection_stats()
-        by_sub = get_stats_by_subsidiary()
-        sources = list_sources()
-        total_pages = sum(m.get("pages", 0) for m in _file_meta.values())
-
+        docs = db.query(Document).all()
         return {
             "status": "ok",
-            "message": "Basic stats from Module 1. Team member to augment with production KPIs.",
             "kpis": {
-                "total_documents_indexed": len(sources),
+                "total_documents_indexed": len(docs),
                 "total_chunks": stats.get("total", 0),
-                "total_pages": total_pages,
-                "subsidiaries_represented": len(by_sub),
+                "total_pages": sum(d.pages or 0 for d in docs),
             },
-            "by_subsidiary": by_sub,
         }
     except Exception as e:
         return {"status": "ok", "kpis": {}, "error": str(e)}
 
-@app.get(
-    "/api/analytics/subsidiaries",
-    tags=["Module 5 — Analytics (Team Member)"],
-    summary="Subsidiary-wise data breakdown for charts",
-)
+@app.get("/api/analytics/subsidiaries", tags=["Module 5 — Analytics (Team Member)"], summary="Subsidiary breakdown")
 async def get_subsidiary_analytics():
-    return JSONResponse(
-        status_code=501,
-        content={"status": "not_implemented", "message": "Module 5 stub — to be implemented by team member."},
-    )
+    return JSONResponse(status_code=501, content={"status": "not_implemented"})
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -726,12 +796,10 @@ async def get_subsidiary_analytics():
 if __name__ == "__main__":
     import uvicorn
     print("\n" + "=" * 60)
-    print("  CMPDI GeoAI Hub v2.0  |  SIH 2024  |  Problem ID: 26023")
+    print("  CMPDI GeoAI Hub v2.1  |  SIH 2024  |  Problem ID: 26023")
     print("  Ministry of Coal / CIL / CMPDI")
     print("=" * 60)
-    print("  Server:   http://localhost:8000")
-    print("  Admin:    http://localhost:8000/admin")
-    print("  Ministry: http://localhost:8000/user")
-    print("  API Docs: http://localhost:8000/docs")
+    print("  Local API:   http://localhost:8000")
+    print("  Swagger UI:  http://localhost:8000/docs")
     print("=" * 60 + "\n")
     uvicorn.run("server:app", host="0.0.0.0", port=8000, reload=False)

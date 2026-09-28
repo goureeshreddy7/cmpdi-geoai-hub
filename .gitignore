@@ -43,3 +43,6 @@ Thumbs.db
 # ChromaDB Cache & temporary databases
 chroma_db/
 *.sqlite3
+*.db
+uploads/
+
