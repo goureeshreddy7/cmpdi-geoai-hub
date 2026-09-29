@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CMPDI GeoAI Hub — Test Dashboard</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Arial, sans-serif; font-size: 14px; background: #f4f4f4; display: flex; height: 100vh; }
+
+  /* Sidebar */
+  #sidebar { width: 210px; background: #1a1a2e; color: #fff; display: flex; flex-direction: column; padding: 16px 0; flex-shrink: 0; }
+  #sidebar h2 { font-size: 13px; padding: 0 16px 14px; border-bottom: 1px solid #333; color: #aaa; text-transform: uppercase; letter-spacing: 1px; }
+  .nav-item { padding: 11px 16px; cursor: pointer; border-left: 3px solid transparent; color: #ccc; transition: .15s; }
+  .nav-item:hover { background: #252550; color: #fff; }
+  .nav-item.active { background: #252550; border-left-color: #4f8ef7; color: #fff; }
+  .nav-section { padding: 12px 16px 4px; font-size: 10px; color: #555; text-transform: uppercase; letter-spacing: 1px; }
+  .status-bar { margin-top: auto; padding: 12px 16px; font-size: 11px; color: #555; border-top: 1px solid #333; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+  .dot.green { background: #4caf50; }
+  .dot.red { background: #f44336; }
+
+  /* Main */
+  #main { flex: 1; overflow-y: auto; padding: 24px; }
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* Cards */
+  .card { background: #fff; border-radius: 6px; padding: 20px; margin-bottom: 16px; border: 1px solid #e0e0e0; }
+  .card h3 { font-size: 15px; margin-bottom: 14px; color: #222; padding-bottom: 8px; border-bottom: 1px solid #eee; }
+  .page-title { font-size: 20px; font-weight: bold; color: #1a1a2e; margin-bottom: 6px; }
+  .page-sub { color: #777; font-size: 13px; margin-bottom: 20px; }
+
+  /* Forms */
+  label { display: block; font-size: 12px; color: #555; margin-bottom: 4px; margin-top: 10px; }
+  input, select, textarea { width: 100%; padding: 8px 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; }
+  textarea { resize: vertical; min-height: 80px; }
+  button { padding: 9px 18px; background: #4f8ef7; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; margin-top: 10px; }
+  button:hover { background: #3a7ae0; }
+  button.red { background: #e53935; }
+  button.green { background: #43a047; }
+  button.gray { background: #888; }
+
+  /* Output */
+  .output { background: #f8f8f8; border: 1px solid #ddd; border-radius: 4px; padding: 12px; margin-top: 12px; min-height: 40px; white-space: pre-wrap; font-size: 12px; line-height: 1.6; max-height: 380px; overflow-y: auto; }
+  .output.error { border-color: #f44336; background: #fff5f5; color: #c62828; }
+  .output.success { border-color: #4caf50; background: #f5fff5; }
+
+  /* Badges */
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: bold; }
+  .badge.blue { background: #e3f0ff; color: #1565c0; }
+  .badge.green { background: #e8f5e9; color: #2e7d32; }
+  .badge.orange { background: #fff3e0; color: #e65100; }
+
+  /* Citations */
+  .citation { background: #f0f4ff; border-left: 3px solid #4f8ef7; padding: 8px 12px; margin-top: 8px; border-radius: 3px; font-size: 12px; }
+  .citation strong { color: #1a1a2e; }
+
+  /* Word cloud */
+  .wc-word { display: inline-block; margin: 4px; padding: 4px 10px; background: #e3f0ff; color: #1565c0; border-radius: 12px; cursor: default; }
+
+  /* Grid */
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media(max-width: 700px) { .grid2 { grid-template-columns: 1fr; } body { flex-direction: column; } #sidebar { width: 100%; } }
+
+  /* Inline row */
+  .row { display: flex; gap: 10px; align-items: flex-end; }
+  .row input, .row select { flex: 1; }
+  .row button { margin-top: 0; flex-shrink: 0; }
+
+  /* Chat */
+  #chat-box { min-height: 200px; max-height: 340px; overflow-y: auto; border: 1px solid #ddd; border-radius: 4px; padding: 10px; background: #fafafa; margin-top: 10px; }
+  .msg { margin-bottom: 10px; }
+  .msg.user { text-align: right; }
+  .msg-bubble { display: inline-block; padding: 8px 12px; border-radius: 6px; font-size: 13px; max-width: 80%; line-height: 1.5; }
+  .msg.user .msg-bubble { background: #4f8ef7; color: #fff; }
+  .msg.ai .msg-bubble { background: #eee; color: #222; }
+  .msg-label { font-size: 10px; color: #999; margin-bottom: 2px; }
+</style>
+</head>
+<body>
+
+<!-- ── SIDEBAR ─────────────────────────────────────────────── -->
+<div id="sidebar">
+  <h2>CMPDI GeoAI</h2>
+
+  <div class="nav-section">Account</div>
+  <div class="nav-item active" onclick="show('pg-login')">🔐 Login</div>
+
+  <div class="nav-section">Core Features</div>
+  <div class="nav-item" onclick="show('pg-upload')">📄 Upload Docs</div>
+  <div class="nav-item" onclick="show('pg-chat')">🤖 AI Chat + RAG</div>
+  <div class="nav-item" onclick="show('pg-wordcloud')">☁️ Word Cloud</div>
+  <div class="nav-item" onclick="show('pg-report')">📊 Report Generation</div>
+
+  <div class="nav-section">Admin</div>
+  <div class="nav-item" onclick="show('pg-health')">🟢 Health Check</div>
+  <div class="nav-item" onclick="show('pg-docs')">📂 All Documents</div>
+
+  <div class="status-bar" id="status-bar">
+    <span class="dot red" id="status-dot"></span>
+    <span id="status-text">Not connected</span>
+  </div>
+</div>
+
+<!-- ── MAIN ───────────────────────────────────────────────── -->
+<div id="main">
+
+  <!-- CONFIG (always visible) -->
+  <div class="card" style="padding:10px 16px; margin-bottom:16px; display:flex; align-items:center; gap:12px;">
+    <span style="font-size:12px; color:#555; white-space:nowrap;">Backend URL:</span>
+    <input id="api-base" value="https://cmpdi-geoai-hub.onrender.com" style="flex:1; padding:6px 8px; font-size:12px;" />
+    <button style="margin:0; padding:7px 14px;" onclick="checkHealth()">Test</button>
+  </div>
+
+  <!-- ── PAGE: LOGIN ───────────────────────────────────────── -->
+  <div id="pg-login" class="page active">
+    <div class="page-title">🔐 Login</div>
+    <div class="page-sub">Authenticate with the backend. Token is saved and used for all requests.</div>
+    <div class="card">
+      <h3>Sign In</h3>
+      <label>Email</label>
+      <input id="login-email" value="admin.cmpdi@gov.in" />
+      <label>Password</label>
+      <input id="login-pass" type="password" value="cmpdi@2024" />
+      <button onclick="doLogin()">Login</button>
+      <div class="output" id="login-out">—</div>
+    </div>
+    <div class="card">
+      <h3>Demo Credentials</h3>
+      <table style="width:100%; font-size:12px; border-collapse:collapse;">
+        <tr style="background:#f0f0f0;"><th style="text-align:left;padding:6px;">Email</th><th style="text-align:left;padding:6px;">Password</th><th style="text-align:left;padding:6px;">Role</th></tr>
+        <tr><td style="padding:6px;">admin.cmpdi@gov.in</td><td style="padding:6px;">cmpdi@2024</td><td style="padding:6px;"><span class="badge blue">Admin</span></td></tr>
+        <tr><td style="padding:6px;">ministry@coal.gov.in</td><td style="padding:6px;">coal@2024</td><td style="padding:6px;"><span class="badge orange">User</span></td></tr>
+        <tr><td style="padding:6px;">secl@cil.gov.in</td><td style="padding:6px;">secl@2024</td><td style="padding:6px;"><span class="badge blue">Admin</span></td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── PAGE: UPLOAD ──────────────────────────────────────── -->
+  <div id="pg-upload" class="page">
+    <div class="page-title">📄 Document Upload</div>
+    <div class="page-sub">Upload PDFs, DOCX, PPTX, Excel, or Images. They get OCR'd, chunked, and indexed into ChromaDB.</div>
+    <div class="card">
+      <h3>Upload File</h3>
+      <label>File</label>
+      <input type="file" id="upload-file" accept=".pdf,.docx,.pptx,.xlsx,.png,.jpg,.jpeg,.txt" />
+      <label>Subsidiary</label>
+      <select id="upload-sub">
+        <option>General</option><option>ECL</option><option>BCCL</option><option>CCL</option>
+        <option>WCL</option><option>SECL</option><option>MCL</option><option>NCL</option><option>CMPDI</option>
+      </select>
+      <label>Category</label>
+      <select id="upload-cat">
+        <option>Geological Survey</option><option>Production Report</option>
+        <option>Parliamentary Brief</option><option>Safety & Compliance</option>
+        <option>Financial Report</option><option>Exploration Log</option><option>Other</option>
+      </select>
+      <label>Description (optional)</label>
+      <input id="upload-desc" placeholder="Brief description..." />
+      <button onclick="doUpload()">Upload & Index</button>
+      <div class="output" id="upload-out">—</div>
+    </div>
+  </div>
+
+  <!-- ── PAGE: AI CHAT ─────────────────────────────────────── -->
+  <div id="pg-chat" class="page">
+    <div class="page-title">🤖 AI Chat + RAG</div>
+    <div class="page-sub">Ask questions. The AI retrieves relevant chunks from indexed documents and answers with source citations.</div>
+    <div class="card">
+      <h3>Chat</h3>
+      <div id="chat-box"><div style="color:#999; font-size:12px;">Ask a question about your uploaded documents...</div></div>
+      <div class="row" style="margin-top:10px;">
+        <input id="chat-input" placeholder="e.g. What is the coal production of SECL?" onkeydown="if(event.key==='Enter') doChat()" />
+        <button onclick="doChat()">Send</button>
+        <button class="gray" onclick="clearChat()">Clear</button>
+      </div>
+      <div id="citations-box" style="margin-top:12px;"></div>
+    </div>
+  </div>
+
+  <!-- ── PAGE: WORD CLOUD ──────────────────────────────────── -->
+  <div id="pg-wordcloud" class="page">
+    <div class="page-title">☁️ Word Cloud + Topics</div>
+    <div class="page-sub">Keyword frequency and topic clusters extracted from all indexed documents.</div>
+    <div class="card">
+      <h3>Word Cloud</h3>
+      <div class="row">
+        <select id="wc-sub">
+          <option value="">All Subsidiaries</option>
+          <option>ECL</option><option>BCCL</option><option>CCL</option><option>WCL</option>
+          <option>SECL</option><option>MCL</option><option>NCL</option><option>CMPDI</option>
+        </select>
+        <button onclick="loadWordCloud()">Load</button>
+      </div>
+      <div id="wc-out" style="margin-top:12px; line-height:2.2;">—</div>
+    </div>
+    <div class="card">
+      <h3>Topic Clusters</h3>
+      <button onclick="loadClusters()">Load Clusters</button>
+      <div class="output" id="cluster-out" style="margin-top:10px;">—</div>
+    </div>
+    <div class="card">
+      <h3>AI Insights (Gemini Generated)</h3>
+      <button onclick="loadInsights()">Generate Insights</button>
+      <div class="output" id="insights-out" style="margin-top:10px;">—</div>
+    </div>
+  </div>
+
+  <!-- ── PAGE: REPORT ──────────────────────────────────────── -->
+  <div id="pg-report" class="page">
+    <div class="page-title">📊 Report Generation</div>
+    <div class="page-sub">AI generates a formal report from indexed documents. Download as PDF, DOCX, or CSV.</div>
+    <div class="card">
+      <h3>Generate Report</h3>
+      <label>Report Type</label>
+      <select id="rpt-type">
+        <option value="parliamentary">Parliamentary Inquiry Response</option>
+        <option value="monthly">Monthly Coal Production Summary</option>
+        <option value="geological">Geological Reserve Assessment</option>
+        <option value="safety">Mines Safety & Compliance</option>
+      </select>
+      <label>Subsidiary</label>
+      <select id="rpt-sub">
+        <option>All Subsidiaries</option><option>ECL</option><option>BCCL</option>
+        <option>CCL</option><option>WCL</option><option>SECL</option><option>MCL</option>
+        <option>NCL</option><option>CMPDI</option>
+      </select>
+      <label>Keywords / Focus Area (optional)</label>
+      <input id="rpt-kw" placeholder="e.g. coal production, overburden, reserves" />
+      <label>Export Format</label>
+      <select id="rpt-fmt">
+        <option value="docx">Word (.docx)</option>
+        <option value="pdf">PDF (.pdf)</option>
+        <option value="csv">CSV (.csv)</option>
+      </select>
+      <button onclick="doReport()">Generate & Download</button>
+      <div class="output" id="rpt-out">—</div>
+    </div>
+  </div>
+
+  <!-- ── PAGE: HEALTH ──────────────────────────────────────── -->
+  <div id="pg-health" class="page">
+    <div class="page-title">🟢 Health Check</div>
+    <div class="page-sub">Check if the backend server, database, and storage are all online.</div>
+    <div class="card">
+      <h3>Server Status</h3>
+      <button onclick="checkHealth()">Check Now</button>
+      <div class="output" id="health-out">—</div>
+    </div>
+    <div class="card">
+      <h3>Admin Metrics</h3>
+      <button onclick="loadMetrics()">Load Metrics</button>
+      <div class="output" id="metrics-out">—</div>
+    </div>
+  </div>
+
+  <!-- ── PAGE: ALL DOCS ─────────────────────────────────────── -->
+  <div id="pg-docs" class="page">
+    <div class="page-title">📂 All Documents</div>
+    <div class="page-sub">All documents currently indexed in the knowledge base.</div>
+    <div class="card">
+      <h3>Document List</h3>
+      <div class="row">
+        <select id="docs-sub">
+          <option value="">All Subsidiaries</option>
+          <option>ECL</option><option>BCCL</option><option>CCL</option><option>WCL</option>
+          <option>SECL</option><option>MCL</option><option>NCL</option><option>CMPDI</option>
+        </select>
+        <button onclick="loadDocs()">Load</button>
+      </div>
+      <div class="output" id="docs-out" style="margin-top:10px;">—</div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<script>
+// ── Global State ─────────────────────────────────────────────
+let TOKEN = localStorage.getItem('cmpdi_test_token') || '';
+
+function base() { return document.getElementById('api-base').value.replace(/\/+$/, ''); }
+
+function show(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+function out(id, text, cls='') {
+  const el = document.getElementById(id);
+  el.textContent = text;
+  el.className = 'output ' + cls;
+}
+
+function headers() {
+  const h = { 'Content-Type': 'application/json' };
+  if (TOKEN) h['Authorization'] = 'Bearer ' + TOKEN;
+  return h;
+}
+
+// ── Health Check ────────────────────────────────────────────
+async function checkHealth() {
+  try {
+    const r = await fetch(base() + '/api/health');
+    const d = await r.json();
+    document.getElementById('status-dot').className = 'dot green';
+    document.getElementById('status-text').textContent = 'Connected';
+    out('health-out', JSON.stringify(d, null, 2), 'success');
+  } catch(e) {
+    document.getElementById('status-dot').className = 'dot red';
+    document.getElementById('status-text').textContent = 'Offline';
+    out('health-out', 'Error: ' + e.message, 'error');
+  }
+}
+
+async function loadMetrics() {
+  try {
+    const r = await fetch(base() + '/api/admin/metrics', { headers: headers() });
+    const d = await r.json();
+    out('metrics-out', JSON.stringify(d, null, 2), 'success');
+  } catch(e) { out('metrics-out', 'Error: ' + e.message, 'error'); }
+}
+
+// ── Login ───────────────────────────────────────────────────
+async function doLogin() {
+  const email = document.getElementById('login-email').value;
+  const password = document.getElementById('login-pass').value;
+  out('login-out', 'Logging in...');
+  try {
+    const r = await fetch(base() + '/api/login', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    const d = await r.json();
+    if (!r.ok) { out('login-out', '❌ ' + (d.detail || 'Login failed'), 'error'); return; }
+    TOKEN = d.access_token;
+    localStorage.setItem('cmpdi_test_token', TOKEN);
+    out('login-out', '✅ Logged in!\n\nUser: ' + d.user.name + '\nRole: ' + d.user.role + '\nSubsidiary: ' + d.user.subsidiary, 'success');
+    document.getElementById('status-dot').className = 'dot green';
+    document.getElementById('status-text').textContent = d.user.role + ' | ' + d.user.email.split('@')[0];
+  } catch(e) { out('login-out', '❌ ' + e.message, 'error'); }
+}
+
+// ── Upload ──────────────────────────────────────────────────
+async function doUpload() {
+  const fileEl = document.getElementById('upload-file');
+  if (!fileEl.files.length) { out('upload-out', '❌ Please select a file', 'error'); return; }
+  out('upload-out', '⏳ Uploading and indexing... (may take 15-60 sec for large files)');
+  const fd = new FormData();
+  fd.append('file', fileEl.files[0]);
+  fd.append('subsidiary', document.getElementById('upload-sub').value);
+  fd.append('doc_category', document.getElementById('upload-cat').value);
+  fd.append('description', document.getElementById('upload-desc').value);
+  try {
+    const r = await fetch(base() + '/api/upload', {
+      method: 'POST',
+      headers: TOKEN ? { 'Authorization': 'Bearer ' + TOKEN } : {},
+      body: fd
+    });
+    const d = await r.json();
+    if (!r.ok) { out('upload-out', '❌ ' + (d.detail || 'Upload failed'), 'error'); return; }
+    out('upload-out',
+      '✅ Uploaded & Indexed!\n\n' +
+      'File: ' + d.filename + '\n' +
+      'Pages: ' + d.pages + '\n' +
+      'Chunks: ' + d.chunks + '\n' +
+      'Indexed: ' + d.indexed_chunks + ' new chunks\n' +
+      'Storage: ' + d.storage_type + '\n' +
+      'Time: ' + d.upload_time_sec + 's',
+    'success');
+  } catch(e) { out('upload-out', '❌ ' + e.message, 'error'); }
+}
+
+// ── Chat ────────────────────────────────────────────────────
+async function doChat() {
+  const input = document.getElementById('chat-input');
+  const query = input.value.trim();
+  if (!query) return;
+  input.value = '';
+
+  const box = document.getElementById('chat-box');
+  box.innerHTML += `<div class="msg user"><div class="msg-label">You</div><div class="msg-bubble">${query}</div></div>`;
+  box.innerHTML += `<div class="msg ai" id="ai-thinking"><div class="msg-label">GeoAI</div><div class="msg-bubble" style="color:#888;">Thinking...</div></div>`;
+  box.scrollTop = box.scrollHeight;
+
+  try {
+    const r = await fetch(base() + '/api/chat', {
+      method: 'POST', headers: headers(),
+      body: JSON.stringify({ query, top_k: 5 })
+    });
+    const d = await r.json();
+    document.getElementById('ai-thinking').remove();
+
+    if (!r.ok) {
+      box.innerHTML += `<div class="msg ai"><div class="msg-bubble" style="color:red;">❌ ${d.detail || 'Error'}</div></div>`;
+    } else {
+      box.innerHTML += `<div class="msg ai"><div class="msg-label">GeoAI</div><div class="msg-bubble">${d.answer}</div></div>`;
+
+      // Citations
+      const citBox = document.getElementById('citations-box');
+      if (d.citations && d.citations.length > 0) {
+        let html = '<div style="font-size:11px; color:#555; font-weight:bold; margin-bottom:6px;">📎 Sources Used:</div>';
+        d.citations.forEach(c => {
+          html += `<div class="citation">
+            <strong>${c.source}</strong> — Page ${c.page} &nbsp;
+            <span class="badge blue">${Math.round(c.confidence * 100)}% match</span>
+            <span class="badge orange">${c.subsidiary}</span>
+            <div style="color:#444; margin-top:4px;">${c.excerpt}</div>
+          </div>`;
+        });
+        citBox.innerHTML = html;
+      }
+    }
+    box.scrollTop = box.scrollHeight;
+  } catch(e) {
+    document.getElementById('ai-thinking').remove();
+    box.innerHTML += `<div class="msg ai"><div class="msg-bubble" style="color:red;">❌ ${e.message}</div></div>`;
+  }
+}
+
+async function clearChat() {
+  document.getElementById('chat-box').innerHTML = '<div style="color:#999; font-size:12px;">Chat cleared.</div>';
+  document.getElementById('citations-box').innerHTML = '';
+  await fetch(base() + '/api/chat/clear', { method: 'POST', headers: headers() });
+}
+
+// ── Word Cloud ──────────────────────────────────────────────
+async function loadWordCloud() {
+  const sub = document.getElementById('wc-sub').value;
+  const url = base() + '/api/topics/wordcloud?top_n=80' + (sub ? '&subsidiary=' + sub : '');
+  document.getElementById('wc-out').innerHTML = 'Loading...';
+  try {
+    const r = await fetch(url, { headers: headers() });
+    const d = await r.json();
+    if (!d.wordcloud || d.wordcloud.length === 0) {
+      document.getElementById('wc-out').innerHTML = '<span style="color:#999;">No data — upload documents first.</span>';
+      return;
+    }
+    const max = Math.max(...d.wordcloud.map(w => w.value));
+    const html = d.wordcloud.map(w => {
+      const size = Math.round(11 + (w.value / max) * 20);
+      const opacity = 0.5 + (w.value / max) * 0.5;
+      return `<span class="wc-word" title="${w.value} occurrences" style="font-size:${size}px; opacity:${opacity};">${w.text}</span>`;
+    }).join('');
+    document.getElementById('wc-out').innerHTML = html || '<span style="color:#999;">No words found.</span>';
+  } catch(e) { document.getElementById('wc-out').innerHTML = '<span style="color:red;">Error: ' + e.message + '</span>'; }
+}
+
+async function loadClusters() {
+  out('cluster-out', 'Loading...');
+  try {
+    const r = await fetch(base() + '/api/topics/clusters', { headers: headers() });
+    const d = await r.json();
+    if (!d.clusters || d.clusters.length === 0) { out('cluster-out', 'No clusters — upload documents first.'); return; }
+    const text = d.clusters.map(c =>
+      `📌 ${c.topic}  (score: ${c.score})\n   Keywords: ${c.top_keywords.join(', ')}\n   Docs: ${c.document_count}`
+    ).join('\n\n');
+    out('cluster-out', text, 'success');
+  } catch(e) { out('cluster-out', 'Error: ' + e.message, 'error'); }
+}
+
+async function loadInsights() {
+  out('insights-out', '⏳ Generating insights with Gemini...');
+  try {
+    const r = await fetch(base() + '/api/topics/insights', { headers: headers() });
+    const d = await r.json();
+    out('insights-out', d.insights || 'No insights generated.', 'success');
+  } catch(e) { out('insights-out', 'Error: ' + e.message, 'error'); }
+}
+
+// ── Report ──────────────────────────────────────────────────
+async function doReport() {
+  const type = document.getElementById('rpt-type').value;
+  const sub  = document.getElementById('rpt-sub').value;
+  const kw   = document.getElementById('rpt-kw').value;
+  const fmt  = document.getElementById('rpt-fmt').value;
+  out('rpt-out', '⏳ Generating report with Gemini... may take 20-30 seconds.');
+  try {
+    const r = await fetch(base() + '/api/generate-report', {
+      method: 'POST', headers: headers(),
+      body: JSON.stringify({ report_type: type, subsidiary: sub, keywords: kw, export_format: fmt })
+    });
+    if (!r.ok) {
+      const d = await r.json();
+      out('rpt-out', '❌ ' + (d.detail || 'Failed'), 'error'); return;
+    }
+    const blob = await r.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `CMPDI_${type}_${sub}.${fmt}`; a.click();
+    out('rpt-out', '✅ Report downloaded! Check your downloads folder.', 'success');
+  } catch(e) { out('rpt-out', '❌ ' + e.message, 'error'); }
+}
+
+// ── Documents ────────────────────────────────────────────────
+async function loadDocs() {
+  const sub = document.getElementById('docs-sub').value;
+  out('docs-out', 'Loading...');
+  try {
+    const r = await fetch(base() + '/api/documents' + (sub ? '?subsidiary=' + sub : ''), { headers: headers() });
+    const d = await r.json();
+    if (!d.documents || d.documents.length === 0) { out('docs-out', 'No documents found.'); return; }
+    const text = d.documents.map((doc, i) =>
+      `${i+1}. ${doc.filename}\n   Subsidiary: ${doc.subsidiary} | Pages: ${doc.pages} | Chunks: ${doc.chunks} | ${doc.uploaded_at}`
+    ).join('\n\n');
+    out('docs-out', `Total: ${d.total}\n\n` + text, 'success');
+  } catch(e) { out('docs-out', 'Error: ' + e.message, 'error'); }
+}
+
+// ── Init ────────────────────────────────────────────────────
+checkHealth();
+if (TOKEN) {
+  document.getElementById('status-dot').className = 'dot green';
+  document.getElementById('status-text').textContent = 'Token saved';
+}
+</script>
+</body>
+</html>
