@@ -17,9 +17,12 @@ if DATABASE_URL.startswith("sqlite"):
         connect_args={"check_same_thread": False},
     )
 else:
-    # Neon free tier: use NullPool to avoid connection leaks in serverless
+    # Ensure postgresql+psycopg2 dialect is used with psycopg2-binary
+    db_url = DATABASE_URL
+    if db_url.startswith("postgresql://"):
+        db_url = db_url.replace("postgresql://", "postgresql+psycopg2://", 1)
     from sqlalchemy.pool import NullPool
-    engine = create_engine(DATABASE_URL, poolclass=NullPool)
+    engine = create_engine(db_url, poolclass=NullPool)
 
 SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False)
 

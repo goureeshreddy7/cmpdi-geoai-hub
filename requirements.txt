@@ -20,6 +20,7 @@ fpdf2>=2.7.0
 # Database (PostgreSQL + pgvector for vector search — replaces ChromaDB)
 sqlalchemy>=2.0.0
 psycopg2-binary>=2.9.0
+psycopg[binary]>=3.1.0
 
 # Auth
 pyjwt>=2.8.0
