@@ -12,11 +12,35 @@ Core Features:
 from __future__ import annotations
 
 import os
+import sys
 import json
 import time
+import traceback
 from datetime import datetime
 from pathlib import Path
 from typing import Optional, List
+
+# ── Telemetry Logger ──────────────────────────────────────────────────────────
+def _neon_log(stage: str, msg: str):
+    url = os.getenv("DATABASE_URL", "").strip()
+    if not url or "postgre" not in url:
+        return
+    try:
+        import psycopg2
+        with psycopg2.connect(url) as conn:
+            with conn.cursor() as cur:
+                cur.execute("INSERT INTO deploy_logs (stage, message) VALUES (%s, %s);", (stage, msg[:4000]))
+            conn.commit()
+    except Exception as e:
+        print(f"[Telemetry Error] {e}")
+
+def _excepthook(exc_type, exc_value, exc_tb):
+    tb = "".join(traceback.format_exception(exc_type, exc_value, exc_tb))
+    _neon_log("CRASH", tb)
+    sys.__excepthook__(exc_type, exc_value, exc_tb)
+
+sys.excepthook = _excepthook
+_neon_log("BOOT", f"server.py loaded. Python {sys.version}, PORT={os.getenv('PORT')}")
 
 from fastapi import (
     FastAPI, UploadFile, File, Form, HTTPException,
@@ -112,12 +136,15 @@ def _background_seed():
             if preview and preview != "No preview available.":
                 topic_engine.add_document(text=preview, source=doc.filename, subsidiary=doc.subsidiary)
         db.close()
+        _neon_log("SEED", "Background seeding finished successfully")
     except Exception as e:
+        _neon_log("SEED_ERR", f"Background seed warning: {e}")
         print(f"[Startup Background Warning] {e}")
 
 
 @app.on_event("startup")
 def on_startup():
+    _neon_log("STARTUP", f"FastAPI on_startup triggered on port {os.getenv('PORT')}")
     threading.Thread(target=_background_seed, daemon=True).start()
 
 
