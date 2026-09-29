@@ -30,34 +30,36 @@ def _conn():
     return psycopg2.connect(url)
 
 
+_table_checked = False
+
 def _ensure_table():
     """Create pgvector table on first use."""
+    global _table_checked
+    if _table_checked:
+        return
     url = os.getenv("DATABASE_URL", "").strip()
     if not url or "postgre" not in url:
         return
-    with _conn() as conn:
-        with conn.cursor() as cur:
-            cur.execute("CREATE EXTENSION IF NOT EXISTS vector;")
-            cur.execute("""
-                CREATE TABLE IF NOT EXISTS document_chunks (
-                    id          TEXT PRIMARY KEY,
-                    text        TEXT        NOT NULL,
-                    source      TEXT        NOT NULL,
-                    subsidiary  TEXT        DEFAULT 'General',
-                    page        INTEGER     DEFAULT 1,
-                    embedding   vector(768)
-                );
-            """)
-            cur.execute("CREATE INDEX IF NOT EXISTS idx_chunks_source     ON document_chunks (source);")
-            cur.execute("CREATE INDEX IF NOT EXISTS idx_chunks_subsidiary ON document_chunks (subsidiary);")
-        conn.commit()
-
-
-# Run once at import time
-try:
-    _ensure_table()
-except Exception as e:
-    print(f"[VectorStore] Table init warning: {e}")
+    try:
+        with _conn() as conn:
+            with conn.cursor() as cur:
+                cur.execute("CREATE EXTENSION IF NOT EXISTS vector;")
+                cur.execute("""
+                    CREATE TABLE IF NOT EXISTS document_chunks (
+                        id          TEXT PRIMARY KEY,
+                        text        TEXT        NOT NULL,
+                        source      TEXT        NOT NULL,
+                        subsidiary  TEXT        DEFAULT 'General',
+                        page        INTEGER     DEFAULT 1,
+                        embedding   vector(768)
+                    );
+                """)
+                cur.execute("CREATE INDEX IF NOT EXISTS idx_chunks_source     ON document_chunks (source);")
+                cur.execute("CREATE INDEX IF NOT EXISTS idx_chunks_subsidiary ON document_chunks (subsidiary);")
+            conn.commit()
+        _table_checked = True
+    except Exception as e:
+        print(f"[VectorStore] Table init warning: {e}")
 
 
 # ── Write ─────────────────────────────────────────────────────────────────────
@@ -68,6 +70,7 @@ def add_chunks(chunks: List[Dict], subsidiary: str = "General") -> int:
     Skips chunks whose IDs already exist.
     Returns number of newly inserted chunks.
     """
+    _ensure_table()
     from rag.embedder import embed_texts
     if not chunks:
         return 0

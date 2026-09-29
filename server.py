@@ -83,10 +83,10 @@ DOC_CATEGORIES = [
 # In-memory per-server chat session (resets on server restart)
 _chat_memory = ConversationMemory(max_history=8)
 
+import threading
 
-@app.on_event("startup")
-def on_startup():
-    """Create DB tables and seed default accounts on first run."""
+def _background_seed():
+    """Create DB tables and seed default accounts in background."""
     try:
         init_db()
         from db.connection import SessionLocal
@@ -113,7 +113,12 @@ def on_startup():
                 topic_engine.add_document(text=preview, source=doc.filename, subsidiary=doc.subsidiary)
         db.close()
     except Exception as e:
-        print(f"[Startup Warning] {e}")
+        print(f"[Startup Background Warning] {e}")
+
+
+@app.on_event("startup")
+def on_startup():
+    threading.Thread(target=_background_seed, daemon=True).start()
 
 
 # ══════════════════════════════════════════════════════════════════════════════
