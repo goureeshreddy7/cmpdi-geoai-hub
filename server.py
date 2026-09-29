@@ -595,8 +595,9 @@ async def get_templates():
 
 if __name__ == "__main__":
     import uvicorn
+    port = int(os.environ.get("PORT", 8000))
     print("=" * 60)
     print("  CMPDI GeoAI Hub v3.0  |  SIH 2024  |  Problem ID: 26023")
-    print("  http://localhost:8000")
+    print(f"  Starting server on port {port}...")
     print("=" * 60)
-    uvicorn.run("server:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run(app, host="0.0.0.0", port=port)
