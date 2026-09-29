@@ -1,9 +1,9 @@
 """
 embedder.py
-Generates vector embeddings using Google Gemini's text-embedding API.
-- Zero local RAM usage (API call, no model loaded)
-- Uses text-embedding-004 model (768-dim, production quality)
-- Batch support for efficient indexing
+Generates vector embeddings using Google Gemini's embedding API.
+- Zero local RAM usage (API call, no model loaded into server memory)
+- Uses gemini-embedding-001 model with output_dimensionality=768
+- Supports batch embedding
 """
 
 import os
@@ -12,7 +12,7 @@ from typing import List
 from google import genai
 from google.genai import types
 
-EMBEDDING_MODEL = "text-embedding-004"
+EMBEDDING_MODEL = "gemini-embedding-001"
 EMBEDDING_DIM   = 768
 
 _client = None
@@ -21,7 +21,8 @@ _client = None
 def _get_client():
     global _client
     if _client is None:
-        api_key = os.getenv("GEMINI_API_KEY", "").strip()
+        from rag.gemini_client import get_api_key
+        api_key = get_api_key()
         if not api_key:
             raise ValueError("GEMINI_API_KEY not set.")
         _client = genai.Client(api_key=api_key)
@@ -30,12 +31,12 @@ def _get_client():
 
 def embed_texts(texts: List[str]) -> List[List[float]]:
     """
-    Embed a list of texts using Gemini text-embedding-004.
-    Batches automatically to respect API limits.
+    Embed a list of texts using Gemini gemini-embedding-001 (768 dim).
+    Batches automatically.
     """
     client = _get_client()
     results = []
-    batch_size = 20  # Gemini allows up to 100, keep conservative
+    batch_size = 20
 
     for i in range(0, len(texts), batch_size):
         batch = texts[i: i + batch_size]
@@ -46,6 +47,7 @@ def embed_texts(texts: List[str]) -> List[List[float]]:
                     contents=batch,
                     config=types.EmbedContentConfig(
                         task_type="RETRIEVAL_DOCUMENT",
+                        output_dimensionality=EMBEDDING_DIM,
                     ),
                 )
                 for emb in response.embeddings:
@@ -62,8 +64,7 @@ def embed_texts(texts: List[str]) -> List[List[float]]:
 
 def embed_query(query: str) -> List[float]:
     """
-    Embed a single query string using Gemini text-embedding-004.
-    Uses RETRIEVAL_QUERY task type for better search accuracy.
+    Embed a single query string using Gemini gemini-embedding-001 (768 dim).
     """
     client = _get_client()
     for attempt in range(3):
@@ -73,6 +74,7 @@ def embed_query(query: str) -> List[float]:
                 contents=[query],
                 config=types.EmbedContentConfig(
                     task_type="RETRIEVAL_QUERY",
+                    output_dimensionality=EMBEDDING_DIM,
                 ),
             )
             return response.embeddings[0].values

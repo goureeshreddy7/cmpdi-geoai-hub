@@ -1,180 +1,257 @@
 """
 vector_store.py
-Manages ChromaDB — supports subsidiary tagging and filtered search.
+================
+Vector store using PostgreSQL + pgvector (Neon cloud).
+Replaces ChromaDB entirely — zero local RAM for vector indexing.
+All embeddings stored in Neon database.
 """
 
-import chromadb
+import os
+from pathlib import Path
 from typing import List, Dict, Optional
-from rag.embedder import embed_texts, embed_query
+import psycopg2
+from psycopg2.extras import execute_values
 
-CHROMA_DB_PATH = "./chroma_db"
-COLLECTION_NAME = "pdf_chunks"
+# ── Load .env if present ───────────────────────────────────────────────────────
+_env_path = Path(__file__).parent.parent / ".env"
+if _env_path.exists():
+    for line in _env_path.read_text().splitlines():
+        line = line.strip()
+        if line and not line.startswith("#") and "=" in line:
+            k, v = line.split("=", 1)
+            os.environ.setdefault(k.strip(), v.strip())
 
-_client = None
-_collection = None
+# ── Connection ────────────────────────────────────────────────────────────────
+
+def _conn():
+    url = os.getenv("DATABASE_URL", "").strip()
+    if not url:
+        raise RuntimeError("DATABASE_URL is not set.")
+    return psycopg2.connect(url)
 
 
-def _get_collection():
-    global _client, _collection
-    if _client is None:
-        _client = chromadb.PersistentClient(path=CHROMA_DB_PATH)
-    if _collection is None:
-        _collection = _client.get_or_create_collection(
-            name=COLLECTION_NAME,
-            metadata={"hnsw:space": "cosine", "hnsw:M": 16},
-        )
-    return _collection
+def _ensure_table():
+    """Create pgvector table on first use."""
+    url = os.getenv("DATABASE_URL", "").strip()
+    if not url or "postgre" not in url:
+        return
+    with _conn() as conn:
+        with conn.cursor() as cur:
+            cur.execute("CREATE EXTENSION IF NOT EXISTS vector;")
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS document_chunks (
+                    id          TEXT PRIMARY KEY,
+                    text        TEXT        NOT NULL,
+                    source      TEXT        NOT NULL,
+                    subsidiary  TEXT        DEFAULT 'General',
+                    page        INTEGER     DEFAULT 1,
+                    embedding   vector(768)
+                );
+            """)
+            cur.execute("CREATE INDEX IF NOT EXISTS idx_chunks_source     ON document_chunks (source);")
+            cur.execute("CREATE INDEX IF NOT EXISTS idx_chunks_subsidiary ON document_chunks (subsidiary);")
+        conn.commit()
 
+
+# Run once at import time
+try:
+    _ensure_table()
+except Exception as e:
+    print(f"[VectorStore] Table init warning: {e}")
+
+
+# ── Write ─────────────────────────────────────────────────────────────────────
 
 def add_chunks(chunks: List[Dict], subsidiary: str = "General") -> int:
-    """Embed and store chunks with subsidiary metadata."""
-    collection = _get_collection()
-
-    texts = [c["text"] for c in chunks]
-    ids = [c["chunk_id"] for c in chunks]
-    metadatas = [{
-        "page": c["page"],
-        "source": c["source"],
-        "subsidiary": subsidiary,
-    } for c in chunks]
-
-    existing = set(collection.get(ids=ids)["ids"])
-    new_chunks = [(t, i, m) for t, i, m in zip(texts, ids, metadatas) if i not in existing]
-
-    if not new_chunks:
+    """
+    Insert new chunks with their embeddings into Neon pgvector.
+    Skips chunks whose IDs already exist.
+    Returns number of newly inserted chunks.
+    """
+    from rag.embedder import embed_texts
+    if not chunks:
         return 0
 
-    new_texts, new_ids, new_metadatas = zip(*new_chunks)
+    texts = [c["text"] for c in chunks]
+    ids   = [c["chunk_id"] for c in chunks]
+
+    # Check existing IDs
+    with _conn() as conn:
+        with conn.cursor() as cur:
+            cur.execute("SELECT id FROM document_chunks WHERE id = ANY(%s);", (ids,))
+            existing = {row[0] for row in cur.fetchall()}
+
+    new = [(c, i) for c, i in zip(chunks, ids) if i not in existing]
+    if not new:
+        return 0
+
+    new_chunks, new_ids = zip(*new)
+    new_texts = [c["text"] for c in new_chunks]
     embeddings = embed_texts(list(new_texts))
-    collection.add(
-        documents=list(new_texts),
-        embeddings=embeddings,
-        ids=list(new_ids),
-        metadatas=list(new_metadatas),
-    )
-    return len(new_ids)
+
+    rows = [
+        (
+            c["chunk_id"],
+            c["text"],
+            c["source"],
+            subsidiary,
+            c["page"],
+            f"[{','.join(str(v) for v in emb)}]",
+        )
+        for c, emb in zip(new_chunks, embeddings)
+    ]
+
+    with _conn() as conn:
+        with conn.cursor() as cur:
+            execute_values(cur, """
+                INSERT INTO document_chunks (id, text, source, subsidiary, page, embedding)
+                VALUES %s
+                ON CONFLICT (id) DO NOTHING;
+            """, rows)
+        conn.commit()
+
+    return len(rows)
 
 
-def similarity_search(query: str, top_k: int = 5, subsidiary: Optional[str] = None) -> List[Dict]:
-    """Find relevant chunks. Optionally filter by subsidiary."""
-    collection = _get_collection()
-    if collection.count() == 0:
-        return []
+# ── Search ────────────────────────────────────────────────────────────────────
 
-    query_embedding = embed_query(query)
+def similarity_search(
+    query: str,
+    top_k: int = 5,
+    subsidiary: Optional[str] = None,
+) -> List[Dict]:
+    """
+    Find top-k most relevant chunks using cosine similarity.
+    Optionally filter by subsidiary.
+    Returns list of {text, source, page, subsidiary, score}.
+    """
+    from rag.embedder import embed_query
+    q_emb = embed_query(query)
+    vec_str = f"[{','.join(str(v) for v in q_emb)}]"
 
-    where = {"subsidiary": subsidiary} if subsidiary and subsidiary != "All" else None
+    where = ""
+    params: list = [vec_str, vec_str, top_k]
+    if subsidiary and subsidiary.lower() not in ("all", "all subsidiaries", ""):
+        where = "WHERE subsidiary = %s"
+        params = [vec_str, vec_str, subsidiary, top_k]
+
+    sql = f"""
+        SELECT text, source, page, subsidiary,
+               1 - (embedding <=> %s::vector) AS score
+        FROM   document_chunks
+        {where}
+        ORDER  BY embedding <=> %s::vector
+        LIMIT  %s;
+    """
+
+    # Rebuild params correctly
+    if subsidiary and subsidiary.lower() not in ("all", "all subsidiaries", ""):
+        sql = """
+            SELECT text, source, page, subsidiary,
+                   1 - (embedding <=> %s::vector) AS score
+            FROM   document_chunks
+            WHERE  subsidiary = %s
+            ORDER  BY embedding <=> %s::vector
+            LIMIT  %s;
+        """
+        params = [vec_str, subsidiary, vec_str, top_k]
+    else:
+        sql = """
+            SELECT text, source, page, subsidiary,
+                   1 - (embedding <=> %s::vector) AS score
+            FROM   document_chunks
+            ORDER  BY embedding <=> %s::vector
+            LIMIT  %s;
+        """
+        params = [vec_str, vec_str, top_k]
 
     try:
-        results = collection.query(
-            query_embeddings=[query_embedding],
-            n_results=min(top_k, collection.count()),
-            include=["documents", "metadatas", "distances"],
-            where=where,
-        )
-    except Exception:
-        results = collection.query(
-            query_embeddings=[query_embedding],
-            n_results=min(top_k, collection.count()),
-            include=["documents", "metadatas", "distances"],
-        )
+        with _conn() as conn:
+            with conn.cursor() as cur:
+                cur.execute(sql, params)
+                rows = cur.fetchall()
+        return [
+            {"text": r[0], "source": r[1], "page": r[2],
+             "subsidiary": r[3], "score": round(float(r[4]), 4)}
+            for r in rows
+        ]
+    except Exception as e:
+        print(f"[VectorStore] Search error: {e}")
+        return []
 
-    output = []
-    for doc, meta, dist in zip(
-        results["documents"][0],
-        results["metadatas"][0],
-        results["distances"][0],
-    ):
-        output.append({
-            "text": doc,
-            "source": meta.get("source", "Unknown"),
-            "page": meta.get("page", "?"),
-            "subsidiary": meta.get("subsidiary", "General"),
-            "score": round(1 - dist, 4),
-        })
-    return output
 
+# ── Read helpers ──────────────────────────────────────────────────────────────
 
 def get_indexed_sources() -> List[str]:
-    """Return unique source filenames."""
-    collection = _get_collection()
-    if collection.count() == 0:
-        return []
-    results = collection.get(include=["metadatas"])
-    return sorted({m["source"] for m in results["metadatas"]})
+    with _conn() as conn:
+        with conn.cursor() as cur:
+            cur.execute("SELECT DISTINCT source FROM document_chunks ORDER BY source;")
+            return [r[0] for r in cur.fetchall()]
 
 
 def get_all_documents() -> List[Dict]:
-    """Return all documents with metadata (source, subsidiary, page count)."""
-    collection = _get_collection()
-    if collection.count() == 0:
-        return []
-    results = collection.get(include=["metadatas", "documents"])
-    seen = {}
-    for meta, doc in zip(results["metadatas"], results["documents"]):
-        src = meta.get("source", "Unknown")
-        if src not in seen:
-            seen[src] = {
-                "source": src,
-                "subsidiary": meta.get("subsidiary", "General"),
-                "chunks": 0,
-                "preview": doc[:300],
-            }
-        seen[src]["chunks"] += 1
-    return list(seen.values())
+    with _conn() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT source, subsidiary, COUNT(*) as chunks, MIN(text) as preview
+                FROM   document_chunks
+                GROUP  BY source, subsidiary
+                ORDER  BY source;
+            """)
+            return [
+                {"source": r[0], "subsidiary": r[1],
+                 "chunks": r[2], "preview": (r[3] or "")[:300]}
+                for r in cur.fetchall()
+            ]
 
 
 def get_stats_by_subsidiary() -> Dict:
-    """Return chunk count broken down by subsidiary."""
-    collection = _get_collection()
-    if collection.count() == 0:
-        return {}
-    results = collection.get(include=["metadatas"])
-    stats = {}
-    for meta in results["metadatas"]:
-        sub = meta.get("subsidiary", "General")
-        stats[sub] = stats.get(sub, 0) + 1
-    return stats
+    with _conn() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT subsidiary, COUNT(*) FROM document_chunks GROUP BY subsidiary;
+            """)
+            return {r[0]: r[1] for r in cur.fetchall()}
 
 
 def get_document_preview(source: str) -> str:
-    """Get first ~1000 chars of text from a document."""
-    collection = _get_collection()
-    results = collection.get(include=["metadatas", "documents"])
-    chunks = [
-        doc for meta, doc in zip(results["metadatas"], results["documents"])
-        if meta.get("source") == source
-    ]
-    return " ".join(chunks[:3])[:1500] if chunks else "No preview available."
+    with _conn() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT text FROM document_chunks
+                WHERE source = %s ORDER BY page LIMIT 3;
+            """, (source,))
+            rows = cur.fetchall()
+    return " ".join(r[0] for r in rows)[:1500] if rows else "No preview available."
+
+
+def get_collection_stats() -> Dict:
+    try:
+        with _conn() as conn:
+            with conn.cursor() as cur:
+                cur.execute("SELECT COUNT(*) FROM document_chunks;")
+                return {"total": cur.fetchone()[0]}
+    except Exception:
+        return {"total": 0}
+
+
+def delete_source(source_name: str):
+    with _conn() as conn:
+        with conn.cursor() as cur:
+            cur.execute("DELETE FROM document_chunks WHERE source = %s;", (source_name,))
+        conn.commit()
 
 
 def clear_collection():
-    """Delete entire collection."""
-    global _collection
-    c = chromadb.PersistentClient(path=CHROMA_DB_PATH)
-    c.delete_collection(COLLECTION_NAME)
-    _collection = None
+    with _conn() as conn:
+        with conn.cursor() as cur:
+            cur.execute("DELETE FROM document_chunks;")
+        conn.commit()
 
 
-# ── Aliases ────────────────────────────────────────────────────────────────────
+# ── Aliases ───────────────────────────────────────────────────────────────────
 def list_sources() -> List[str]:
     return get_indexed_sources()
 
 def index_chunks(chunks: List[Dict], source: str = "", subsidiary: str = "General") -> int:
     return add_chunks(chunks, subsidiary=subsidiary)
-
-def get_collection_stats() -> dict:
-    try:
-        return {"total": _get_collection().count()}
-    except Exception:
-        return {"total": 0}
-
-def delete_source(source_name: str):
-    collection = _get_collection()
-    results = collection.get(include=["metadatas"])
-    ids_to_delete = [
-        id_ for id_, meta in zip(results["ids"], results["metadatas"])
-        if meta.get("source") == source_name
-    ]
-    if ids_to_delete:
-        collection.delete(ids=ids_to_delete)
