@@ -52,6 +52,11 @@
             transform: translateY(0) scale(1);
         }
 
+        /* Role-based display classes */
+        body.role-admin .user-nav { display: none !important; }
+        body.role-user .admin-nav { display: none !important; }
+        body.role-user .admin-action { display: none !important; }
+
         /* Sidebar Navigation Item Physics & Transitions */
         .nav-btn {
             transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -106,53 +111,140 @@
         .group:hover .nav-tooltip {
             transform: translateX(0) scale(1);
         }
+
+        /* Login view transitions */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* Source Verification Highlights */
+        .pdf-highlight {
+            background-color: rgba(251, 146, 60, 0.3);
+            border-bottom: 2px solid #fb923c;
+            padding: 0 2px;
+            border-radius: 2px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .pdf-highlight:hover {
+            background-color: rgba(251, 146, 60, 0.5);
+        }
     </style>
 </head>
-<body class="bg-[#f3f4f6] text-gray-800 h-screen overflow-hidden p-2 sm:p-4 lg:p-6 flex items-center justify-center select-none">
+<body class="bg-[#f3f4f6] text-gray-800 h-screen overflow-hidden p-2 sm:p-4 lg:p-6 flex items-center justify-center select-none role-admin">
 
     <!-- ================= LOGIN / AUTH MODAL OVERLAY ================= -->
-    <div id="auth-modal" class="fixed inset-0 z-50 bg-[#111111]/85 backdrop-blur-md flex items-center justify-center p-4 transition-all duration-300">
-        <div class="bg-white w-full max-w-md rounded-[2.5rem] p-8 sm:p-10 shadow-2xl relative overflow-hidden border border-gray-100 transform transition-all">
+    <div id="auth-modal" class="fixed inset-0 z-[100] bg-[#111111]/85 backdrop-blur-md flex items-center justify-center p-4 transition-all duration-300">
+        <div class="bg-white w-full max-w-md rounded-[2.5rem] p-8 sm:p-10 shadow-2xl relative overflow-hidden border border-gray-100 transform transition-all min-h-[460px] flex flex-col">
             <!-- Background Glow Blobs -->
             <div class="absolute -top-16 -right-16 w-48 h-48 bg-[#eefcce] rounded-full blur-2xl opacity-70 pointer-events-none"></div>
             <div class="absolute -bottom-16 -left-16 w-48 h-48 bg-[#ffebd6] rounded-full blur-2xl opacity-70 pointer-events-none"></div>
 
-            <div class="relative z-10">
-                <div class="w-14 h-14 bg-[#111111] rounded-2xl flex items-center justify-center mb-6 shadow-xl border border-gray-800">
+            <!-- VIEW 1: ROLE SELECTION -->
+            <div id="view-role-select" class="relative z-10 flex-1 flex flex-col animate-fade-in">
+                <div class="w-14 h-14 bg-[#111111] rounded-2xl flex items-center justify-center mb-6 shadow-xl border border-gray-800 transition-transform hover:scale-105">
                     <div class="w-6 h-6 bg-[#a3e635] rotate-45 rounded-xs"></div>
                 </div>
                 <h2 class="text-2xl sm:text-3xl font-extrabold text-[#111111] mb-2 tracking-tight">CMPDI GeoAI Portal</h2>
-                <p class="text-xs sm:text-sm font-medium text-gray-500 mb-8 leading-relaxed">Sign in with institutional passkey to access secure geospatial mining intelligence.</p>
+                <p class="text-xs sm:text-sm font-medium text-gray-500 mb-8 leading-relaxed">Select your secure access tier to enter the geospatial intelligence hub.</p>
 
-                <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-gray-600 mb-2 pl-1">Institutional ID / Email</label>
-                        <div class="relative flex items-center">
-                            <i data-lucide="user" class="w-4 h-4 text-gray-400 absolute left-4"></i>
-                            <input type="text" id="login-email" required value="admin.cmpdi@gov.in" class="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl text-xs font-semibold text-[#111111] focus:ring-2 focus:ring-[#a3e635] focus:bg-white outline-none transition-all">
+                <!-- Interactive Role Selection Boxes -->
+                <div class="grid grid-cols-2 gap-4 flex-1">
+                    <!-- Admin Box -->
+                    <div onclick="openLoginForm('admin')" class="group cursor-pointer bg-white border-2 border-gray-100 hover:border-[#a3e635] rounded-[1.5rem] p-6 transition-all duration-300 hover:shadow-[0_15px_35px_-5px_rgba(163,230,53,0.35)] hover:-translate-y-2 flex flex-col items-center justify-center text-center relative overflow-hidden h-[160px]">
+                        <div class="absolute inset-0 bg-gradient-to-br from-[#eefcce]/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <div class="w-14 h-14 bg-gray-50 border border-gray-100 text-gray-400 group-hover:bg-[#111111] group-hover:text-[#a3e635] group-hover:border-[#111111] rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-all duration-300 relative z-10 shadow-sm group-hover:shadow-md">
+                            <i data-lucide="shield-check" class="w-7 h-7"></i>
                         </div>
+                        <h3 class="font-black text-gray-800 group-hover:text-gray-900 text-[13px] mb-1.5 relative z-10 transition-colors">Administrator</h3>
+                        <p class="text-[9px] uppercase tracking-wider text-gray-400 group-hover:text-[#84cc16] font-extrabold relative z-10 transition-colors">Full Analytics</p>
                     </div>
-                    <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-gray-600 mb-2 pl-1">Secure Passkey</label>
-                        <div class="relative flex items-center">
-                            <i data-lucide="lock" class="w-4 h-4 text-gray-400 absolute left-4"></i>
-                            <input type="password" id="login-pass" required value="password123" class="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl text-xs font-semibold text-[#111111] focus:ring-2 focus:ring-[#a3e635] focus:bg-white outline-none transition-all">
+
+                    <!-- User Box -->
+                    <div onclick="openLoginForm('user')" class="group cursor-pointer bg-white border-2 border-gray-100 hover:border-[#fb923c] rounded-[1.5rem] p-6 transition-all duration-300 hover:shadow-[0_15px_35px_-5px_rgba(251,146,60,0.3)] hover:-translate-y-2 flex flex-col items-center justify-center text-center relative overflow-hidden h-[160px]">
+                        <div class="absolute inset-0 bg-gradient-to-br from-[#ffebd6]/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <div class="w-14 h-14 bg-gray-50 border border-gray-100 text-gray-400 group-hover:bg-[#ea580c] group-hover:text-white group-hover:border-[#ea580c] rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-all duration-300 relative z-10 shadow-sm group-hover:shadow-md">
+                            <i data-lucide="users" class="w-7 h-7"></i>
                         </div>
+                        <h3 class="font-black text-gray-800 group-hover:text-gray-900 text-[13px] mb-1.5 relative z-10 transition-colors">Verified User</h3>
+                        <p class="text-[9px] uppercase tracking-wider text-gray-400 group-hover:text-[#ea580c] font-extrabold relative z-10 transition-colors">Data Entry</p>
                     </div>
-                    <div class="flex items-center justify-between text-xs font-semibold pt-1">
-                        <label class="flex items-center gap-2 cursor-pointer text-gray-600 hover:text-gray-900 transition-colors">
-                            <input type="checkbox" checked class="rounded accent-[#111111] w-4 h-4"> Remember session
-                        </label>
-                        <a href="#" class="text-[#111111] hover:underline font-bold">Forgot passkey?</a>
-                    </div>
-                    <button type="submit" class="w-full mt-2 py-4 bg-[#111111] text-[#a3e635] rounded-2xl font-extrabold text-sm shadow-xl hover:bg-black hover:scale-[1.01] active:scale-95 transition-all flex items-center justify-center gap-2">
-                        <span>Access Secure Hub</span> <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                    </button>
-                </form>
-                <div class="mt-6 text-center">
-                    <p class="text-[11px] text-gray-400 font-semibold tracking-wide">Restricted Access • Ministry of Coal, Govt. of India</p>
+                </div>
+
+                <div class="mt-8 text-center pt-4 border-t border-gray-100/80">
+                    <p class="text-[10px] text-gray-400 font-bold tracking-widest uppercase">Restricted Access • Ministry of Coal</p>
                 </div>
             </div>
+
+            <!-- VIEW 2: LOGIN FORM -->
+            <div id="view-login-form" class="hidden relative z-10 flex-1 flex-col animate-fade-in">
+                <button onclick="goBackToRoles()" class="absolute -top-2 -left-2 w-10 h-10 flex items-center justify-center rounded-full bg-gray-50 hover:bg-gray-200 text-gray-600 transition-colors z-20">
+                    <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                </button>
+                
+                <div class="text-center mt-1 mb-8">
+                    <div id="login-role-icon" class="w-12 h-12 mx-auto bg-[#111111] text-[#a3e635] rounded-2xl flex items-center justify-center mb-4 shadow-lg border border-gray-800">
+                        <i data-lucide="shield-check" class="w-6 h-6"></i>
+                    </div>
+                    <h2 class="text-2xl font-extrabold text-[#111111] tracking-tight mb-1">Welcome Back</h2>
+                    <p id="login-role-text" class="text-xs font-semibold text-gray-500">Sign in to Administrator Portal</p>
+                </div>
+
+                <form id="actual-login-form" onsubmit="processActualLogin(event)" class="space-y-4 flex-1">
+                    <div>
+                        <label class="block text-[10px] font-extrabold uppercase tracking-wider text-gray-600 mb-1.5 pl-1">Institutional Email</label>
+                        <div class="relative flex items-center">
+                            <i data-lucide="mail" class="w-4 h-4 text-gray-400 absolute left-4"></i>
+                            <input type="email" id="auth-email" required placeholder="name@cmpdi.gov.in" class="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl text-xs font-bold text-[#111111] focus:ring-2 focus:ring-[#a3e635] focus:bg-white outline-none transition-all shadow-2xs">
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between mb-1.5 pl-1 pr-1">
+                            <label class="block text-[10px] font-extrabold uppercase tracking-wider text-gray-600">Secure Passkey</label>
+                            <a href="#" class="text-[10px] font-bold text-gray-500 hover:text-[#111111]">Forgot?</a>
+                        </div>
+                        <div class="relative flex items-center">
+                            <i data-lucide="lock" class="w-4 h-4 text-gray-400 absolute left-4"></i>
+                            <input type="password" id="auth-password" required value="securepassword123" placeholder="••••••••" class="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl text-xs font-bold text-[#111111] focus:ring-2 focus:ring-[#a3e635] focus:bg-white outline-none transition-all shadow-2xs">
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="w-full mt-2 py-3.5 bg-[#111111] text-[#a3e635] rounded-2xl font-black text-sm shadow-xl hover:bg-black hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2">
+                        <span>Sign In Securely</span> <i data-lucide="log-in" class="w-4 h-4"></i>
+                    </button>
+                    
+                    <div class="flex items-center my-4">
+                        <hr class="flex-1 border-gray-200">
+                        <span class="px-3 text-[9px] font-black text-gray-400 uppercase tracking-widest">Or authenticate with</span>
+                        <hr class="flex-1 border-gray-200">
+                    </div>
+                    
+                    <button type="button" onclick="processGoogleLogin()" class="w-full py-3 bg-white border border-gray-200 rounded-2xl font-extrabold text-xs text-gray-700 shadow-sm hover:bg-gray-50 hover:shadow-md transition-all flex items-center justify-center gap-3">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.16v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.16C1.43 8.55 1 10.22 1 12s.43 3.45 1.16 4.93l2.85-2.22.83-.62z" fill="#FBBC05"/>
+                            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.16 7.07l3.68 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                        </svg>
+                        Google Workspace Node
+                    </button>
+                </form>
+            </div>
+
+            <!-- Loading State (Overlay within modal) -->
+            <div id="login-loading" class="hidden absolute inset-0 z-50 bg-white/90 backdrop-blur-sm flex-col items-center justify-center transition-all duration-300 rounded-[2.5rem]">
+                <div class="relative w-16 h-16 mb-5">
+                    <div class="absolute inset-0 border-4 border-gray-100 rounded-full"></div>
+                    <div id="loading-spinner-ring" class="absolute inset-0 border-4 border-transparent border-t-[#a3e635] rounded-full animate-spin"></div>
+                </div>
+                <p class="text-sm font-black text-gray-800 animate-pulse tracking-wide">Authenticating Secure Node...</p>
+                <p class="text-[10px] text-gray-400 font-bold mt-2 uppercase tracking-widest" id="loading-role-text">Connecting</p>
+            </div>
+
         </div>
     </div>
 
@@ -170,7 +262,7 @@
         <aside id="sidebar" class="absolute lg:relative z-50 h-full w-20 lg:w-24 bg-[#111111] text-white flex flex-col items-center py-6 lg:py-8 rounded-r-[2.5rem] lg:rounded-none transform transition-transform duration-300 ease-out -translate-x-full lg:translate-x-0 shadow-2xl shrink-0">
             
             <!-- Logo Button -->
-            <a href="#dashboard" class="w-12 h-12 lg:w-14 lg:h-14 bg-white rounded-2xl flex items-center justify-center mb-8 shrink-0 relative overflow-hidden group cursor-pointer transition-transform hover:scale-105 shadow-lg border border-white/20">
+            <a href="#" class="w-12 h-12 lg:w-14 lg:h-14 bg-white rounded-2xl flex items-center justify-center mb-8 shrink-0 relative overflow-hidden group cursor-pointer transition-transform hover:scale-105 shadow-lg border border-white/20">
                 <div class="w-5 h-5 lg:w-6 lg:h-6 bg-[#111111] transform rotate-45 relative z-10 group-hover:scale-110 transition-transform flex items-center justify-center">
                     <div class="w-2 h-2 bg-[#a3e635] rounded-xs"></div>
                 </div>
@@ -181,39 +273,49 @@
             <!-- Sidebar Feature Action Items -->
             <nav class="flex-1 flex flex-col items-center gap-5 w-full relative px-2">
                 
-                <!-- Dashboard Feature Link -->
-                <a href="#dashboard" class="nav-btn w-12 h-12 lg:w-14 lg:h-14 rounded-2xl flex items-center justify-center relative z-10 group text-gray-400 hover:text-white hover:scale-105" id="nav-dashboard">
+                <!-- ADMIN LINKS -->
+                <a href="#dashboard" class="nav-btn admin-nav w-12 h-12 lg:w-14 lg:h-14 rounded-2xl flex items-center justify-center relative z-10 group text-gray-400 hover:text-white hover:scale-105" id="nav-dashboard">
                     <i data-lucide="home" class="w-6 h-6 stroke-[2.2]"></i>
                     <span class="active-indicator absolute left-1 top-3.5 w-1.5 h-7 bg-[#a3e635] rounded-r-full shadow-[0_0_8px_#a3e635]"></span>
-                    <span class="nav-tooltip absolute left-20 bg-white text-[#111111] text-xs px-3 py-2 rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all whitespace-nowrap z-50 shadow-xl font-bold hidden lg:block border border-gray-100">Dashboard</span>
+                    <span class="nav-tooltip absolute left-20 bg-white text-[#111111] text-xs px-3 py-2 rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all whitespace-nowrap z-[60] shadow-xl font-bold hidden lg:block border border-gray-100">Dashboard</span>
                 </a>
                 
-                <!-- Reports Feature Link -->
-                <a href="#reports" class="nav-btn w-12 h-12 lg:w-14 lg:h-14 rounded-2xl flex items-center justify-center relative z-10 group text-gray-400 hover:text-white hover:scale-105" id="nav-reports">
+                <a href="#reports" class="nav-btn admin-nav w-12 h-12 lg:w-14 lg:h-14 rounded-2xl flex items-center justify-center relative z-10 group text-gray-400 hover:text-white hover:scale-105" id="nav-reports">
                     <i data-lucide="folder" class="w-6 h-6 stroke-[2.2]"></i>
                     <span class="active-indicator absolute left-1 top-3.5 w-1.5 h-7 bg-[#a3e635] rounded-r-full shadow-[0_0_8px_#a3e635]"></span>
-                    <span class="nav-tooltip absolute left-20 bg-white text-[#111111] text-xs px-3 py-2 rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all whitespace-nowrap z-50 shadow-xl font-bold hidden lg:block border border-gray-100">Reports</span>
+                    <span class="nav-tooltip absolute left-20 bg-white text-[#111111] text-xs px-3 py-2 rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all whitespace-nowrap z-[60] shadow-xl font-bold hidden lg:block border border-gray-100">Reports</span>
                 </a>
 
-                <!-- Insights Feature Link -->
-                <a href="#insights" class="nav-btn w-12 h-12 lg:w-14 lg:h-14 rounded-2xl flex items-center justify-center relative z-10 group text-gray-400 hover:text-white hover:scale-105" id="nav-insights">
+                <a href="#insights" class="nav-btn admin-nav w-12 h-12 lg:w-14 lg:h-14 rounded-2xl flex items-center justify-center relative z-10 group text-gray-400 hover:text-white hover:scale-105" id="nav-insights">
                     <i data-lucide="sparkles" class="w-6 h-6 stroke-[2.2]"></i>
                     <span class="active-indicator absolute left-1 top-3.5 w-1.5 h-7 bg-[#a3e635] rounded-r-full shadow-[0_0_8px_#a3e635]"></span>
-                    <span class="nav-tooltip absolute left-20 bg-white text-[#111111] text-xs px-3 py-2 rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all whitespace-nowrap z-50 shadow-xl font-bold hidden lg:block border border-gray-100">Insights</span>
+                    <span class="nav-tooltip absolute left-20 bg-white text-[#111111] text-xs px-3 py-2 rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all whitespace-nowrap z-[60] shadow-xl font-bold hidden lg:block border border-gray-100">Insights</span>
                 </a>
 
-                <!-- GeoAI Query Link -->
-                <a href="#query" class="nav-btn w-12 h-12 lg:w-14 lg:h-14 rounded-2xl flex items-center justify-center relative z-10 group text-gray-400 hover:text-white hover:scale-105" id="nav-query">
+                <a href="#query" class="nav-btn admin-nav w-12 h-12 lg:w-14 lg:h-14 rounded-2xl flex items-center justify-center relative z-10 group text-gray-400 hover:text-white hover:scale-105" id="nav-query">
                     <i data-lucide="bot" class="w-6 h-6 stroke-[2.2]"></i>
                     <span class="active-indicator absolute left-1 top-3.5 w-1.5 h-7 bg-[#a3e635] rounded-r-full shadow-[0_0_8px_#a3e635]"></span>
-                    <span class="nav-tooltip absolute left-20 bg-white text-[#111111] text-xs px-3 py-2 rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all whitespace-nowrap z-50 shadow-xl font-bold hidden lg:block border border-gray-100">AI Query</span>
+                    <span class="nav-tooltip absolute left-20 bg-white text-[#111111] text-xs px-3 py-2 rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all whitespace-nowrap z-[60] shadow-xl font-bold hidden lg:block border border-gray-100">AI Query</span>
+                </a>
+
+                <!-- USER LINKS -->
+                <a href="#user-upload" class="nav-btn user-nav w-12 h-12 lg:w-14 lg:h-14 rounded-2xl flex items-center justify-center relative z-10 group text-gray-400 hover:text-white hover:scale-105" id="nav-user-upload">
+                    <i data-lucide="upload-cloud" class="w-6 h-6 stroke-[2.2]"></i>
+                    <span class="active-indicator absolute left-1 top-3.5 w-1.5 h-7 bg-[#a3e635] rounded-r-full shadow-[0_0_8px_#a3e635]"></span>
+                    <span class="nav-tooltip absolute left-20 bg-white text-[#111111] text-xs px-3 py-2 rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all whitespace-nowrap z-[60] shadow-xl font-bold hidden lg:block border border-gray-100">Feed AI Data</span>
+                </a>
+
+                <a href="#user-verify" class="nav-btn user-nav w-12 h-12 lg:w-14 lg:h-14 rounded-2xl flex items-center justify-center relative z-10 group text-gray-400 hover:text-white hover:scale-105" id="nav-user-verify">
+                    <i data-lucide="file-search" class="w-6 h-6 stroke-[2.2]"></i>
+                    <span class="active-indicator absolute left-1 top-3.5 w-1.5 h-7 bg-[#fb923c] rounded-r-full shadow-[0_0_8px_#fb923c]"></span>
+                    <span class="nav-tooltip absolute left-20 bg-white text-[#111111] text-xs px-3 py-2 rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all whitespace-nowrap z-[60] shadow-xl font-bold hidden lg:block border border-gray-100">Verify Reports</span>
                 </a>
             </nav>
 
             <!-- Sidebar Bottom Profile / Actions -->
             <div class="mt-auto flex flex-col items-center gap-4 w-full pb-2 shrink-0">
                 <button onclick="openProfileModal()" class="relative w-11 h-11 lg:w-12 lg:h-12 rounded-2xl bg-white text-[#111111] flex items-center justify-center hover:scale-105 transition-all shadow-md font-extrabold text-xs lg:text-sm border border-gray-100 group">
-                    <span>AD</span>
+                    <span id="sidebar-initials">AD</span>
                     <span class="absolute bottom-0.5 right-0.5 w-3 h-3 bg-[#84cc16] rounded-full border-2 border-[#111111]"></span>
                 </button>
                 <button onclick="logout()" title="Sign Out" class="w-10 h-10 rounded-xl flex items-center justify-center text-gray-500 hover:text-white hover:bg-white/10 transition-all">
@@ -240,7 +342,7 @@
                 </div>
                 
                 <div class="flex items-center gap-3 sm:gap-4">
-                    <button onclick="openAddDataModal()" class="hidden sm:flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200/90 rounded-full text-xs font-extrabold shadow-xs hover:shadow-md hover:scale-[1.02] active:scale-95 transition-all text-gray-800">
+                    <button onclick="openAddDataModal()" class="admin-action hidden sm:flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200/90 rounded-full text-xs font-extrabold shadow-xs hover:shadow-md hover:scale-[1.02] active:scale-95 transition-all text-gray-800">
                         <i data-lucide="plus-circle" class="w-4 h-4 text-[#84cc16]"></i> <span>Add Data</span>
                     </button>
 
@@ -260,7 +362,7 @@
             <div class="flex-1 overflow-y-auto px-6 lg:px-10 py-6 custom-scrollbar bg-[#f8f9fa]">
                 <div class="max-w-[1500px] mx-auto w-full">
                     
-                    <!-- ================= DASHBOARD VIEW ================= -->
+                    <!-- ================= DASHBOARD VIEW (ADMIN) ================= -->
                     <div id="page-dashboard" class="page-view flex-col space-y-6">
                         
                         <!-- Top Row Stat Cards -->
@@ -421,7 +523,7 @@
                         </div>
                     </div>
 
-                    <!-- ================= REPORTS VIEW ================= -->
+                    <!-- ================= REPORTS VIEW (ADMIN) ================= -->
                     <div id="page-reports" class="page-view flex-col space-y-6">
                         <div class="bg-[#111111] rounded-[2rem] p-8 text-white shadow-xl relative overflow-hidden border border-gray-800">
                             <div class="relative z-10">
@@ -500,7 +602,7 @@
                         </div>
                     </div>
 
-                    <!-- ================= INSIGHTS VIEW ================= -->
+                    <!-- ================= INSIGHTS VIEW (ADMIN) ================= -->
                     <div id="page-insights" class="page-view flex-col space-y-6">
                         <div class="bg-white rounded-[2rem] p-6 sm:p-8 border border-gray-200/80 card-elevate flex flex-col md:flex-row md:items-center justify-between gap-4">
                             <div>
@@ -577,7 +679,7 @@
                         </div>
                     </div>
 
-                    <!-- ================= AI QUERY VIEW ================= -->
+                    <!-- ================= AI QUERY VIEW (ADMIN) ================= -->
                     <div id="page-query" class="page-view flex-col max-w-4xl mx-auto w-full h-[580px] bg-white rounded-[2.5rem] shadow-sm border border-gray-200/80 overflow-hidden relative card-elevate">
                         <!-- Top Header inside card -->
                         <div class="p-4 sm:p-5 px-6 flex items-center justify-between border-b border-gray-200/70 bg-white/90 backdrop-blur-md z-10">
@@ -645,13 +747,222 @@
                         </div>
                     </div>
 
+
+                    <!-- ========================================================================= -->
+                    <!-- ================= NEW USER VIEWS (FILE UPLOAD & VERIFY) ================= -->
+                    <!-- ========================================================================= -->
+                    
+                    <!-- ================= UPLOAD DATA VIEW (USER) ================= -->
+                    <div id="page-user-upload" class="page-view flex-col space-y-6">
+                        <div class="bg-white rounded-[2rem] p-8 border border-gray-200/80 card-elevate">
+                            <div class="mb-6">
+                                <span class="px-3 py-1 bg-[#111111] text-white font-extrabold text-[10px] uppercase tracking-wider rounded-full inline-block mb-3">AI Data Feed</span>
+                                <h2 class="text-2xl sm:text-3xl font-black text-[#111111] tracking-tight">Upload & Index Knowledge</h2>
+                                <p class="text-gray-500 text-xs sm:text-sm font-medium mt-1">Submit geological PDFs, CSVs, or Excel logs to feed the GeoAI models securely.</p>
+                            </div>
+
+                            <div class="border-2 border-dashed border-gray-300 rounded-[2rem] p-10 flex flex-col items-center justify-center text-center bg-gray-50 hover:bg-[#eefcce]/20 hover:border-[#a3e635] transition-all cursor-pointer group mb-8">
+                                <div class="w-16 h-16 rounded-3xl bg-white border border-gray-200 flex items-center justify-center mb-4 group-hover:scale-110 group-hover:shadow-lg transition-all">
+                                    <i data-lucide="upload-cloud" class="w-8 h-8 text-[#84cc16]"></i>
+                                </div>
+                                <h3 class="text-base font-extrabold text-[#111111] mb-1">Drag & Drop Documents</h3>
+                                <p class="text-xs text-gray-500 font-semibold mb-4">Supports .PDF, .XLSX, .CSV up to 100MB</p>
+                                <button onclick="alertBox('File selector opened (simulated)')" class="px-6 py-3 bg-[#111111] text-[#a3e635] rounded-xl font-extrabold text-xs shadow-md hover:bg-black transition-all">
+                                    Browse Files
+                                </button>
+                            </div>
+
+                            <div>
+                                <h4 class="font-black text-sm text-[#111111] mb-4">Recent Indexing Queue</h4>
+                                <div class="space-y-3">
+                                    <div class="flex items-center justify-between p-4 bg-gray-50 border border-gray-200/80 rounded-2xl">
+                                        <div class="flex items-center gap-4">
+                                            <div class="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center"><i data-lucide="file-text" class="w-5 h-5 text-blue-600"></i></div>
+                                            <div>
+                                                <p class="font-extrabold text-xs text-gray-900">MCL_Survey_Data_Q3.pdf</p>
+                                                <p class="text-[10px] text-gray-500 font-bold mt-0.5">Uploaded just now</p>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-3">
+                                            <span class="text-[10px] font-black text-orange-600 bg-orange-50 px-2.5 py-1 rounded-md border border-orange-200">Processing OCR...</span>
+                                            <div class="w-24 bg-gray-200 rounded-full h-1.5"><div class="bg-orange-500 h-1.5 rounded-full" style="width: 45%"></div></div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between p-4 bg-gray-50 border border-gray-200/80 rounded-2xl">
+                                        <div class="flex items-center gap-4">
+                                            <div class="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center"><i data-lucide="database" class="w-5 h-5 text-green-600"></i></div>
+                                            <div>
+                                                <p class="font-extrabold text-xs text-gray-900">SECL_Production_Oct.xlsx</p>
+                                                <p class="text-[10px] text-gray-500 font-bold mt-0.5">Uploaded 2 hours ago</p>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-3">
+                                            <span class="text-[10px] font-black text-green-700 bg-green-50 px-2.5 py-1 rounded-md border border-green-200"><i data-lucide="check" class="w-3 h-3 inline"></i> Indexed</span>
+                                            <div class="w-24 bg-gray-200 rounded-full h-1.5"><div class="bg-green-500 h-1.5 rounded-full" style="width: 100%"></div></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ================= VERIFY REPORTS VIEW (USER) ================= -->
+                    <div id="page-user-verify" class="page-view flex-col space-y-6 h-[800px]">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h2 class="text-2xl font-black text-[#111111] tracking-tight">Report Verification Desk</h2>
+                                <p class="text-xs text-gray-500 font-semibold mt-1">Review AI-generated assertions against source documents.</p>
+                            </div>
+                            <span class="px-3 py-1.5 bg-[#ffebd6] text-[#ea580c] rounded-lg font-black text-xs border border-[#fdba74]">
+                                2 Pending Reviews
+                            </span>
+                        </div>
+
+                        <div class="flex flex-col md:flex-row gap-6 h-full pb-10">
+                            <!-- Left: List of Pending Reports -->
+                            <div class="w-full md:w-1/3 bg-white rounded-[2rem] border border-gray-200/80 card-elevate overflow-hidden flex flex-col min-h-[300px]">
+                                <div class="p-5 border-b border-gray-100 bg-gray-50/50">
+                                    <h3 class="font-extrabold text-[#111111] text-sm">Draft Reports Queue</h3>
+                                </div>
+                                <div class="flex-1 overflow-y-auto p-3 space-y-2">
+                                    <div class="p-4 bg-white border-2 border-[#a3e635] rounded-2xl cursor-pointer shadow-sm relative">
+                                        <div class="absolute top-3 right-3 w-2 h-2 bg-[#ea580c] rounded-full animate-pulse"></div>
+                                        <h4 class="font-black text-xs text-gray-900 mb-1">Parliamentary Q3 Status</h4>
+                                        <p class="text-[11px] text-gray-500 font-medium line-clamp-2">Draft response summarizing coal production and clearance bottlenecks for SECL.</p>
+                                        <div class="mt-3 flex items-center justify-between text-[10px] font-extrabold">
+                                            <span class="text-gray-400">Generated Today, 09:30 AM</span>
+                                        </div>
+                                    </div>
+                                    <div class="p-4 bg-gray-50 border border-gray-100 rounded-2xl cursor-pointer hover:border-gray-300 transition-colors">
+                                        <h4 class="font-black text-xs text-gray-900 mb-1">Gevra Reserve Estimate</h4>
+                                        <p class="text-[11px] text-gray-500 font-medium line-clamp-2">Geological audit summary for new block acquisition in Zone B.</p>
+                                        <div class="mt-3 flex items-center justify-between text-[10px] font-extrabold">
+                                            <span class="text-gray-400">Generated Yesterday</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Right: Report Editor & Verification -->
+                            <div class="w-full md:w-2/3 bg-white rounded-[2rem] border border-gray-200/80 card-elevate flex flex-col relative overflow-hidden min-h-[500px]">
+                                <div class="p-5 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
+                                    <h3 class="font-extrabold text-[#111111] text-sm flex items-center gap-2">
+                                        <i data-lucide="file-check" class="w-4 h-4 text-[#84cc16]"></i> Draft Q3 Review
+                                    </h3>
+                                    <div class="flex gap-2">
+                                        <button onclick="alertBox('Report Rejected and sent back to AI queue.')" class="px-4 py-2 bg-red-50 text-red-600 border border-red-200 rounded-xl text-[11px] font-black hover:bg-red-100 transition-all">Reject</button>
+                                        <button onclick="alertBox('Report Approved and Signed Digitally.')" class="px-4 py-2 bg-[#111111] text-[#a3e635] rounded-xl text-[11px] font-black shadow-md hover:bg-black transition-all">Approve Document</button>
+                                    </div>
+                                </div>
+                                <div class="p-4 sm:p-8 flex-1 overflow-y-auto custom-scrollbar bg-gray-50">
+                                    <!-- Document Canvas -->
+                                    <div class="bg-white max-w-xl mx-auto shadow-sm rounded-xl p-6 sm:p-8 font-serif text-gray-800 border border-gray-200 text-sm leading-relaxed text-justify relative">
+                                        
+                                        <h1 class="text-center font-bold uppercase tracking-widest text-lg mb-6 border-b pb-2">Status of Coal Production</h1>
+                                        
+                                        <p class="mb-4">As per the consolidated data analysis across subsidiary nodes, total extracted volume has witnessed a positive trend.</p>
+                                        
+                                        <!-- AI GENERATED CLAIM TO VERIFY -->
+                                        <div class="relative group my-6 border border-orange-200 bg-[#ffebd6]/20 rounded-xl p-4 pl-14 shadow-sm">
+                                            <div class="absolute left-3 top-4">
+                                                <button onclick="openSourceModal()" class="w-8 h-8 bg-[#fb923c] text-white rounded-full flex items-center justify-center shadow-md hover:scale-110 transition-transform" title="Verify AI Source">
+                                                    <i data-lucide="search" class="w-4 h-4"></i>
+                                                </button>
+                                            </div>
+                                            <p class="font-sans text-xs">
+                                                <strong class="text-[#ea580c] block mb-1">AI Extracted Claim:</strong> 
+                                                Total coal production stands at <strong>142.5 Million Tonnes</strong>, representing a Y-o-Y growth of 4.2% across major open-cast mines primarily driven by SECL expansion.
+                                            </p>
+                                        </div>
+
+                                        <p class="mb-4">Clearance bottlenecks in the Gevra expansion zone remain active, pending the final wildlife impact assessment expected by Q4.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- ================= ADD DATA MODAL ================= -->
-    <div id="add-data-modal" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs hidden items-center justify-center p-4">
+    <!-- ================= SOURCE VERIFICATION MODAL (USER FEATURE) ================= -->
+    <div id="source-modal" class="fixed inset-0 z-[120] bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4 sm:p-8 transition-opacity">
+        <div class="bg-white w-full max-w-5xl h-[85vh] rounded-[2rem] shadow-2xl flex flex-col overflow-hidden border border-gray-200">
+            <!-- Header -->
+            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-[#111111] text-[#a3e635] flex items-center justify-center shadow-md"><i data-lucide="link" class="w-5 h-5"></i></div>
+                    <div>
+                        <h3 class="text-sm font-black text-[#111111]">AI Source Verification</h3>
+                        <p class="text-[11px] font-bold text-gray-500">Tracing origin of extracted data point</p>
+                    </div>
+                </div>
+                <button onclick="closeSourceModal()" class="w-8 h-8 bg-gray-200 hover:bg-gray-300 rounded-full flex items-center justify-center text-gray-700 transition-colors">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+            
+            <!-- Split Content -->
+            <div class="flex flex-col lg:flex-row flex-1 overflow-hidden">
+                <!-- Left: Claim -->
+                <div class="w-full lg:w-1/3 bg-white p-6 border-b lg:border-b-0 lg:border-r border-gray-200 flex flex-col shrink-0">
+                    <h4 class="text-xs font-black uppercase text-gray-400 mb-2">Generated Text</h4>
+                    <div class="p-4 bg-gray-50 rounded-xl border border-gray-200 text-sm font-medium text-gray-800 leading-relaxed mb-6">
+                        "Total coal production stands at <span class="bg-[#fb923c]/20 px-1 font-bold text-[#ea580c] rounded">142.5 Million Tonnes</span>, representing a Y-o-Y growth of 4.2%..."
+                    </div>
+
+                    <h4 class="text-xs font-black uppercase text-gray-400 mb-2">AI Confidence</h4>
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="flex-1 bg-gray-200 rounded-full h-2"><div class="bg-[#84cc16] h-2 rounded-full" style="width: 98%"></div></div>
+                        <span class="text-xs font-black text-[#84cc16]">98.2%</span>
+                    </div>
+
+                    <h4 class="text-xs font-black uppercase text-gray-400 mb-2">Actions</h4>
+                    <div class="space-y-3">
+                        <button onclick="closeSourceModal(); alertBox('Source Verified & Marked as Accurate');" class="w-full py-3 bg-[#a3e635] text-[#111111] rounded-xl font-black text-xs shadow-sm hover:scale-[1.02] transition-transform">Mark as Accurate</button>
+                        <button onclick="closeSourceModal(); alertBox('Flagged for manual editing.');" class="w-full py-3 bg-red-50 text-red-600 rounded-xl font-black text-xs border border-red-200 hover:bg-red-100 transition-colors">Flag Inaccuracy</button>
+                    </div>
+                </div>
+
+                <!-- Right: Source PDF Mockup -->
+                <div class="w-full lg:w-2/3 bg-gray-100 p-6 flex flex-col relative flex-1">
+                    <div class="flex justify-between items-center mb-3">
+                        <h4 class="text-xs font-black uppercase text-gray-600 flex items-center gap-2">
+                            <i data-lucide="file-text" class="w-4 h-4"></i> Source: SECL_Monthly_2023.pdf (Page 12)
+                        </h4>
+                        <button class="text-[10px] font-bold text-gray-500 hover:text-[#111111] bg-white px-2 py-1 rounded-md border border-gray-200 shadow-sm">Open Full PDF</button>
+                    </div>
+                    
+                    <!-- Simulated PDF Page -->
+                    <div class="flex-1 bg-white shadow-md border border-gray-300 rounded-lg p-6 sm:p-10 overflow-y-auto font-serif text-xs text-gray-600 text-justify custom-scrollbar relative">
+                        <p class="mb-4">3.1.2 Subsidiary Performance Metrics (Oct 2023)</p>
+                        <p class="mb-4">The overarching strategy implemented across major subsidiaries has yielded significant results in the final quarter. Field reports collated from various GMs indicate steady operational status despite minor logistical delays.</p>
+                        
+                        <div class="my-6 p-4 border border-dashed border-gray-300 bg-gray-50">
+                            <p class="font-sans font-bold text-gray-800 mb-2 text-center text-[10px]">TABLE 4: Consolidated Output</p>
+                            <div class="grid grid-cols-3 gap-2 font-sans font-semibold text-[10px] text-center border-t border-b border-gray-300 py-2">
+                                <div>Subsidiary</div><div>Production (MT)</div><div>Y-o-Y Growth</div>
+                                <div class="font-normal text-gray-600">SECL</div><div class="font-normal text-gray-600">85.2</div><div class="font-normal text-gray-600">+5.1%</div>
+                                <div class="font-normal text-gray-600">MCL</div><div class="font-normal text-gray-600">40.1</div><div class="font-normal text-gray-600">+3.0%</div>
+                                <div class="font-normal text-gray-600">BCCL</div><div class="font-normal text-gray-600">17.2</div><div class="font-normal text-gray-600">+2.5%</div>
+                            </div>
+                        </div>
+
+                        <p class="mb-4">
+                            Aggregating the above verified figures, the <span class="pdf-highlight" title="AI Extracted Entity">Total coal production stands at 142.5 Million Tonnes</span> for the consolidated nodes, representing an overall <span class="pdf-highlight">Y-o-Y growth of 4.2%</span>. This metric is primarily driven by SECL expansion policies...
+                        </p>
+                        <p>Subsequent sections outline the specific clearance bottlenecks affecting Block B.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ================= ADD DATA MODAL (ADMIN ONLY) ================= -->
+    <div id="add-data-modal" class="fixed inset-0 z-[110] bg-black/50 backdrop-blur-xs hidden items-center justify-center p-4">
         <div class="bg-white w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl relative border border-gray-100">
             <div class="flex justify-between items-center mb-5">
                 <h3 class="text-lg font-extrabold text-[#111111] tracking-tight">Upload Mining Dataset</h3>
@@ -688,7 +999,7 @@
     </div>
 
     <!-- ================= PROFILE MODAL ================= -->
-    <div id="profile-modal" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs hidden items-center justify-center p-4">
+    <div id="profile-modal" class="fixed inset-0 z-[110] bg-black/50 backdrop-blur-xs hidden items-center justify-center p-4">
         <div class="bg-white w-full max-w-sm rounded-[2.5rem] p-7 shadow-2xl relative border border-gray-100">
             <div class="flex justify-between items-center mb-5">
                 <h3 class="text-lg font-extrabold text-[#111111]">User Profile</h3>
@@ -697,15 +1008,15 @@
                 </button>
             </div>
             <div class="flex items-center gap-3.5 mb-5 p-4 bg-gray-50 rounded-2xl border border-gray-100">
-                <div class="w-12 h-12 rounded-2xl bg-[#111111] text-[#a3e635] flex items-center justify-center font-black text-base shadow-md">AD</div>
+                <div class="w-12 h-12 rounded-2xl bg-[#111111] text-[#a3e635] flex items-center justify-center font-black text-base shadow-md" id="modal-initials">AD</div>
                 <div>
-                    <h4 class="font-extrabold text-gray-900 text-sm">Administrator</h4>
-                    <p class="text-[11px] font-semibold text-gray-500">admin.cmpdi@gov.in</p>
+                    <h4 class="font-extrabold text-gray-900 text-sm" id="modal-role-name">Administrator</h4>
+                    <p class="text-[11px] font-semibold text-gray-500" id="modal-email">admin.cmpdi@gov.in</p>
                     <span class="inline-block mt-1 px-2.5 py-0.5 bg-[#eefcce] text-[#111111] rounded-full text-[10px] font-extrabold border border-[#d9f99d]">Ministry of Coal</span>
                 </div>
             </div>
             <div class="space-y-2.5 text-xs font-semibold text-gray-600">
-                <div class="flex justify-between py-2 border-b border-gray-100"><span>Role</span><span class="font-extrabold text-gray-900">Senior GeoAI Lead</span></div>
+                <div class="flex justify-between py-2 border-b border-gray-100"><span>Role</span><span class="font-extrabold text-gray-900" id="modal-role-level">Senior GeoAI Lead</span></div>
                 <div class="flex justify-between py-2 border-b border-gray-100"><span>Security Level</span><span class="font-extrabold text-green-600">Level 4</span></div>
                 <div class="flex justify-between py-2"><span>Institutional Node</span><span class="font-extrabold text-gray-900">Bhopal #02</span></div>
             </div>
@@ -720,32 +1031,163 @@
         // Initialize Lucide SVG Icons
         lucide.createIcons();
 
-        // Auth state check
+        // Auth state check & Role Configuration
         window.addEventListener('load', () => {
             const authModal = document.getElementById('auth-modal');
             const isLoggedIn = localStorage.getItem('cmpdi_logged_in');
+            
             if (isLoggedIn === 'true') {
                 authModal.classList.add('hidden');
+                applyRoleSettings();
             } else {
                 authModal.classList.remove('hidden');
             }
-            handleRouting();
         });
 
-        function handleLogin(e) {
-            e.preventDefault();
-            const email = document.getElementById('login-email').value;
-            localStorage.setItem('cmpdi_logged_in', 'true');
-            localStorage.setItem('cmpdi_user', email);
-            document.getElementById('auth-modal').classList.add('opacity-0', 'pointer-events-none');
-            setTimeout(() => {
-                document.getElementById('auth-modal').classList.add('hidden');
-            }, 300);
+        let currentAuthRole = 'admin';
+
+        function openLoginForm(role) {
+            currentAuthRole = role;
+            
+            // Switch views smoothly
+            document.getElementById('view-role-select').classList.add('hidden');
+            document.getElementById('view-role-select').classList.remove('flex');
+            document.getElementById('view-login-form').classList.remove('hidden');
+            document.getElementById('view-login-form').classList.add('flex');
+            
+            // Update Form UI based on selected role
+            const roleIconContainer = document.getElementById('login-role-icon');
+            const roleText = document.getElementById('login-role-text');
+            const emailInput = document.getElementById('auth-email');
+            
+            if (role === 'admin') {
+                roleIconContainer.className = "w-12 h-12 mx-auto bg-[#111111] text-[#a3e635] rounded-2xl flex items-center justify-center mb-4 shadow-lg border border-gray-800";
+                roleIconContainer.innerHTML = '<i data-lucide="shield-check" class="w-6 h-6"></i>';
+                roleText.textContent = "Sign in to Administrator Portal";
+                emailInput.value = "admin.cmpdi@gov.in";
+            } else {
+                roleIconContainer.className = "w-12 h-12 mx-auto bg-[#ea580c] text-white rounded-2xl flex items-center justify-center mb-4 shadow-lg border border-orange-600";
+                roleIconContainer.innerHTML = '<i data-lucide="users" class="w-6 h-6"></i>';
+                roleText.textContent = "Sign in to User Data Portal";
+                emailInput.value = "user.cmpdi@gov.in";
+            }
+            
+            // Re-render lucide icons inside the dynamically updated innerHTML
+            lucide.createIcons();
+        }
+
+        function goBackToRoles() {
+            document.getElementById('view-login-form').classList.add('hidden');
+            document.getElementById('view-login-form').classList.remove('flex');
+            document.getElementById('view-role-select').classList.remove('hidden');
+            document.getElementById('view-role-select').classList.add('flex');
+        }
+
+        // ── LIVE BACKEND CONFIG ──────────────────────────────────────────
+        const API_BASE = 'https://cmpdi-geoai-hub.onrender.com';
+
+        function processActualLogin(e) {
+            if(e) e.preventDefault();
+            realLogin();
+        }
+
+        function processGoogleLogin() {
+            alertBox('Google login coming soon! Please use email & password for now.');
+        }
+
+        async function realLogin() {
+            const loading = document.getElementById('login-loading');
+            const spinner = document.getElementById('loading-spinner-ring');
+            const loadingText = document.getElementById('loading-role-text');
+            const email = document.getElementById('auth-email').value.trim();
+            const password = document.getElementById('auth-password').value.trim();
+
+            loading.classList.remove('hidden');
+            loading.classList.add('flex');
+
+            if(currentAuthRole === 'user') {
+                spinner.classList.remove('border-t-[#a3e635]');
+                spinner.classList.add('border-t-[#fb923c]');
+                loadingText.textContent = 'Authenticating User Node...';
+            } else {
+                spinner.classList.add('border-t-[#a3e635]');
+                spinner.classList.remove('border-t-[#fb923c]');
+                loadingText.textContent = 'Authenticating Admin Node...';
+            }
+
+            try {
+                const resp = await fetch(`${API_BASE}/api/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await resp.json();
+
+                if (!resp.ok) {
+                    loading.classList.add('hidden');
+                    loading.classList.remove('flex');
+                    alertBox('❌ ' + (data.detail || 'Invalid email or password.'));
+                    return;
+                }
+
+                // Save real JWT + user data from backend
+                localStorage.setItem('cmpdi_logged_in', 'true');
+                localStorage.setItem('cmpdi_token', data.access_token);
+                localStorage.setItem('cmpdi_user', data.user.email);
+                localStorage.setItem('cmpdi_name', data.user.name || data.user.email);
+                localStorage.setItem('cmpdi_role', data.user.role);
+                localStorage.setItem('cmpdi_subsidiary', data.user.subsidiary || 'General');
+
+                document.getElementById('auth-modal').classList.add('opacity-0', 'pointer-events-none');
+                setTimeout(() => {
+                    document.getElementById('auth-modal').classList.add('hidden');
+                    applyRoleSettings();
+                    window.location.hash = data.user.role === 'admin' ? '#dashboard' : '#user-upload';
+                    goBackToRoles();
+                    loading.classList.add('hidden');
+                    loading.classList.remove('flex');
+                    document.getElementById('auth-modal').classList.remove('opacity-0', 'pointer-events-none');
+                }, 300);
+
+            } catch(err) {
+                loading.classList.add('hidden');
+                loading.classList.remove('flex');
+                alertBox('❌ Cannot reach server. Please try again in a moment.');
+                console.error(err);
+            }
+        }
+
+        function executeLoginSequence(isGoogle = false) {
+            realLogin();
         }
 
         function logout() {
             localStorage.removeItem('cmpdi_logged_in');
+            localStorage.removeItem('cmpdi_user');
+            localStorage.removeItem('cmpdi_role');
+            location.hash = '';
             location.reload();
+        }
+
+        function applyRoleSettings() {
+            const role = localStorage.getItem('cmpdi_role') || 'admin';
+            const email = localStorage.getItem('cmpdi_user') || 'admin.cmpdi@gov.in';
+            
+            // Update Body Class for CSS hiding/showing
+            document.body.className = `bg-[#f3f4f6] text-gray-800 h-screen overflow-hidden p-2 sm:p-4 lg:p-6 flex items-center justify-center select-none role-${role}`;
+            
+            // Update Profile UI
+            const initials = role === 'admin' ? 'AD' : 'US';
+            const titleText = role === 'admin' ? 'Administrator' : 'Verified User';
+            const levelText = role === 'admin' ? 'Senior GeoAI Lead' : 'Data Entry Operator';
+            
+            document.getElementById('sidebar-initials').textContent = initials;
+            document.getElementById('modal-initials').textContent = initials;
+            document.getElementById('modal-role-name').textContent = titleText;
+            document.getElementById('modal-email').textContent = email;
+            document.getElementById('modal-role-level').textContent = levelText;
+            
+            handleRouting();
         }
 
         // Mobile Sidebar toggle
@@ -769,16 +1211,29 @@
             'dashboard': { title: 'Dashboard <span class="text-xl">👋</span>', subtitle: 'Welcome to CMPDI GeoAI Hub!' },
             'reports': { title: 'Reports Center', subtitle: 'View and generate analytical documents' },
             'insights': { title: 'AI Insights & Topic Map', subtitle: 'Discover semantic trends and clusters' },
-            'query': { title: 'GeoAI Query Assistant', subtitle: 'Talk directly to your institutional repositories' }
+            'query': { title: 'GeoAI Query Assistant', subtitle: 'Talk directly to your institutional repositories' },
+            'user-upload': { title: 'Upload Portal', subtitle: 'Feed geological datasets to the AI engine' },
+            'user-verify': { title: 'Verification Desk', subtitle: 'Audit and approve AI-generated reports' }
         };
 
         function handleRouting() {
-            let hash = window.location.hash || '#dashboard';
+            let hash = window.location.hash || '';
+            const role = localStorage.getItem('cmpdi_role') || 'admin';
+            
+            if (!hash) {
+                hash = role === 'admin' ? '#dashboard' : '#user-upload';
+                window.location.hash = hash;
+                return; // will re-trigger hashchange
+            }
+
             let pageId = hash.replace('#', '');
             
-            if (!['dashboard', 'reports', 'insights', 'query'].includes(pageId)) {
-                pageId = 'dashboard';
-                window.location.hash = '#dashboard';
+            // Security / Role Redirects
+            if (role === 'admin' && ['user-upload', 'user-verify'].includes(pageId)) {
+                window.location.hash = '#dashboard'; return;
+            }
+            if (role === 'user' && ['dashboard', 'reports', 'insights', 'query'].includes(pageId)) {
+                window.location.hash = '#user-upload'; return;
             }
 
             // Hide all views
@@ -811,11 +1266,16 @@
 
             const container = document.querySelector('.custom-scrollbar');
             if (container) container.scrollTop = 0;
+            
+            // Trigger Chart resize if navigating to dashboard
+            if (pageId === 'dashboard' && window.productionChartInstance) {
+                setTimeout(() => window.productionChartInstance.resize(), 300);
+            }
         }
 
         window.addEventListener('hashchange', handleRouting);
 
-        // Modals
+        // Modals Functions
         function openAddDataModal() {
             document.getElementById('add-data-modal').classList.remove('hidden');
             document.getElementById('add-data-modal').classList.add('flex');
@@ -832,29 +1292,40 @@
             document.getElementById('profile-modal').classList.add('hidden');
             document.getElementById('profile-modal').classList.remove('flex');
         }
+        function openSourceModal() {
+            document.getElementById('source-modal').classList.remove('hidden');
+            document.getElementById('source-modal').classList.add('flex');
+        }
+        function closeSourceModal() {
+            document.getElementById('source-modal').classList.add('hidden');
+            document.getElementById('source-modal').classList.remove('flex');
+        }
 
         function handleAddDataSubmit(e) {
             e.preventDefault();
             const name = document.getElementById('new-doc-name').value;
             const tbody = document.getElementById('documents-table-body');
-            const newRow = document.createElement('div');
-            newRow.className = 'grid grid-cols-4 gap-4 items-center bg-gray-50 hover:bg-[#eefcce]/50 transition-all rounded-2xl p-3.5 px-4 cursor-pointer border border-gray-200/50 hover:border-[#a3e635]/60';
-            newRow.innerHTML = `
-                <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-xl bg-[#a3e635] flex items-center justify-center shadow-2xs"><i data-lucide="file-text" class="w-4 h-4 text-[#111111]"></i></div>
-                    <span class="font-extrabold text-xs text-[#111111]">${name}</span>
-                </div>
-                <div class="text-xs text-gray-500 font-bold">${new Date().toLocaleDateString()}</div>
-                <div><span class="inline-flex items-center gap-1.5 px-3 py-1 bg-white rounded-full text-xs font-extrabold text-[#111111] border border-gray-200/80 shadow-2xs"><i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-[#84cc16]"></i> 100%</span></div>
-                <div class="text-xs font-black text-[#111111]">${Math.floor(Math.random() * 5000 + 500)}</div>
-            `;
-            tbody.prepend(newRow);
-            lucide.createIcons();
+            
+            if(tbody) {
+                const newRow = document.createElement('div');
+                newRow.className = 'grid grid-cols-4 gap-4 items-center bg-gray-50 hover:bg-[#eefcce]/50 transition-all rounded-2xl p-3.5 px-4 cursor-pointer border border-gray-200/50 hover:border-[#a3e635]/60';
+                newRow.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl bg-[#a3e635] flex items-center justify-center shadow-2xs"><i data-lucide="file-text" class="w-4 h-4 text-[#111111]"></i></div>
+                        <span class="font-extrabold text-xs text-[#111111]">${name}</span>
+                    </div>
+                    <div class="text-xs text-gray-500 font-bold">${new Date().toLocaleDateString()}</div>
+                    <div><span class="inline-flex items-center gap-1.5 px-3 py-1 bg-white rounded-full text-xs font-extrabold text-[#111111] border border-gray-200/80 shadow-2xs"><i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-[#84cc16]"></i> 100%</span></div>
+                    <div class="text-xs font-black text-[#111111]">${Math.floor(Math.random() * 5000 + 500)}</div>
+                `;
+                tbody.prepend(newRow);
+                lucide.createIcons();
+            }
             closeAddDataModal();
             alertBox('Successfully indexed dataset: ' + name);
         }
 
-        // Report Preview Sync
+        // Report Preview Sync (Admin feature)
         function updateReportPreview() {
             const type = document.getElementById('report-type-select').value;
             const sub = document.getElementById('report-subsidiary-select').value;
@@ -882,7 +1353,7 @@
             }, 150);
         }
 
-        // AI Chat Handlers
+        // AI Chat Handlers (Admin feature)
         function sendPresetPrompt(promptText) {
             document.getElementById('chat-input').value = promptText;
             const form = document.querySelector('#page-query form');
@@ -948,7 +1419,7 @@
 
         function alertBox(msg) {
             const box = document.createElement('div');
-            box.className = 'fixed bottom-6 right-6 z-50 bg-[#111111] text-white px-5 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3 border border-gray-800 text-xs font-bold';
+            box.className = 'fixed bottom-6 right-6 z-[150] bg-[#111111] text-white px-5 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3 border border-gray-800 text-xs font-bold';
             box.innerHTML = `<i data-lucide="check-circle-2" class="w-4 h-4 text-[#a3e635]"></i><span>${msg}</span>`;
             document.body.appendChild(box);
             lucide.createIcons();
@@ -965,73 +1436,78 @@
 
         function handleGlobalSearch(val) {
             if (val.length > 2) {
-                // Global search handler
+                // Global search handler logic here
             }
         }
 
         // Render Chart.js Production Visualization
-        const ctx = document.getElementById('productionChart').getContext('2d');
-        const productionChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                datasets: [
-                    {
-                        label: 'Coal (MT)',
-                        data: [4, 6, 8, 5, 4, 2, 1],
-                        backgroundColor: '#111111',
-                        borderRadius: 10,
-                        barThickness: 22,
-                        order: 2
+        setTimeout(() => {
+            const canvas = document.getElementById('productionChart');
+            if(canvas) {
+                const ctx = canvas.getContext('2d');
+                window.productionChartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                        datasets: [
+                            {
+                                label: 'Coal (MT)',
+                                data: [4, 6, 8, 5, 4, 2, 1],
+                                backgroundColor: '#111111',
+                                borderRadius: 10,
+                                barThickness: 22,
+                                order: 2
+                            },
+                            {
+                                label: 'Overburden (M.Cum)',
+                                data: [2, 3, 5, 3, 2, 1, 0.5],
+                                type: 'line',
+                                borderColor: '#fb923c',
+                                backgroundColor: '#fb923c',
+                                borderWidth: 3,
+                                pointBackgroundColor: '#fb923c',
+                                pointBorderColor: '#ffffff',
+                                pointBorderWidth: 2,
+                                pointRadius: 5,
+                                tension: 0.4,
+                                order: 1
+                            }
+                        ]
                     },
-                    {
-                        label: 'Overburden (M.Cum)',
-                        data: [2, 3, 5, 3, 2, 1, 0.5],
-                        type: 'line',
-                        borderColor: '#fb923c',
-                        backgroundColor: '#fb923c',
-                        borderWidth: 3,
-                        pointBackgroundColor: '#fb923c',
-                        pointBorderColor: '#ffffff',
-                        pointBorderWidth: 2,
-                        pointRadius: 5,
-                        tension: 0.4,
-                        order: 1
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: 'rgba(255, 255, 255, 0.98)',
+                                titleColor: '#111111',
+                                bodyColor: '#4b5563',
+                                borderColor: '#e5e7eb',
+                                borderWidth: 1,
+                                padding: 10,
+                                boxPadding: 4,
+                                usePointStyle: true,
+                                titleFont: { size: 12, family: 'Inter', weight: 'bold' },
+                                bodyFont: { size: 11, family: 'Inter', weight: 'bold' }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                grid: { display: false },
+                                border: { display: false },
+                                ticks: { color: '#9ca3af', font: { family: 'Inter', weight: '700', size: 11 } }
+                            },
+                            y: {
+                                grid: { color: '#f3f4f6', drawBorder: false },
+                                border: { display: false },
+                                ticks: { color: '#9ca3af', font: { family: 'Inter', weight: '700', size: 11 } }
+                            }
+                        }
                     }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        backgroundColor: 'rgba(255, 255, 255, 0.98)',
-                        titleColor: '#111111',
-                        bodyColor: '#4b5563',
-                        borderColor: '#e5e7eb',
-                        borderWidth: 1,
-                        padding: 10,
-                        boxPadding: 4,
-                        usePointStyle: true,
-                        titleFont: { size: 12, family: 'Inter', weight: 'bold' },
-                        bodyFont: { size: 11, family: 'Inter', weight: 'bold' }
-                    }
-                },
-                scales: {
-                    x: {
-                        grid: { display: false },
-                        border: { display: false },
-                        ticks: { color: '#9ca3af', font: { family: 'Inter', weight: '700', size: 11 } }
-                    },
-                    y: {
-                        grid: { color: '#f3f4f6', drawBorder: false },
-                        border: { display: false },
-                        ticks: { color: '#9ca3af', font: { family: 'Inter', weight: '700', size: 11 } }
-                    }
-                }
+                });
             }
-        });
+        }, 500);
     </script>
 </body>
 </html>
