@@ -1,5 +1,4 @@
 # CMPDI GeoAI Hub — Python Dependencies
-# Only what's actually used — nothing extra
 
 # Server
 fastapi>=0.115.0
@@ -10,7 +9,6 @@ pydantic>=2.0.0
 # AI / RAG
 google-genai>=2.0.0
 chromadb>=0.5.0
-sentence-transformers>=3.0.0
 
 # Document Loading (PDF, DOCX, PPTX, Excel, Images)
 PyMuPDF>=1.24.0

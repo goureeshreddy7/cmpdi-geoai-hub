@@ -21,7 +21,7 @@ def _get_collection():
     if _collection is None:
         _collection = _client.get_or_create_collection(
             name=COLLECTION_NAME,
-            metadata={"hnsw:space": "cosine"},
+            metadata={"hnsw:space": "cosine", "hnsw:M": 16},
         )
     return _collection
 
