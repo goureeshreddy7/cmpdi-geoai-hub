@@ -1,1513 +1,520 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CMPDI GeoAI Hub</title>
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Google Fonts (Inter) -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CMPDI GeoAI Hub — Test Dashboard</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Arial, sans-serif; font-size: 14px; background: #f4f4f4; display: flex; height: 100vh; }
 
-    <!-- Chart.js for data visualization -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  /* Sidebar */
+  #sidebar { width: 210px; background: #1a1a2e; color: #fff; display: flex; flex-direction: column; padding: 16px 0; flex-shrink: 0; }
+  #sidebar h2 { font-size: 13px; padding: 0 16px 14px; border-bottom: 1px solid #333; color: #aaa; text-transform: uppercase; letter-spacing: 1px; }
+  .nav-item { padding: 11px 16px; cursor: pointer; border-left: 3px solid transparent; color: #ccc; transition: .15s; }
+  .nav-item:hover { background: #252550; color: #fff; }
+  .nav-item.active { background: #252550; border-left-color: #4f8ef7; color: #fff; }
+  .nav-section { padding: 12px 16px 4px; font-size: 10px; color: #555; text-transform: uppercase; letter-spacing: 1px; }
+  .status-bar { margin-top: auto; padding: 12px 16px; font-size: 11px; color: #555; border-top: 1px solid #333; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+  .dot.green { background: #4caf50; }
+  .dot.red { background: #f44336; }
 
-    <style>
-        body { 
-            font-family: 'Inter', sans-serif; 
-            -webkit-tap-highlight-color: transparent;
-        }
-        
-        /* Custom Smooth Scrollbar */
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background-color: #d1d5db;
-            border-radius: 9999px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background-color: #9ca3af;
-        }
-        
-        /* Smooth View Switching */
-        .page-view {
-            display: none;
-            opacity: 0;
-            transform: translateY(8px) scale(0.995);
-            transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .page-view.active {
-            display: flex;
-            opacity: 1;
-            transform: translateY(0) scale(1);
-        }
+  /* Main */
+  #main { flex: 1; overflow-y: auto; padding: 24px; }
+  .page { display: none; }
+  .page.active { display: block; }
 
-        /* Role-based display classes */
-        body.role-admin .user-nav { display: none !important; }
-        body.role-user .admin-nav { display: none !important; }
-        body.role-user .admin-action { display: none !important; }
+  /* Cards */
+  .card { background: #fff; border-radius: 6px; padding: 20px; margin-bottom: 16px; border: 1px solid #e0e0e0; }
+  .card h3 { font-size: 15px; margin-bottom: 14px; color: #222; padding-bottom: 8px; border-bottom: 1px solid #eee; }
+  .page-title { font-size: 20px; font-weight: bold; color: #1a1a2e; margin-bottom: 6px; }
+  .page-sub { color: #777; font-size: 13px; margin-bottom: 20px; }
 
-        /* Sidebar Navigation Item Physics & Transitions */
-        .nav-btn {
-            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        .nav-btn .active-indicator {
-            opacity: 0;
-            transform: scale(0.4) rotate(-10deg);
-            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        .nav-btn.active-tab {
-            background-color: #ffffff !important;
-            color: #111111 !important;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.25), 0 0 15px rgba(163, 230, 53, 0.2) !important;
-            transform: scale(1.08) !important;
-        }
-        .nav-btn.active-tab .active-indicator {
-            opacity: 1;
-            transform: scale(1) rotate(0deg);
-        }
+  /* Forms */
+  label { display: block; font-size: 12px; color: #555; margin-bottom: 4px; margin-top: 10px; }
+  input, select, textarea { width: 100%; padding: 8px 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; }
+  textarea { resize: vertical; min-height: 80px; }
+  button { padding: 9px 18px; background: #4f8ef7; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; margin-top: 10px; }
+  button:hover { background: #3a7ae0; }
+  button.red { background: #e53935; }
+  button.green { background: #43a047; }
+  button.gray { background: #888; }
 
-        /* Micro Animations */
-        @keyframes pulseGlow {
-            0%, 100% { opacity: 0.35; transform: scale(1); }
-            50% { opacity: 0.7; transform: scale(1.05); }
-        }
-        .animate-glow {
-            animation: pulseGlow 7s ease-in-out infinite;
-        }
+  /* Output */
+  .output { background: #f8f8f8; border: 1px solid #ddd; border-radius: 4px; padding: 12px; margin-top: 12px; min-height: 40px; white-space: pre-wrap; font-size: 12px; line-height: 1.6; max-height: 380px; overflow-y: auto; }
+  .output.error { border-color: #f44336; background: #fff5f5; color: #c62828; }
+  .output.success { border-color: #4caf50; background: #f5fff5; }
 
-        @keyframes floatSlow {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-7px) rotate(1deg); }
-        }
-        .animate-float {
-            animation: floatSlow 4s ease-in-out infinite;
-        }
+  /* Badges */
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: bold; }
+  .badge.blue { background: #e3f0ff; color: #1565c0; }
+  .badge.green { background: #e8f5e9; color: #2e7d32; }
+  .badge.orange { background: #fff3e0; color: #e65100; }
 
-        /* Soft Card Elevate */
-        .card-elevate {
-            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease;
-        }
-        .card-elevate:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 14px 30px -8px rgba(0, 0, 0, 0.08);
-        }
+  /* Citations */
+  .citation { background: #f0f4ff; border-left: 3px solid #4f8ef7; padding: 8px 12px; margin-top: 8px; border-radius: 3px; font-size: 12px; }
+  .citation strong { color: #1a1a2e; }
 
-        /* Tooltip entrance */
-        .nav-tooltip {
-            transform: translateX(-8px) scale(0.95);
-            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .group:hover .nav-tooltip {
-            transform: translateX(0) scale(1);
-        }
+  /* Word cloud */
+  .wc-word { display: inline-block; margin: 4px; padding: 4px 10px; background: #e3f0ff; color: #1565c0; border-radius: 12px; cursor: default; }
 
-        /* Login view transitions */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-in {
-            animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
+  /* Grid */
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media(max-width: 700px) { .grid2 { grid-template-columns: 1fr; } body { flex-direction: column; } #sidebar { width: 100%; } }
 
-        /* Source Verification Highlights */
-        .pdf-highlight {
-            background-color: rgba(251, 146, 60, 0.3);
-            border-bottom: 2px solid #fb923c;
-            padding: 0 2px;
-            border-radius: 2px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .pdf-highlight:hover {
-            background-color: rgba(251, 146, 60, 0.5);
-        }
-    </style>
+  /* Inline row */
+  .row { display: flex; gap: 10px; align-items: flex-end; }
+  .row input, .row select { flex: 1; }
+  .row button { margin-top: 0; flex-shrink: 0; }
+
+  /* Chat */
+  #chat-box { min-height: 200px; max-height: 340px; overflow-y: auto; border: 1px solid #ddd; border-radius: 4px; padding: 10px; background: #fafafa; margin-top: 10px; }
+  .msg { margin-bottom: 10px; }
+  .msg.user { text-align: right; }
+  .msg-bubble { display: inline-block; padding: 8px 12px; border-radius: 6px; font-size: 13px; max-width: 80%; line-height: 1.5; }
+  .msg.user .msg-bubble { background: #4f8ef7; color: #fff; }
+  .msg.ai .msg-bubble { background: #eee; color: #222; }
+  .msg-label { font-size: 10px; color: #999; margin-bottom: 2px; }
+</style>
 </head>
-<body class="bg-[#f3f4f6] text-gray-800 h-screen overflow-hidden p-2 sm:p-4 lg:p-6 flex items-center justify-center select-none role-admin">
+<body>
 
-    <!-- ================= LOGIN / AUTH MODAL OVERLAY ================= -->
-    <div id="auth-modal" class="fixed inset-0 z-[100] bg-[#111111]/85 backdrop-blur-md flex items-center justify-center p-4 transition-all duration-300">
-        <div class="bg-white w-full max-w-md rounded-[2.5rem] p-8 sm:p-10 shadow-2xl relative overflow-hidden border border-gray-100 transform transition-all min-h-[460px] flex flex-col">
-            <!-- Background Glow Blobs -->
-            <div class="absolute -top-16 -right-16 w-48 h-48 bg-[#eefcce] rounded-full blur-2xl opacity-70 pointer-events-none"></div>
-            <div class="absolute -bottom-16 -left-16 w-48 h-48 bg-[#ffebd6] rounded-full blur-2xl opacity-70 pointer-events-none"></div>
+<!-- ── SIDEBAR ─────────────────────────────────────────────── -->
+<div id="sidebar">
+  <h2>CMPDI GeoAI</h2>
 
-            <!-- VIEW 1: ROLE SELECTION -->
-            <div id="view-role-select" class="relative z-10 flex-1 flex flex-col animate-fade-in">
-                <div class="w-14 h-14 bg-[#111111] rounded-2xl flex items-center justify-center mb-6 shadow-xl border border-gray-800 transition-transform hover:scale-105">
-                    <div class="w-6 h-6 bg-[#a3e635] rotate-45 rounded-xs"></div>
-                </div>
-                <h2 class="text-2xl sm:text-3xl font-extrabold text-[#111111] mb-2 tracking-tight">CMPDI GeoAI Portal</h2>
-                <p class="text-xs sm:text-sm font-medium text-gray-500 mb-8 leading-relaxed">Select your secure access tier to enter the geospatial intelligence hub.</p>
+  <div class="nav-section">Account</div>
+  <div class="nav-item active" onclick="show('pg-login')">🔐 Login</div>
 
-                <!-- Interactive Role Selection Boxes -->
-                <div class="grid grid-cols-2 gap-4 flex-1">
-                    <!-- Admin Box -->
-                    <div onclick="openLoginForm('admin')" class="group cursor-pointer bg-white border-2 border-gray-100 hover:border-[#a3e635] rounded-[1.5rem] p-6 transition-all duration-300 hover:shadow-[0_15px_35px_-5px_rgba(163,230,53,0.35)] hover:-translate-y-2 flex flex-col items-center justify-center text-center relative overflow-hidden h-[160px]">
-                        <div class="absolute inset-0 bg-gradient-to-br from-[#eefcce]/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                        <div class="w-14 h-14 bg-gray-50 border border-gray-100 text-gray-400 group-hover:bg-[#111111] group-hover:text-[#a3e635] group-hover:border-[#111111] rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-all duration-300 relative z-10 shadow-sm group-hover:shadow-md">
-                            <i data-lucide="shield-check" class="w-7 h-7"></i>
-                        </div>
-                        <h3 class="font-black text-gray-800 group-hover:text-gray-900 text-[13px] mb-1.5 relative z-10 transition-colors">Administrator</h3>
-                        <p class="text-[9px] uppercase tracking-wider text-gray-400 group-hover:text-[#84cc16] font-extrabold relative z-10 transition-colors">Full Analytics</p>
-                    </div>
+  <div class="nav-section">Core Features</div>
+  <div class="nav-item" onclick="show('pg-upload')">📄 Upload Docs</div>
+  <div class="nav-item" onclick="show('pg-chat')">🤖 AI Chat + RAG</div>
+  <div class="nav-item" onclick="show('pg-wordcloud')">☁️ Word Cloud</div>
+  <div class="nav-item" onclick="show('pg-report')">📊 Report Generation</div>
 
-                    <!-- User Box -->
-                    <div onclick="openLoginForm('user')" class="group cursor-pointer bg-white border-2 border-gray-100 hover:border-[#fb923c] rounded-[1.5rem] p-6 transition-all duration-300 hover:shadow-[0_15px_35px_-5px_rgba(251,146,60,0.3)] hover:-translate-y-2 flex flex-col items-center justify-center text-center relative overflow-hidden h-[160px]">
-                        <div class="absolute inset-0 bg-gradient-to-br from-[#ffebd6]/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                        <div class="w-14 h-14 bg-gray-50 border border-gray-100 text-gray-400 group-hover:bg-[#ea580c] group-hover:text-white group-hover:border-[#ea580c] rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-all duration-300 relative z-10 shadow-sm group-hover:shadow-md">
-                            <i data-lucide="users" class="w-7 h-7"></i>
-                        </div>
-                        <h3 class="font-black text-gray-800 group-hover:text-gray-900 text-[13px] mb-1.5 relative z-10 transition-colors">Verified User</h3>
-                        <p class="text-[9px] uppercase tracking-wider text-gray-400 group-hover:text-[#ea580c] font-extrabold relative z-10 transition-colors">Data Entry</p>
-                    </div>
-                </div>
+  <div class="nav-section">Admin</div>
+  <div class="nav-item" onclick="show('pg-health')">🟢 Health Check</div>
+  <div class="nav-item" onclick="show('pg-docs')">📂 All Documents</div>
 
-                <div class="mt-8 text-center pt-4 border-t border-gray-100/80">
-                    <p class="text-[10px] text-gray-400 font-bold tracking-widest uppercase">Restricted Access • Ministry of Coal</p>
-                </div>
-            </div>
+  <div class="status-bar" id="status-bar">
+    <span class="dot red" id="status-dot"></span>
+    <span id="status-text">Not connected</span>
+  </div>
+</div>
 
-            <!-- VIEW 2: LOGIN FORM -->
-            <div id="view-login-form" class="hidden relative z-10 flex-1 flex-col animate-fade-in">
-                <button onclick="goBackToRoles()" class="absolute -top-2 -left-2 w-10 h-10 flex items-center justify-center rounded-full bg-gray-50 hover:bg-gray-200 text-gray-600 transition-colors z-20">
-                    <i data-lucide="arrow-left" class="w-5 h-5"></i>
-                </button>
-                
-                <div class="text-center mt-1 mb-8">
-                    <div id="login-role-icon" class="w-12 h-12 mx-auto bg-[#111111] text-[#a3e635] rounded-2xl flex items-center justify-center mb-4 shadow-lg border border-gray-800">
-                        <i data-lucide="shield-check" class="w-6 h-6"></i>
-                    </div>
-                    <h2 class="text-2xl font-extrabold text-[#111111] tracking-tight mb-1">Welcome Back</h2>
-                    <p id="login-role-text" class="text-xs font-semibold text-gray-500">Sign in to Administrator Portal</p>
-                </div>
+<!-- ── MAIN ───────────────────────────────────────────────── -->
+<div id="main">
 
-                <form id="actual-login-form" onsubmit="processActualLogin(event)" class="space-y-4 flex-1">
-                    <div>
-                        <label class="block text-[10px] font-extrabold uppercase tracking-wider text-gray-600 mb-1.5 pl-1">Institutional Email</label>
-                        <div class="relative flex items-center">
-                            <i data-lucide="mail" class="w-4 h-4 text-gray-400 absolute left-4"></i>
-                            <input type="email" id="auth-email" required placeholder="name@cmpdi.gov.in" class="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl text-xs font-bold text-[#111111] focus:ring-2 focus:ring-[#a3e635] focus:bg-white outline-none transition-all shadow-2xs">
-                        </div>
-                    </div>
-                    <div>
-                        <div class="flex items-center justify-between mb-1.5 pl-1 pr-1">
-                            <label class="block text-[10px] font-extrabold uppercase tracking-wider text-gray-600">Secure Passkey</label>
-                            <a href="#" class="text-[10px] font-bold text-gray-500 hover:text-[#111111]">Forgot?</a>
-                        </div>
-                        <div class="relative flex items-center">
-                            <i data-lucide="lock" class="w-4 h-4 text-gray-400 absolute left-4"></i>
-                            <input type="password" id="auth-password" required value="securepassword123" placeholder="••••••••" class="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl text-xs font-bold text-[#111111] focus:ring-2 focus:ring-[#a3e635] focus:bg-white outline-none transition-all shadow-2xs">
-                        </div>
-                    </div>
-                    
-                    <button type="submit" class="w-full mt-2 py-3.5 bg-[#111111] text-[#a3e635] rounded-2xl font-black text-sm shadow-xl hover:bg-black hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2">
-                        <span>Sign In Securely</span> <i data-lucide="log-in" class="w-4 h-4"></i>
-                    </button>
-                    
-                    <div class="flex items-center my-4">
-                        <hr class="flex-1 border-gray-200">
-                        <span class="px-3 text-[9px] font-black text-gray-400 uppercase tracking-widest">Or authenticate with</span>
-                        <hr class="flex-1 border-gray-200">
-                    </div>
-                    
-                    <button type="button" onclick="processGoogleLogin()" class="w-full py-3 bg-white border border-gray-200 rounded-2xl font-extrabold text-xs text-gray-700 shadow-sm hover:bg-gray-50 hover:shadow-md transition-all flex items-center justify-center gap-3">
-                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.16v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.16C1.43 8.55 1 10.22 1 12s.43 3.45 1.16 4.93l2.85-2.22.83-.62z" fill="#FBBC05"/>
-                            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.16 7.07l3.68 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-                        </svg>
-                        Google Workspace Node
-                    </button>
-                </form>
-            </div>
+  <!-- CONFIG (always visible) -->
+  <div class="card" style="padding:10px 16px; margin-bottom:16px; display:flex; align-items:center; gap:12px;">
+    <span style="font-size:12px; color:#555; white-space:nowrap;">Backend URL:</span>
+    <input id="api-base" value="https://cmpdi-geoai-hub.onrender.com" style="flex:1; padding:6px 8px; font-size:12px;" />
+    <button style="margin:0; padding:7px 14px;" onclick="checkHealth()">Test</button>
+  </div>
 
-            <!-- Loading State (Overlay within modal) -->
-            <div id="login-loading" class="hidden absolute inset-0 z-50 bg-white/90 backdrop-blur-sm flex-col items-center justify-center transition-all duration-300 rounded-[2.5rem]">
-                <div class="relative w-16 h-16 mb-5">
-                    <div class="absolute inset-0 border-4 border-gray-100 rounded-full"></div>
-                    <div id="loading-spinner-ring" class="absolute inset-0 border-4 border-transparent border-t-[#a3e635] rounded-full animate-spin"></div>
-                </div>
-                <p class="text-sm font-black text-gray-800 animate-pulse tracking-wide">Authenticating Secure Node...</p>
-                <p class="text-[10px] text-gray-400 font-bold mt-2 uppercase tracking-widest" id="loading-role-text">Connecting</p>
-            </div>
-
-        </div>
+  <!-- ── PAGE: LOGIN ───────────────────────────────────────── -->
+  <div id="pg-login" class="page active">
+    <div class="page-title">🔐 Login</div>
+    <div class="page-sub">Authenticate with the backend. Token is saved and used for all requests.</div>
+    <div class="card">
+      <h3>Sign In</h3>
+      <label>Email</label>
+      <input id="login-email" value="admin.cmpdi@gov.in" />
+      <label>Password</label>
+      <input id="login-pass" type="password" value="cmpdi@2024" />
+      <button onclick="doLogin()">Login</button>
+      <div class="output" id="login-out">—</div>
     </div>
-
-    <!-- Outer Application Shell -->
-    <div class="flex w-full h-full max-w-[1700px] max-h-[960px] bg-[#f8f9fa] rounded-[2.5rem] shadow-[0_16px_50px_rgba(0,0,0,0.06)] overflow-hidden border border-gray-200/90 relative">
-        
-        <!-- Background Decorative Ambient Lighting -->
-        <div class="absolute top-0 left-0 w-80 h-80 bg-[#eefcce] rounded-full mix-blend-multiply filter blur-3xl opacity-40 pointer-events-none transform -translate-x-1/2 -translate-y-1/2 animate-glow"></div>
-        <div class="absolute bottom-0 right-0 w-96 h-96 bg-[#fef0db] rounded-full mix-blend-multiply filter blur-3xl opacity-40 pointer-events-none transform translate-x-1/3 translate-y-1/3 animate-glow"></div>
-
-        <!-- Mobile Sidebar Overlay -->
-        <div id="mobile-overlay" class="fixed inset-0 bg-black/40 z-40 hidden lg:hidden backdrop-blur-xs" onclick="toggleSidebar()"></div>
-
-        <!-- Dynamic Sidebar Feature Navigation Bar -->
-        <aside id="sidebar" class="absolute lg:relative z-50 h-full w-20 lg:w-24 bg-[#111111] text-white flex flex-col items-center py-6 lg:py-8 rounded-r-[2.5rem] lg:rounded-none transform transition-transform duration-300 ease-out -translate-x-full lg:translate-x-0 shadow-2xl shrink-0">
-            
-            <!-- Logo Button -->
-            <a href="#" class="w-12 h-12 lg:w-14 lg:h-14 bg-white rounded-2xl flex items-center justify-center mb-8 shrink-0 relative overflow-hidden group cursor-pointer transition-transform hover:scale-105 shadow-lg border border-white/20">
-                <div class="w-5 h-5 lg:w-6 lg:h-6 bg-[#111111] transform rotate-45 relative z-10 group-hover:scale-110 transition-transform flex items-center justify-center">
-                    <div class="w-2 h-2 bg-[#a3e635] rounded-xs"></div>
-                </div>
-                <div class="absolute top-1 left-1 w-2 h-2 bg-[#a3e635] rounded-full opacity-80 group-hover:scale-125 transition-all"></div>
-                <div class="absolute bottom-1 right-1 w-2 h-2 bg-[#fb923c] rounded-full opacity-80 group-hover:scale-125 transition-all"></div>
-            </a>
-
-            <!-- Sidebar Feature Action Items -->
-            <nav class="flex-1 flex flex-col items-center gap-5 w-full relative px-2">
-                
-                <!-- ADMIN LINKS -->
-                <a href="#dashboard" class="nav-btn admin-nav w-12 h-12 lg:w-14 lg:h-14 rounded-2xl flex items-center justify-center relative z-10 group text-gray-400 hover:text-white hover:scale-105" id="nav-dashboard">
-                    <i data-lucide="home" class="w-6 h-6 stroke-[2.2]"></i>
-                    <span class="active-indicator absolute left-1 top-3.5 w-1.5 h-7 bg-[#a3e635] rounded-r-full shadow-[0_0_8px_#a3e635]"></span>
-                    <span class="nav-tooltip absolute left-20 bg-white text-[#111111] text-xs px-3 py-2 rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all whitespace-nowrap z-[60] shadow-xl font-bold hidden lg:block border border-gray-100">Dashboard</span>
-                </a>
-                
-                <a href="#reports" class="nav-btn admin-nav w-12 h-12 lg:w-14 lg:h-14 rounded-2xl flex items-center justify-center relative z-10 group text-gray-400 hover:text-white hover:scale-105" id="nav-reports">
-                    <i data-lucide="folder" class="w-6 h-6 stroke-[2.2]"></i>
-                    <span class="active-indicator absolute left-1 top-3.5 w-1.5 h-7 bg-[#a3e635] rounded-r-full shadow-[0_0_8px_#a3e635]"></span>
-                    <span class="nav-tooltip absolute left-20 bg-white text-[#111111] text-xs px-3 py-2 rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all whitespace-nowrap z-[60] shadow-xl font-bold hidden lg:block border border-gray-100">Reports</span>
-                </a>
-
-                <a href="#insights" class="nav-btn admin-nav w-12 h-12 lg:w-14 lg:h-14 rounded-2xl flex items-center justify-center relative z-10 group text-gray-400 hover:text-white hover:scale-105" id="nav-insights">
-                    <i data-lucide="sparkles" class="w-6 h-6 stroke-[2.2]"></i>
-                    <span class="active-indicator absolute left-1 top-3.5 w-1.5 h-7 bg-[#a3e635] rounded-r-full shadow-[0_0_8px_#a3e635]"></span>
-                    <span class="nav-tooltip absolute left-20 bg-white text-[#111111] text-xs px-3 py-2 rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all whitespace-nowrap z-[60] shadow-xl font-bold hidden lg:block border border-gray-100">Insights</span>
-                </a>
-
-                <a href="#query" class="nav-btn admin-nav w-12 h-12 lg:w-14 lg:h-14 rounded-2xl flex items-center justify-center relative z-10 group text-gray-400 hover:text-white hover:scale-105" id="nav-query">
-                    <i data-lucide="bot" class="w-6 h-6 stroke-[2.2]"></i>
-                    <span class="active-indicator absolute left-1 top-3.5 w-1.5 h-7 bg-[#a3e635] rounded-r-full shadow-[0_0_8px_#a3e635]"></span>
-                    <span class="nav-tooltip absolute left-20 bg-white text-[#111111] text-xs px-3 py-2 rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all whitespace-nowrap z-[60] shadow-xl font-bold hidden lg:block border border-gray-100">AI Query</span>
-                </a>
-
-                <!-- USER LINKS -->
-                <a href="#user-upload" class="nav-btn user-nav w-12 h-12 lg:w-14 lg:h-14 rounded-2xl flex items-center justify-center relative z-10 group text-gray-400 hover:text-white hover:scale-105" id="nav-user-upload">
-                    <i data-lucide="upload-cloud" class="w-6 h-6 stroke-[2.2]"></i>
-                    <span class="active-indicator absolute left-1 top-3.5 w-1.5 h-7 bg-[#a3e635] rounded-r-full shadow-[0_0_8px_#a3e635]"></span>
-                    <span class="nav-tooltip absolute left-20 bg-white text-[#111111] text-xs px-3 py-2 rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all whitespace-nowrap z-[60] shadow-xl font-bold hidden lg:block border border-gray-100">Feed AI Data</span>
-                </a>
-
-                <a href="#user-verify" class="nav-btn user-nav w-12 h-12 lg:w-14 lg:h-14 rounded-2xl flex items-center justify-center relative z-10 group text-gray-400 hover:text-white hover:scale-105" id="nav-user-verify">
-                    <i data-lucide="file-search" class="w-6 h-6 stroke-[2.2]"></i>
-                    <span class="active-indicator absolute left-1 top-3.5 w-1.5 h-7 bg-[#fb923c] rounded-r-full shadow-[0_0_8px_#fb923c]"></span>
-                    <span class="nav-tooltip absolute left-20 bg-white text-[#111111] text-xs px-3 py-2 rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all whitespace-nowrap z-[60] shadow-xl font-bold hidden lg:block border border-gray-100">Verify Reports</span>
-                </a>
-            </nav>
-
-            <!-- Sidebar Bottom Profile / Actions -->
-            <div class="mt-auto flex flex-col items-center gap-4 w-full pb-2 shrink-0">
-                <button onclick="openProfileModal()" class="relative w-11 h-11 lg:w-12 lg:h-12 rounded-2xl bg-white text-[#111111] flex items-center justify-center hover:scale-105 transition-all shadow-md font-extrabold text-xs lg:text-sm border border-gray-100 group">
-                    <span id="sidebar-initials">AD</span>
-                    <span class="absolute bottom-0.5 right-0.5 w-3 h-3 bg-[#84cc16] rounded-full border-2 border-[#111111]"></span>
-                </button>
-                <button onclick="logout()" title="Sign Out" class="w-10 h-10 rounded-xl flex items-center justify-center text-gray-500 hover:text-white hover:bg-white/10 transition-all">
-                    <i data-lucide="log-out" class="w-5 h-5"></i>
-                </button>
-            </div>
-        </aside>
-
-        <!-- Main Application Body -->
-        <main class="flex-1 flex flex-col h-full overflow-hidden relative z-10 w-full">
-            
-            <!-- Top Header Action Bar -->
-            <header class="px-6 lg:px-10 py-4 lg:py-5 flex items-center justify-between gap-4 shrink-0 border-b border-gray-200/70 bg-white/70 backdrop-blur-md">
-                <div class="flex items-center gap-4">
-                    <button class="lg:hidden p-2.5 rounded-xl bg-white shadow-sm border border-gray-200 text-gray-800 hover:bg-gray-50 transition-colors" onclick="toggleSidebar()">
-                        <i data-lucide="menu" class="w-5 h-5"></i>
-                    </button>
-                    <div>
-                        <h2 class="text-xl lg:text-2xl font-black text-[#111111] flex items-center gap-2 tracking-tight" id="header-title">
-                            Dashboard <span class="text-xl">👋</span>
-                        </h2>
-                        <p class="text-xs font-semibold text-gray-500" id="header-subtitle">Welcome to CMPDI GeoAI Hub!</p>
-                    </div>
-                </div>
-                
-                <div class="flex items-center gap-3 sm:gap-4">
-                    <button onclick="openAddDataModal()" class="admin-action hidden sm:flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200/90 rounded-full text-xs font-extrabold shadow-xs hover:shadow-md hover:scale-[1.02] active:scale-95 transition-all text-gray-800">
-                        <i data-lucide="plus-circle" class="w-4 h-4 text-[#84cc16]"></i> <span>Add Data</span>
-                    </button>
-
-                    <div class="relative hidden md:block">
-                        <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                        <input type="text" id="global-search" oninput="handleGlobalSearch(this.value)" placeholder="Search datasets..." class="w-48 lg:w-60 pl-10 pr-4 py-2 bg-white border border-gray-200/90 rounded-full text-xs font-semibold focus:ring-2 focus:ring-[#a3e635] outline-none shadow-2xs transition-all">
-                    </div>
-
-                    <button onclick="showNotificationDropdown()" class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-2xs border border-gray-200/90 hover:shadow-md hover:scale-105 active:scale-95 transition-all relative">
-                        <i data-lucide="bell" class="w-4 h-4 text-gray-700"></i>
-                        <span id="notif-badge" class="absolute top-2 right-2 w-2.5 h-2.5 bg-[#fb923c] rounded-full ring-2 ring-white animate-pulse"></span>
-                    </button>
-                </div>
-            </header>
-
-            <!-- Scrollable View Area -->
-            <div class="flex-1 overflow-y-auto px-6 lg:px-10 py-6 custom-scrollbar bg-[#f8f9fa]">
-                <div class="max-w-[1500px] mx-auto w-full">
-                    
-                    <!-- ================= DASHBOARD VIEW (ADMIN) ================= -->
-                    <div id="page-dashboard" class="page-view flex-col space-y-6">
-                        
-                        <!-- Top Row Stat Cards -->
-                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                            <div class="lg:col-span-8 grid grid-cols-1 sm:grid-cols-3 gap-6">
-                                
-                                <div class="bg-white rounded-[2rem] p-6 border border-gray-200/80 flex flex-col justify-between relative overflow-hidden group card-elevate cursor-pointer h-48">
-                                    <div class="absolute -top-10 -right-10 w-32 h-32 bg-[#eefcce] rounded-full blur-xl opacity-70 group-hover:scale-125 transition-transform duration-500"></div>
-                                    <div class="flex justify-between items-start z-10 relative">
-                                        <div class="w-11 h-11 rounded-2xl bg-[#111111] text-[#a3e635] flex items-center justify-center shadow-md">
-                                            <i data-lucide="file-text" class="w-5 h-5"></i>
-                                        </div>
-                                        <span class="text-[11px] font-extrabold text-gray-700 bg-gray-100 px-3 py-1 rounded-full border border-gray-200/60">+12% wk</span>
-                                    </div>
-                                    <div class="z-10 relative mt-auto">
-                                        <div class="text-3xl lg:text-4xl font-black text-[#111111] mb-1 tracking-tight">1,284</div>
-                                        <p class="text-xs font-semibold text-gray-500">Reports compiled this month</p>
-                                    </div>
-                                </div>
-
-                                <div class="bg-white rounded-[2rem] p-6 border border-gray-200/80 flex flex-col justify-between relative overflow-hidden group card-elevate cursor-pointer h-48">
-                                    <div class="absolute -top-6 -right-6 w-28 h-28 bg-[#ffebd6] rounded-full blur-xl opacity-70 group-hover:scale-125 transition-transform duration-500"></div>
-                                    <div class="flex justify-between items-start z-10 relative">
-                                        <div class="w-11 h-11 rounded-2xl bg-[#fb923c] text-white flex items-center justify-center shadow-md">
-                                            <i data-lucide="clock" class="w-5 h-5"></i>
-                                        </div>
-                                        <span class="text-[11px] font-extrabold text-orange-800 bg-orange-50 px-3 py-1 rounded-full border border-orange-200/50">Optimized</span>
-                                    </div>
-                                    <div class="z-10 relative mt-auto">
-                                        <div class="text-3xl lg:text-4xl font-black text-[#111111] mb-1 tracking-tight">85%</div>
-                                        <p class="text-xs font-semibold text-gray-500">Time saved in compilation</p>
-                                    </div>
-                                </div>
-
-                                <div onclick="openAddDataModal()" class="border-2 border-dashed border-gray-300 rounded-[2rem] p-6 flex flex-col items-center justify-center text-center relative hover:bg-white hover:border-[#a3e635] transition-all cursor-pointer group h-48 shadow-2xs">
-                                    <div class="w-12 h-12 rounded-2xl bg-[#eefcce] flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
-                                        <i data-lucide="plus" class="w-6 h-6 text-[#84cc16]"></i>
-                                    </div>
-                                    <p class="text-xs font-extrabold text-gray-800">Add New Metrics</p>
-                                    <p class="text-[11px] text-gray-400 font-semibold mt-0.5">Connect feeds or files</p>
-                                </div>
-                            </div>
-
-                            <div class="lg:col-span-4 bg-[#fb923c] rounded-[2rem] p-6 text-white shadow-xl relative overflow-hidden group card-elevate flex flex-col justify-between h-48 border border-orange-400">
-                                <div class="relative z-10 flex justify-between items-start">
-                                    <h3 class="text-xl font-black tracking-tight">Extraction Accuracy</h3>
-                                    <div class="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center shadow-inner">
-                                        <i data-lucide="award" class="w-5 h-5 text-white"></i>
-                                    </div>
-                                </div>
-                                <div class="relative z-10 mt-auto">
-                                    <div class="text-3xl lg:text-4xl font-black mb-3 tracking-tight">98.2%</div>
-                                    <div class="flex gap-2">
-                                        <span class="px-3 py-1 bg-white text-[#fb923c] rounded-full text-xs font-extrabold shadow-sm">Verified Node</span>
-                                        <span class="px-3 py-1 bg-white/25 rounded-full text-xs font-bold backdrop-blur-md">AI Assisted</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Second Row: Production Chart & Processing Progress -->
-                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                            <div class="lg:col-span-8 bg-white rounded-[2rem] p-6 sm:p-8 border border-gray-200/80 flex flex-col h-[380px] card-elevate">
-                                <div class="flex justify-between items-center mb-4">
-                                    <div>
-                                        <h3 class="text-base font-extrabold text-gray-900 tracking-tight">Weekly Production Extracted</h3>
-                                        <p class="text-xs font-semibold text-gray-400">Coal (MT) vs Overburden (M.Cum)</p>
-                                    </div>
-                                    <div class="flex items-center gap-4 text-xs font-bold text-gray-600">
-                                        <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-md bg-[#111111]"></span> Coal</span>
-                                        <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-md bg-[#fb923c]"></span> Overburden</span>
-                                    </div>
-                                </div>
-                                <div class="flex-1 w-full relative">
-                                    <canvas id="productionChart"></canvas>
-                                </div>
-                            </div>
-
-                            <div class="lg:col-span-4 bg-[#eefcce] rounded-[2rem] p-6 sm:p-8 border border-[#d9f99d] flex flex-col justify-between card-elevate">
-                                <div>
-                                    <div class="flex items-center justify-between mb-6">
-                                        <div class="flex items-center gap-3">
-                                            <div class="w-10 h-10 bg-[#111111] rounded-xl flex items-center justify-center shadow-md">
-                                                <i data-lucide="database" class="w-5 h-5 text-[#a3e635]"></i>
-                                            </div>
-                                            <h3 class="font-extrabold text-[#111111] text-base tracking-tight">Data Processing</h3>
-                                        </div>
-                                        <span class="text-[11px] font-extrabold bg-white px-3 py-1 rounded-full text-gray-800 shadow-2xs">Live Node</span>
-                                    </div>
-                                    <div class="space-y-4">
-                                        <div>
-                                            <div class="flex justify-between text-xs font-extrabold text-gray-800 mb-1.5">
-                                                <span>Geological Reports</span><span>85%</span>
-                                            </div>
-                                            <div class="w-full bg-white rounded-full h-3 p-0.5 shadow-2xs"><div class="bg-[#84cc16] h-2 rounded-full transition-all duration-500" style="width: 85%"></div></div>
-                                        </div>
-                                        <div>
-                                            <div class="flex justify-between text-xs font-extrabold text-gray-800 mb-1.5">
-                                                <span>Monthly Targets</span><span>45%</span>
-                                            </div>
-                                            <div class="w-full bg-white rounded-full h-3 p-0.5 shadow-2xs"><div class="bg-[#a3e635] h-2 rounded-full transition-all duration-500" style="width: 45%"></div></div>
-                                        </div>
-                                        <div>
-                                            <div class="flex justify-between text-xs font-extrabold text-gray-800 mb-1.5">
-                                                <span>Forest Clearances</span><span>20%</span>
-                                            </div>
-                                            <div class="w-full bg-white rounded-full h-3 p-0.5 shadow-2xs"><div class="bg-[#111111] h-2 rounded-full transition-all duration-500" style="width: 20%"></div></div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <button onclick="location.hash='#reports'" class="mt-6 text-xs font-extrabold text-[#111111] bg-white hover:bg-gray-50 p-3.5 rounded-2xl shadow-sm hover:shadow-md transition-all flex items-center justify-between group">
-                                    <span>View all subsidiary logs</span> <i data-lucide="chevron-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Third Row: Recent Documents Log Table -->
-                        <div class="bg-white rounded-[2rem] p-6 sm:p-8 border border-gray-200/80 card-elevate overflow-x-auto">
-                            <div class="flex items-center justify-between mb-6 min-w-[650px]">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 rounded-2xl bg-gray-100 flex items-center justify-center text-gray-700">
-                                        <i data-lucide="folder-check" class="w-5 h-5"></i>
-                                    </div>
-                                    <div>
-                                        <h3 class="font-extrabold text-[#111111] text-base tracking-tight">Latest Processed Documents</h3>
-                                        <p class="text-xs font-semibold text-gray-400">Automated extraction logs and OCR verification status</p>
-                                    </div>
-                                </div>
-                                <button onclick="openAddDataModal()" class="px-4 py-2.5 bg-[#111111] text-white rounded-xl text-xs font-extrabold hover:bg-black transition-all shadow-sm active:scale-95">
-                                    Upload Document
-                                </button>
-                            </div>
-                            <div class="min-w-[650px]">
-                                <div class="grid grid-cols-4 gap-4 mb-3 px-4 text-[11px] font-black uppercase tracking-wider text-gray-400">
-                                    <div>Source Dataset</div><div>Upload Date</div><div>Status</div><div>Data Points</div>
-                                </div>
-                                <div class="space-y-2.5" id="documents-table-body">
-                                    <div class="grid grid-cols-4 gap-4 items-center bg-gray-50 hover:bg-[#eefcce]/50 transition-all rounded-2xl p-3.5 px-4 cursor-pointer border border-gray-200/50 hover:border-[#a3e635]/60">
-                                        <div class="flex items-center gap-3">
-                                            <div class="w-9 h-9 rounded-xl bg-[#a3e635] flex items-center justify-center shadow-2xs"><i data-lucide="file-text" class="w-4 h-4 text-[#111111]"></i></div>
-                                            <span class="font-extrabold text-xs text-[#111111]">ECL_Monthly_2023.pdf</span>
-                                        </div>
-                                        <div class="text-xs text-gray-500 font-bold">28.05.2023</div>
-                                        <div><span class="inline-flex items-center gap-1.5 px-3 py-1 bg-white rounded-full text-xs font-extrabold text-[#111111] border border-gray-200/80 shadow-2xs"><i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-[#84cc16]"></i> 100%</span></div>
-                                        <div class="text-xs font-black text-[#111111]">1,452</div>
-                                    </div>
-                                    <div class="grid grid-cols-4 gap-4 items-center bg-gray-50 hover:bg-[#ffebd6]/50 transition-all rounded-2xl p-3.5 px-4 cursor-pointer border border-gray-200/50 hover:border-[#fb923c]/60">
-                                        <div class="flex items-center gap-3">
-                                            <div class="w-9 h-9 rounded-xl bg-[#fb923c] flex items-center justify-center shadow-2xs"><i data-lucide="database" class="w-4 h-4 text-white"></i></div>
-                                            <span class="font-extrabold text-xs text-[#111111]">BCCL_Logs.xlsx</span>
-                                        </div>
-                                        <div class="text-xs text-gray-500 font-bold">27.05.2023</div>
-                                        <div><span class="inline-flex items-center gap-1.5 px-3 py-1 bg-white rounded-full text-xs font-extrabold text-[#111111] border border-gray-200/80 shadow-2xs"><i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-[#fb923c]"></i> 100%</span></div>
-                                        <div class="text-xs font-black text-[#111111]">8,930</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- ================= REPORTS VIEW (ADMIN) ================= -->
-                    <div id="page-reports" class="page-view flex-col space-y-6">
-                        <div class="bg-[#111111] rounded-[2rem] p-8 text-white shadow-xl relative overflow-hidden border border-gray-800">
-                            <div class="relative z-10">
-                                <span class="px-3 py-1 bg-[#a3e635] text-[#111111] font-extrabold text-[10px] uppercase tracking-wider rounded-full inline-block mb-3">Automated Compiler</span>
-                                <h2 class="text-2xl sm:text-3xl font-black tracking-tight mb-2">Institutional Report Builder</h2>
-                                <p class="text-gray-400 text-xs sm:text-sm font-medium">Generate parliamentary, geological, and monthly production summaries in real-time.</p>
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                            <div class="lg:col-span-5">
-                                <div class="bg-white rounded-[2rem] p-6 sm:p-8 border border-gray-200/80 card-elevate h-full flex flex-col justify-between">
-                                    <div class="space-y-4">
-                                        <h3 class="text-base font-extrabold text-[#111111] flex items-center gap-2 tracking-tight">
-                                            <i data-lucide="sliders" class="w-4 h-4 text-gray-400"></i> Report Configuration
-                                        </h3>
-                                        <div>
-                                            <label class="block text-xs font-extrabold text-gray-700 mb-2 pl-1">Report Format</label>
-                                            <select id="report-type-select" onchange="updateReportPreview()" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3.5 text-xs font-bold text-[#111111] focus:ring-2 focus:ring-[#a3e635] outline-none cursor-pointer">
-                                                <option value="parliamentary">Parliamentary Inquiry Response</option>
-                                                <option value="monthly">Monthly Coal Production Summary</option>
-                                                <option value="reserve">Geological Reserve Estimate</option>
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <label class="block text-xs font-extrabold text-gray-700 mb-2 pl-1">Target Subsidiary</label>
-                                            <select id="report-subsidiary-select" onchange="updateReportPreview()" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3.5 text-xs font-bold text-[#111111] focus:ring-2 focus:ring-[#a3e635] outline-none cursor-pointer">
-                                                <option value="All Consolidated">All Consolidated Subsidiaries</option>
-                                                <option value="BCCL">Bharat Coking Coal Limited (BCCL)</option>
-                                                <option value="CCL">Central Coalfields Limited (CCL)</option>
-                                                <option value="SECL">South Eastern Coalfields Limited (SECL)</option>
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <label class="block text-xs font-extrabold text-gray-700 mb-2 pl-1">Keywords / Focus Area</label>
-                                            <input type="text" id="report-keyword-input" oninput="updateReportPreview()" placeholder="e.g., Gevra expansion" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3.5 text-xs font-bold text-[#111111] focus:ring-2 focus:ring-[#a3e635] outline-none">
-                                        </div>
-                                    </div>
-                                    <div class="pt-6">
-                                        <button onclick="triggerReportGeneration()" class="w-full py-4 bg-[#a3e635] text-[#111111] rounded-2xl font-black text-xs shadow-md hover:bg-[#84cc16] hover:scale-[1.01] active:scale-95 transition-all flex items-center justify-center gap-2">
-                                            <i data-lucide="file-check-2" class="w-4 h-4"></i> <span>Compile & Export Document</span>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="lg:col-span-7">
-                                <div class="bg-white rounded-[2rem] h-[540px] border border-gray-200/80 card-elevate flex flex-col overflow-hidden relative">
-                                    <div class="absolute top-0 right-0 w-16 h-16 bg-gray-50 rounded-bl-[2rem] flex items-center justify-center cursor-pointer z-20 hover:bg-[#eefcce] transition-colors border-l border-b border-gray-200/60" onclick="triggerReportGeneration()" title="Export Document">
-                                        <i data-lucide="download" class="w-5 h-5 text-gray-700"></i>
-                                    </div>
-                                    <div class="p-5 px-6 border-b border-gray-200/60 flex justify-between items-center bg-gray-50/60">
-                                        <h3 class="font-extrabold text-[#111111] text-sm tracking-tight">Live Document Preview</h3>
-                                        <span class="text-[11px] font-extrabold text-green-700 bg-green-50 px-3 py-1 rounded-full flex items-center gap-1.5 border border-green-200/60"><span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> Dynamic Sync</span>
-                                    </div>
-                                    <div class="p-6 sm:p-10 flex-1 overflow-y-auto custom-scrollbar bg-gray-100/50">
-                                        <div id="preview-paper" class="bg-white max-w-xl mx-auto min-h-full shadow-md rounded-2xl p-8 sm:p-10 font-serif text-gray-800 border border-gray-200 relative">
-                                            <div class="text-center mb-6 border-b-2 border-gray-900 pb-4">
-                                                <h1 class="text-lg sm:text-xl font-bold uppercase tracking-wider mb-1">Government of India</h1>
-                                                <h2 id="preview-ministry-title" class="text-xs sm:text-sm font-semibold">Ministry of Coal</h2>
-                                                <p id="preview-subject-subtitle" class="text-xs mt-2 text-gray-600 font-sans font-semibold">Draft Response to Parliamentary Inquiry No. 4052</p>
-                                            </div>
-                                            <div class="space-y-4 text-justify text-xs leading-relaxed">
-                                                <p><strong>Subject:</strong> Status of Coal Production (<span id="preview-sub-badge" class="font-bold">All Consolidated</span>).</p>
-                                                <p>In response to official inquiry, AI-compiled data from verified logs across repositories indicates:</p>
-                                                <div class="bg-[#eefcce] rounded-xl p-3.5 font-sans text-[#111111] text-[11px] border border-[#d9f99d]">
-                                                    <strong>AI Confidence:</strong> 98.2% across 450+ cross-referenced docs. Keywords: <span id="preview-keyword-display" class="font-bold italic">None</span>.
-                                                </div>
-                                                <h3 class="font-bold text-xs sm:text-sm mt-4 font-sans uppercase tracking-wide">1. Production Overview (YTD)</h3>
-                                                <p>Total coal production stands at <strong>142.5 Million Tonnes</strong>, representing a Y-o-Y growth of 4.2% across major open-cast mines.</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- ================= INSIGHTS VIEW (ADMIN) ================= -->
-                    <div id="page-insights" class="page-view flex-col space-y-6">
-                        <div class="bg-white rounded-[2rem] p-6 sm:p-8 border border-gray-200/80 card-elevate flex flex-col md:flex-row md:items-center justify-between gap-4">
-                            <div>
-                                <span class="px-3 py-1 bg-[#eefcce] text-[#111111] font-extrabold text-[11px] rounded-full inline-block mb-2 border border-[#d9f99d]">Semantic Intelligence</span>
-                                <h2 class="text-2xl sm:text-3xl font-black text-[#111111] tracking-tight">Topic Insights & Semantic Map</h2>
-                                <p class="text-gray-500 text-xs sm:text-sm font-medium mt-1">Explore high-frequency mining terms extracted from over 1,200 verified PDF repositories.</p>
-                            </div>
-                            <div class="flex items-center gap-3 shrink-0">
-                                <div class="px-4 py-2.5 bg-gray-50 border border-gray-200/80 rounded-2xl text-center">
-                                    <div class="text-[10px] text-gray-400 font-extrabold uppercase">Indexed Files</div>
-                                    <div class="text-base font-black text-[#111111]">1,284</div>
-                                </div>
-                                <div class="px-4 py-2.5 bg-gray-50 border border-gray-200/80 rounded-2xl text-center">
-                                    <div class="text-[10px] text-gray-400 font-extrabold uppercase">Confidence</div>
-                                    <div class="text-base font-black text-[#84cc16]">98.2%</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                            <div class="lg:col-span-8 bg-white rounded-[2rem] border border-gray-200/80 card-elevate p-6 sm:p-8 flex flex-col justify-between min-h-[400px]">
-                                <div class="flex items-center justify-between mb-4">
-                                    <div>
-                                        <h3 class="font-extrabold text-[#111111] text-base tracking-tight">Interactive Word Map</h3>
-                                        <p class="text-xs font-semibold text-gray-400">Click any keyword to compile an instant report</p>
-                                    </div>
-                                    <span class="text-xs font-extrabold bg-[#eefcce] text-[#111111] px-3.5 py-1.5 rounded-xl flex items-center gap-1.5 border border-[#d9f99d]">
-                                        <i data-lucide="sparkles" class="w-3.5 h-3.5 text-[#84cc16]"></i> AI Live
-                                    </span>
-                                </div>
-
-                                <div class="relative w-full h-[280px] flex flex-wrap content-center justify-center items-center gap-4 sm:gap-6 p-6 bg-gray-50/70 rounded-2xl border border-dashed border-gray-300">
-                                    <div onclick="selectKeyword('Extraction')" class="font-black text-[#111111] bg-white hover:bg-[#a3e635] hover:text-[#111111] transition-all duration-300 cursor-pointer select-none px-5 py-2.5 rounded-2xl shadow-sm border border-gray-200 hover:scale-110 animate-float text-xl sm:text-2xl">Extraction</div>
-                                    <div onclick="selectKeyword('Overburden')" class="font-black text-[#fb923c] bg-orange-50 hover:bg-[#fb923c] hover:text-white transition-all duration-300 cursor-pointer select-none px-5 py-2 rounded-2xl shadow-sm border border-orange-200 hover:scale-110 text-lg sm:text-xl">Overburden</div>
-                                    <div onclick="selectKeyword('Seam Depth')" class="font-black text-gray-800 bg-gray-100 hover:bg-gray-900 hover:text-white transition-all duration-300 cursor-pointer select-none px-4 py-2 rounded-2xl shadow-sm border border-gray-200 hover:scale-110 text-base sm:text-lg">Seam Depth</div>
-                                    <div onclick="selectKeyword('Forest Clearance')" class="font-black text-[#84cc16] bg-[#eefcce] hover:bg-[#111111] hover:text-[#a3e635] transition-all duration-300 cursor-pointer select-none px-4 py-2 rounded-2xl shadow-sm border border-[#d9f99d] hover:scale-110 animate-float text-lg sm:text-xl" style="animation-delay: 1s;">Forest Clearance</div>
-                                    <div onclick="selectKeyword('Boring Log')" class="font-black text-amber-800 bg-amber-50 hover:bg-amber-600 hover:text-white transition-all duration-300 cursor-pointer select-none px-3.5 py-1.5 rounded-xl shadow-2xs border border-amber-200 hover:scale-110 text-sm">Boring Log</div>
-                                    <div onclick="selectKeyword('Reserve Block')" class="font-black text-slate-800 bg-slate-100 hover:bg-slate-900 hover:text-white transition-all duration-300 cursor-pointer select-none px-4 py-2 rounded-xl shadow-2xs border border-slate-200 hover:scale-110 text-base">Reserve Block</div>
-                                    <div onclick="selectKeyword('Hydrological Audit')" class="font-black text-cyan-800 bg-cyan-50 hover:bg-cyan-600 hover:text-white transition-all duration-300 cursor-pointer select-none px-3.5 py-1.5 rounded-xl shadow-2xs border border-cyan-200 hover:scale-110 text-xs">Hydrological Audit</div>
-                                </div>
-
-                                <div class="flex items-center justify-between text-xs text-gray-400 font-bold pt-3 border-t border-gray-100">
-                                    <span>Tip: Tap keyword to load into report generator</span><span>Updated 10 mins ago</span>
-                                </div>
-                            </div>
-
-                            <div class="lg:col-span-4 bg-white rounded-[2rem] p-6 sm:p-8 border border-gray-200/80 card-elevate flex flex-col justify-between">
-                                <div>
-                                    <div class="flex items-center justify-between mb-4">
-                                        <h3 class="font-extrabold text-[#111111] text-base tracking-tight">Cluster Breakdown</h3>
-                                        <span class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600"><i data-lucide="layers" class="w-4 h-4"></i></span>
-                                    </div>
-                                    <div class="space-y-3">
-                                        <div onclick="selectKeyword('Extraction')" class="p-4 rounded-2xl bg-gray-50 hover:bg-[#eefcce]/60 transition-colors cursor-pointer border border-gray-200/70">
-                                            <div class="flex justify-between items-center mb-1"><span class="font-extrabold text-xs text-[#111111]">Extraction & Output</span><span class="text-[11px] font-black text-[#84cc16]">42%</span></div>
-                                            <p class="text-[11px] text-gray-500 font-medium">High correlation with SECL & MCL logs.</p>
-                                        </div>
-                                        <div onclick="selectKeyword('Forest Clearance')" class="p-4 rounded-2xl bg-gray-50 hover:bg-[#ffebd6]/60 transition-colors cursor-pointer border border-gray-200/70">
-                                            <div class="flex justify-between items-center mb-1"><span class="font-extrabold text-xs text-[#111111]">Forest Clearances</span><span class="text-[11px] font-black text-[#fb923c]">28%</span></div>
-                                            <p class="text-[11px] text-gray-500 font-medium">Primary bottleneck in Gevra zones.</p>
-                                        </div>
-                                        <div onclick="selectKeyword('Reserve Block')" class="p-4 rounded-2xl bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer border border-gray-200/70">
-                                            <div class="flex justify-between items-center mb-1"><span class="font-extrabold text-xs text-[#111111]">Geological Reserves</span><span class="text-[11px] font-black text-gray-700">30%</span></div>
-                                            <p class="text-[11px] text-gray-500 font-medium">Verified core seam depth metrics.</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="mt-6 pt-3 border-t border-gray-100">
-                                    <a href="#reports" class="w-full py-3.5 bg-[#111111] text-[#a3e635] rounded-2xl font-black text-xs shadow-md hover:bg-black hover:scale-[1.01] transition-all flex items-center justify-center gap-2">
-                                        <span>Build Custom Report</span> <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- ================= AI QUERY VIEW (ADMIN) ================= -->
-                    <div id="page-query" class="page-view flex-col max-w-4xl mx-auto w-full h-[580px] bg-white rounded-[2.5rem] shadow-sm border border-gray-200/80 overflow-hidden relative card-elevate">
-                        <!-- Top Header inside card -->
-                        <div class="p-4 sm:p-5 px-6 flex items-center justify-between border-b border-gray-200/70 bg-white/90 backdrop-blur-md z-10">
-                            <div class="flex items-center gap-3">
-                                <div class="w-11 h-11 rounded-2xl bg-[#111111] flex items-center justify-center shadow-md">
-                                    <i data-lucide="cpu" class="w-5 h-5 text-[#a3e635]"></i>
-                                </div>
-                                <div>
-                                    <div class="flex items-center gap-2">
-                                        <h2 class="text-sm font-black text-[#111111] tracking-tight">GeoAI Assistant</h2>
-                                        <span class="px-2.5 py-0.5 bg-[#eefcce] text-[#111111] font-extrabold text-[9px] rounded-full border border-[#d9f99d]">v2.4 PRO</span>
-                                    </div>
-                                    <p class="text-[11px] font-extrabold text-[#84cc16]">Connected to 1,284 Institutional Documents</p>
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <button onclick="clearChat()" class="text-xs font-bold text-gray-600 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 px-3.5 py-2 rounded-xl transition-colors">Clear Chat</button>
-                            </div>
-                        </div>
-
-                        <!-- Chat Messages Scrollable Area -->
-                        <div id="chat-messages" class="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar bg-gray-50/50">
-                            <div class="flex gap-3 max-w-[85%]">
-                                <div class="w-9 h-9 rounded-xl bg-white flex items-center justify-center shrink-0 border border-gray-200 shadow-2xs"><i data-lucide="cpu" class="w-4 h-4 text-gray-500"></i></div>
-                                <div class="bg-white rounded-2xl rounded-tl-xs p-4 shadow-2xs border border-gray-200/70">
-                                    <p class="text-gray-800 font-semibold text-xs sm:text-sm leading-relaxed">Hello Administrator! Ask any query regarding coal production or clearance delays. Or select a quick preset prompt:</p>
-                                </div>
-                            </div>
-
-                            <div id="suggested-chips" class="flex flex-wrap gap-2 pl-12 pt-1">
-                                <button onclick="sendPresetPrompt('What is total coal production for Q3?')" class="px-4 py-2 bg-white hover:bg-[#eefcce] text-gray-800 hover:text-[#111111] border border-gray-200 rounded-full text-[11px] font-extrabold transition-all shadow-2xs hover:scale-105">📊 Q3 Total Coal Production?</button>
-                                <button onclick="sendPresetPrompt('Reasons for delay in Gevra expansion?')" class="px-4 py-2 bg-white hover:bg-[#ffebd6] text-gray-800 hover:text-[#111111] border border-gray-200 rounded-full text-[11px] font-extrabold transition-all shadow-2xs hover:scale-105">⚠️ Gevra Expansion Delays</button>
-                            </div>
-
-                            <div class="flex gap-3 max-w-[85%] ml-auto flex-row-reverse">
-                                <div class="w-9 h-9 rounded-xl bg-[#111111] flex items-center justify-center shrink-0 text-white font-extrabold text-xs shadow-md">A</div>
-                                <div class="bg-[#111111] text-white rounded-2xl rounded-tr-xs p-4 shadow-md">
-                                    <p class="font-medium text-xs sm:text-sm">Reasons for delay in Gevra expansion clearance?</p>
-                                </div>
-                            </div>
-
-                            <div class="flex gap-3 max-w-[85%]">
-                                <div class="w-9 h-9 rounded-xl bg-[#eefcce] flex items-center justify-center shrink-0 shadow-2xs border border-[#d9f99d]"><i data-lucide="cpu" class="w-4 h-4 text-[#111111]"></i></div>
-                                <div class="bg-white rounded-2xl rounded-tl-xs p-4 shadow-2xs border border-gray-200/70">
-                                    <p class="text-gray-900 font-extrabold mb-2 text-xs sm:text-sm">Based on SECL communications (Jan-Oct 2023):</p>
-                                    <ul class="list-disc list-inside text-gray-700 space-y-1 mb-2 text-xs sm:text-sm font-medium">
-                                        <li>Pending wildlife clearance from NBWL.</li>
-                                        <li>Hydrological impact assessments required in Block B.</li>
-                                    </ul>
-                                    <div class="flex items-center gap-2 pt-2 border-t border-gray-100 text-[10px] font-extrabold text-gray-400">
-                                        <span>SECL_Clearance_2023.pdf</span> • <span class="text-[#84cc16]">99.1% Confidence</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Pinned Chat Input Box -->
-                        <div class="p-4 bg-white border-t border-gray-200/80 z-10">
-                            <form onsubmit="handleChatSubmit(event)" class="relative flex items-center bg-gray-50 rounded-2xl border border-gray-200 focus-within:border-[#111111] focus-within:bg-white transition-all shadow-2xs p-1">
-                                <input type="text" id="chat-input" placeholder="Ask anything about reports or geological logs..." class="w-full bg-transparent border-none pl-4 pr-3 py-3 text-[#111111] font-semibold outline-none text-xs sm:text-sm">
-                                <button type="submit" class="p-3 bg-[#a3e635] hover:bg-[#84cc16] text-[#111111] rounded-xl transition-all flex-shrink-0 hover:scale-105 active:scale-95 shadow-sm flex items-center justify-center">
-                                    <i data-lucide="send" class="w-4 h-4 font-bold"></i>
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-
-
-                    <!-- ========================================================================= -->
-                    <!-- ================= NEW USER VIEWS (FILE UPLOAD & VERIFY) ================= -->
-                    <!-- ========================================================================= -->
-                    
-                    <!-- ================= UPLOAD DATA VIEW (USER) ================= -->
-                    <div id="page-user-upload" class="page-view flex-col space-y-6">
-                        <div class="bg-white rounded-[2rem] p-8 border border-gray-200/80 card-elevate">
-                            <div class="mb-6">
-                                <span class="px-3 py-1 bg-[#111111] text-white font-extrabold text-[10px] uppercase tracking-wider rounded-full inline-block mb-3">AI Data Feed</span>
-                                <h2 class="text-2xl sm:text-3xl font-black text-[#111111] tracking-tight">Upload & Index Knowledge</h2>
-                                <p class="text-gray-500 text-xs sm:text-sm font-medium mt-1">Submit geological PDFs, CSVs, or Excel logs to feed the GeoAI models securely.</p>
-                            </div>
-
-                            <div class="border-2 border-dashed border-gray-300 rounded-[2rem] p-10 flex flex-col items-center justify-center text-center bg-gray-50 hover:bg-[#eefcce]/20 hover:border-[#a3e635] transition-all cursor-pointer group mb-8">
-                                <div class="w-16 h-16 rounded-3xl bg-white border border-gray-200 flex items-center justify-center mb-4 group-hover:scale-110 group-hover:shadow-lg transition-all">
-                                    <i data-lucide="upload-cloud" class="w-8 h-8 text-[#84cc16]"></i>
-                                </div>
-                                <h3 class="text-base font-extrabold text-[#111111] mb-1">Drag & Drop Documents</h3>
-                                <p class="text-xs text-gray-500 font-semibold mb-4">Supports .PDF, .XLSX, .CSV up to 100MB</p>
-                                <button onclick="alertBox('File selector opened (simulated)')" class="px-6 py-3 bg-[#111111] text-[#a3e635] rounded-xl font-extrabold text-xs shadow-md hover:bg-black transition-all">
-                                    Browse Files
-                                </button>
-                            </div>
-
-                            <div>
-                                <h4 class="font-black text-sm text-[#111111] mb-4">Recent Indexing Queue</h4>
-                                <div class="space-y-3">
-                                    <div class="flex items-center justify-between p-4 bg-gray-50 border border-gray-200/80 rounded-2xl">
-                                        <div class="flex items-center gap-4">
-                                            <div class="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center"><i data-lucide="file-text" class="w-5 h-5 text-blue-600"></i></div>
-                                            <div>
-                                                <p class="font-extrabold text-xs text-gray-900">MCL_Survey_Data_Q3.pdf</p>
-                                                <p class="text-[10px] text-gray-500 font-bold mt-0.5">Uploaded just now</p>
-                                            </div>
-                                        </div>
-                                        <div class="flex items-center gap-3">
-                                            <span class="text-[10px] font-black text-orange-600 bg-orange-50 px-2.5 py-1 rounded-md border border-orange-200">Processing OCR...</span>
-                                            <div class="w-24 bg-gray-200 rounded-full h-1.5"><div class="bg-orange-500 h-1.5 rounded-full" style="width: 45%"></div></div>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-center justify-between p-4 bg-gray-50 border border-gray-200/80 rounded-2xl">
-                                        <div class="flex items-center gap-4">
-                                            <div class="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center"><i data-lucide="database" class="w-5 h-5 text-green-600"></i></div>
-                                            <div>
-                                                <p class="font-extrabold text-xs text-gray-900">SECL_Production_Oct.xlsx</p>
-                                                <p class="text-[10px] text-gray-500 font-bold mt-0.5">Uploaded 2 hours ago</p>
-                                            </div>
-                                        </div>
-                                        <div class="flex items-center gap-3">
-                                            <span class="text-[10px] font-black text-green-700 bg-green-50 px-2.5 py-1 rounded-md border border-green-200"><i data-lucide="check" class="w-3 h-3 inline"></i> Indexed</span>
-                                            <div class="w-24 bg-gray-200 rounded-full h-1.5"><div class="bg-green-500 h-1.5 rounded-full" style="width: 100%"></div></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- ================= VERIFY REPORTS VIEW (USER) ================= -->
-                    <div id="page-user-verify" class="page-view flex-col space-y-6 h-[800px]">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <h2 class="text-2xl font-black text-[#111111] tracking-tight">Report Verification Desk</h2>
-                                <p class="text-xs text-gray-500 font-semibold mt-1">Review AI-generated assertions against source documents.</p>
-                            </div>
-                            <span class="px-3 py-1.5 bg-[#ffebd6] text-[#ea580c] rounded-lg font-black text-xs border border-[#fdba74]">
-                                2 Pending Reviews
-                            </span>
-                        </div>
-
-                        <div class="flex flex-col md:flex-row gap-6 h-full pb-10">
-                            <!-- Left: List of Pending Reports -->
-                            <div class="w-full md:w-1/3 bg-white rounded-[2rem] border border-gray-200/80 card-elevate overflow-hidden flex flex-col min-h-[300px]">
-                                <div class="p-5 border-b border-gray-100 bg-gray-50/50">
-                                    <h3 class="font-extrabold text-[#111111] text-sm">Draft Reports Queue</h3>
-                                </div>
-                                <div class="flex-1 overflow-y-auto p-3 space-y-2">
-                                    <div class="p-4 bg-white border-2 border-[#a3e635] rounded-2xl cursor-pointer shadow-sm relative">
-                                        <div class="absolute top-3 right-3 w-2 h-2 bg-[#ea580c] rounded-full animate-pulse"></div>
-                                        <h4 class="font-black text-xs text-gray-900 mb-1">Parliamentary Q3 Status</h4>
-                                        <p class="text-[11px] text-gray-500 font-medium line-clamp-2">Draft response summarizing coal production and clearance bottlenecks for SECL.</p>
-                                        <div class="mt-3 flex items-center justify-between text-[10px] font-extrabold">
-                                            <span class="text-gray-400">Generated Today, 09:30 AM</span>
-                                        </div>
-                                    </div>
-                                    <div class="p-4 bg-gray-50 border border-gray-100 rounded-2xl cursor-pointer hover:border-gray-300 transition-colors">
-                                        <h4 class="font-black text-xs text-gray-900 mb-1">Gevra Reserve Estimate</h4>
-                                        <p class="text-[11px] text-gray-500 font-medium line-clamp-2">Geological audit summary for new block acquisition in Zone B.</p>
-                                        <div class="mt-3 flex items-center justify-between text-[10px] font-extrabold">
-                                            <span class="text-gray-400">Generated Yesterday</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Right: Report Editor & Verification -->
-                            <div class="w-full md:w-2/3 bg-white rounded-[2rem] border border-gray-200/80 card-elevate flex flex-col relative overflow-hidden min-h-[500px]">
-                                <div class="p-5 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
-                                    <h3 class="font-extrabold text-[#111111] text-sm flex items-center gap-2">
-                                        <i data-lucide="file-check" class="w-4 h-4 text-[#84cc16]"></i> Draft Q3 Review
-                                    </h3>
-                                    <div class="flex gap-2">
-                                        <button onclick="alertBox('Report Rejected and sent back to AI queue.')" class="px-4 py-2 bg-red-50 text-red-600 border border-red-200 rounded-xl text-[11px] font-black hover:bg-red-100 transition-all">Reject</button>
-                                        <button onclick="alertBox('Report Approved and Signed Digitally.')" class="px-4 py-2 bg-[#111111] text-[#a3e635] rounded-xl text-[11px] font-black shadow-md hover:bg-black transition-all">Approve Document</button>
-                                    </div>
-                                </div>
-                                <div class="p-4 sm:p-8 flex-1 overflow-y-auto custom-scrollbar bg-gray-50">
-                                    <!-- Document Canvas -->
-                                    <div class="bg-white max-w-xl mx-auto shadow-sm rounded-xl p-6 sm:p-8 font-serif text-gray-800 border border-gray-200 text-sm leading-relaxed text-justify relative">
-                                        
-                                        <h1 class="text-center font-bold uppercase tracking-widest text-lg mb-6 border-b pb-2">Status of Coal Production</h1>
-                                        
-                                        <p class="mb-4">As per the consolidated data analysis across subsidiary nodes, total extracted volume has witnessed a positive trend.</p>
-                                        
-                                        <!-- AI GENERATED CLAIM TO VERIFY -->
-                                        <div class="relative group my-6 border border-orange-200 bg-[#ffebd6]/20 rounded-xl p-4 pl-14 shadow-sm">
-                                            <div class="absolute left-3 top-4">
-                                                <button onclick="openSourceModal()" class="w-8 h-8 bg-[#fb923c] text-white rounded-full flex items-center justify-center shadow-md hover:scale-110 transition-transform" title="Verify AI Source">
-                                                    <i data-lucide="search" class="w-4 h-4"></i>
-                                                </button>
-                                            </div>
-                                            <p class="font-sans text-xs">
-                                                <strong class="text-[#ea580c] block mb-1">AI Extracted Claim:</strong> 
-                                                Total coal production stands at <strong>142.5 Million Tonnes</strong>, representing a Y-o-Y growth of 4.2% across major open-cast mines primarily driven by SECL expansion.
-                                            </p>
-                                        </div>
-
-                                        <p class="mb-4">Clearance bottlenecks in the Gevra expansion zone remain active, pending the final wildlife impact assessment expected by Q4.</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-        </main>
+    <div class="card">
+      <h3>Demo Credentials</h3>
+      <table style="width:100%; font-size:12px; border-collapse:collapse;">
+        <tr style="background:#f0f0f0;"><th style="text-align:left;padding:6px;">Email</th><th style="text-align:left;padding:6px;">Password</th><th style="text-align:left;padding:6px;">Role</th></tr>
+        <tr><td style="padding:6px;">admin.cmpdi@gov.in</td><td style="padding:6px;">cmpdi@2024</td><td style="padding:6px;"><span class="badge blue">Admin</span></td></tr>
+        <tr><td style="padding:6px;">ministry@coal.gov.in</td><td style="padding:6px;">coal@2024</td><td style="padding:6px;"><span class="badge orange">User</span></td></tr>
+        <tr><td style="padding:6px;">secl@cil.gov.in</td><td style="padding:6px;">secl@2024</td><td style="padding:6px;"><span class="badge blue">Admin</span></td></tr>
+      </table>
     </div>
+  </div>
 
-    <!-- ================= SOURCE VERIFICATION MODAL (USER FEATURE) ================= -->
-    <div id="source-modal" class="fixed inset-0 z-[120] bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4 sm:p-8 transition-opacity">
-        <div class="bg-white w-full max-w-5xl h-[85vh] rounded-[2rem] shadow-2xl flex flex-col overflow-hidden border border-gray-200">
-            <!-- Header -->
-            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center shrink-0">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-[#111111] text-[#a3e635] flex items-center justify-center shadow-md"><i data-lucide="link" class="w-5 h-5"></i></div>
-                    <div>
-                        <h3 class="text-sm font-black text-[#111111]">AI Source Verification</h3>
-                        <p class="text-[11px] font-bold text-gray-500">Tracing origin of extracted data point</p>
-                    </div>
-                </div>
-                <button onclick="closeSourceModal()" class="w-8 h-8 bg-gray-200 hover:bg-gray-300 rounded-full flex items-center justify-center text-gray-700 transition-colors">
-                    <i data-lucide="x" class="w-4 h-4"></i>
-                </button>
-            </div>
-            
-            <!-- Split Content -->
-            <div class="flex flex-col lg:flex-row flex-1 overflow-hidden">
-                <!-- Left: Claim -->
-                <div class="w-full lg:w-1/3 bg-white p-6 border-b lg:border-b-0 lg:border-r border-gray-200 flex flex-col shrink-0">
-                    <h4 class="text-xs font-black uppercase text-gray-400 mb-2">Generated Text</h4>
-                    <div class="p-4 bg-gray-50 rounded-xl border border-gray-200 text-sm font-medium text-gray-800 leading-relaxed mb-6">
-                        "Total coal production stands at <span class="bg-[#fb923c]/20 px-1 font-bold text-[#ea580c] rounded">142.5 Million Tonnes</span>, representing a Y-o-Y growth of 4.2%..."
-                    </div>
-
-                    <h4 class="text-xs font-black uppercase text-gray-400 mb-2">AI Confidence</h4>
-                    <div class="flex items-center gap-3 mb-6">
-                        <div class="flex-1 bg-gray-200 rounded-full h-2"><div class="bg-[#84cc16] h-2 rounded-full" style="width: 98%"></div></div>
-                        <span class="text-xs font-black text-[#84cc16]">98.2%</span>
-                    </div>
-
-                    <h4 class="text-xs font-black uppercase text-gray-400 mb-2">Actions</h4>
-                    <div class="space-y-3">
-                        <button onclick="closeSourceModal(); alertBox('Source Verified & Marked as Accurate');" class="w-full py-3 bg-[#a3e635] text-[#111111] rounded-xl font-black text-xs shadow-sm hover:scale-[1.02] transition-transform">Mark as Accurate</button>
-                        <button onclick="closeSourceModal(); alertBox('Flagged for manual editing.');" class="w-full py-3 bg-red-50 text-red-600 rounded-xl font-black text-xs border border-red-200 hover:bg-red-100 transition-colors">Flag Inaccuracy</button>
-                    </div>
-                </div>
-
-                <!-- Right: Source PDF Mockup -->
-                <div class="w-full lg:w-2/3 bg-gray-100 p-6 flex flex-col relative flex-1">
-                    <div class="flex justify-between items-center mb-3">
-                        <h4 class="text-xs font-black uppercase text-gray-600 flex items-center gap-2">
-                            <i data-lucide="file-text" class="w-4 h-4"></i> Source: SECL_Monthly_2023.pdf (Page 12)
-                        </h4>
-                        <button class="text-[10px] font-bold text-gray-500 hover:text-[#111111] bg-white px-2 py-1 rounded-md border border-gray-200 shadow-sm">Open Full PDF</button>
-                    </div>
-                    
-                    <!-- Simulated PDF Page -->
-                    <div class="flex-1 bg-white shadow-md border border-gray-300 rounded-lg p-6 sm:p-10 overflow-y-auto font-serif text-xs text-gray-600 text-justify custom-scrollbar relative">
-                        <p class="mb-4">3.1.2 Subsidiary Performance Metrics (Oct 2023)</p>
-                        <p class="mb-4">The overarching strategy implemented across major subsidiaries has yielded significant results in the final quarter. Field reports collated from various GMs indicate steady operational status despite minor logistical delays.</p>
-                        
-                        <div class="my-6 p-4 border border-dashed border-gray-300 bg-gray-50">
-                            <p class="font-sans font-bold text-gray-800 mb-2 text-center text-[10px]">TABLE 4: Consolidated Output</p>
-                            <div class="grid grid-cols-3 gap-2 font-sans font-semibold text-[10px] text-center border-t border-b border-gray-300 py-2">
-                                <div>Subsidiary</div><div>Production (MT)</div><div>Y-o-Y Growth</div>
-                                <div class="font-normal text-gray-600">SECL</div><div class="font-normal text-gray-600">85.2</div><div class="font-normal text-gray-600">+5.1%</div>
-                                <div class="font-normal text-gray-600">MCL</div><div class="font-normal text-gray-600">40.1</div><div class="font-normal text-gray-600">+3.0%</div>
-                                <div class="font-normal text-gray-600">BCCL</div><div class="font-normal text-gray-600">17.2</div><div class="font-normal text-gray-600">+2.5%</div>
-                            </div>
-                        </div>
-
-                        <p class="mb-4">
-                            Aggregating the above verified figures, the <span class="pdf-highlight" title="AI Extracted Entity">Total coal production stands at 142.5 Million Tonnes</span> for the consolidated nodes, representing an overall <span class="pdf-highlight">Y-o-Y growth of 4.2%</span>. This metric is primarily driven by SECL expansion policies...
-                        </p>
-                        <p>Subsequent sections outline the specific clearance bottlenecks affecting Block B.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+  <!-- ── PAGE: UPLOAD ──────────────────────────────────────── -->
+  <div id="pg-upload" class="page">
+    <div class="page-title">📄 Document Upload</div>
+    <div class="page-sub">Upload PDFs, DOCX, PPTX, Excel, or Images. They get OCR'd, chunked, and indexed into ChromaDB.</div>
+    <div class="card">
+      <h3>Upload File</h3>
+      <label>File</label>
+      <input type="file" id="upload-file" accept=".pdf,.docx,.pptx,.xlsx,.png,.jpg,.jpeg,.txt" />
+      <label>Subsidiary</label>
+      <select id="upload-sub">
+        <option>General</option><option>ECL</option><option>BCCL</option><option>CCL</option>
+        <option>WCL</option><option>SECL</option><option>MCL</option><option>NCL</option><option>CMPDI</option>
+      </select>
+      <label>Category</label>
+      <select id="upload-cat">
+        <option>Geological Survey</option><option>Production Report</option>
+        <option>Parliamentary Brief</option><option>Safety & Compliance</option>
+        <option>Financial Report</option><option>Exploration Log</option><option>Other</option>
+      </select>
+      <label>Description (optional)</label>
+      <input id="upload-desc" placeholder="Brief description..." />
+      <button onclick="doUpload()">Upload & Index</button>
+      <div class="output" id="upload-out">—</div>
     </div>
+  </div>
 
-
-    <!-- ================= ADD DATA MODAL (ADMIN ONLY) ================= -->
-    <div id="add-data-modal" class="fixed inset-0 z-[110] bg-black/50 backdrop-blur-xs hidden items-center justify-center p-4">
-        <div class="bg-white w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl relative border border-gray-100">
-            <div class="flex justify-between items-center mb-5">
-                <h3 class="text-lg font-extrabold text-[#111111] tracking-tight">Upload Mining Dataset</h3>
-                <button onclick="closeAddDataModal()" class="w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center text-gray-600 transition-colors">
-                    <i data-lucide="x" class="w-4 h-4"></i>
-                </button>
-            </div>
-            <form onsubmit="handleAddDataSubmit(event)" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-extrabold uppercase tracking-wider text-gray-600 mb-1.5 pl-1">Document Title</label>
-                    <input type="text" id="new-doc-name" required placeholder="e.g., Mahanadi_Coal_Q2.pdf" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold text-[#111111] focus:ring-2 focus:ring-[#a3e635] outline-none">
-                </div>
-                <div>
-                    <label class="block text-xs font-extrabold uppercase tracking-wider text-gray-600 mb-1.5 pl-1">Source Category</label>
-                    <select id="new-doc-type" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold text-[#111111] focus:ring-2 focus:ring-[#a3e635] outline-none">
-                        <option value="PDF Geological Report">PDF Geological Report</option>
-                        <option value="Excel Production Log">Excel Production Log</option>
-                        <option value="Clearance File">Clearance File</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-extrabold uppercase tracking-wider text-gray-600 mb-1.5 pl-1">File Upload</label>
-                    <div class="border-2 border-dashed border-gray-300 rounded-2xl p-6 text-center bg-gray-50/50 hover:bg-gray-50 cursor-pointer transition-colors">
-                        <i data-lucide="upload-cloud" class="w-7 h-7 mx-auto text-gray-400 mb-2"></i>
-                        <p class="text-xs font-extrabold text-gray-800">Click to browse or drop file here</p>
-                        <p class="text-[10px] text-gray-400 font-semibold mt-0.5">PDF, XLSX, CSV up to 50MB</p>
-                    </div>
-                </div>
-                <button type="submit" class="w-full py-4 bg-[#a3e635] text-[#111111] rounded-2xl font-black text-xs shadow-md hover:bg-[#84cc16] hover:scale-[1.01] active:scale-95 transition-all">
-                    Process & Index Dataset
-                </button>
-            </form>
-        </div>
+  <!-- ── PAGE: AI CHAT ─────────────────────────────────────── -->
+  <div id="pg-chat" class="page">
+    <div class="page-title">🤖 AI Chat + RAG</div>
+    <div class="page-sub">Ask questions. The AI retrieves relevant chunks from indexed documents and answers with source citations.</div>
+    <div class="card">
+      <h3>Chat</h3>
+      <div id="chat-box"><div style="color:#999; font-size:12px;">Ask a question about your uploaded documents...</div></div>
+      <div class="row" style="margin-top:10px;">
+        <input id="chat-input" placeholder="e.g. What is the coal production of SECL?" onkeydown="if(event.key==='Enter') doChat()" />
+        <button onclick="doChat()">Send</button>
+        <button class="gray" onclick="clearChat()">Clear</button>
+      </div>
+      <div id="citations-box" style="margin-top:12px;"></div>
     </div>
+  </div>
 
-    <!-- ================= PROFILE MODAL ================= -->
-    <div id="profile-modal" class="fixed inset-0 z-[110] bg-black/50 backdrop-blur-xs hidden items-center justify-center p-4">
-        <div class="bg-white w-full max-w-sm rounded-[2.5rem] p-7 shadow-2xl relative border border-gray-100">
-            <div class="flex justify-between items-center mb-5">
-                <h3 class="text-lg font-extrabold text-[#111111]">User Profile</h3>
-                <button onclick="closeProfileModal()" class="w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center text-gray-600 transition-colors">
-                    <i data-lucide="x" class="w-4 h-4"></i>
-                </button>
-            </div>
-            <div class="flex items-center gap-3.5 mb-5 p-4 bg-gray-50 rounded-2xl border border-gray-100">
-                <div class="w-12 h-12 rounded-2xl bg-[#111111] text-[#a3e635] flex items-center justify-center font-black text-base shadow-md" id="modal-initials">AD</div>
-                <div>
-                    <h4 class="font-extrabold text-gray-900 text-sm" id="modal-role-name">Administrator</h4>
-                    <p class="text-[11px] font-semibold text-gray-500" id="modal-email">admin.cmpdi@gov.in</p>
-                    <span class="inline-block mt-1 px-2.5 py-0.5 bg-[#eefcce] text-[#111111] rounded-full text-[10px] font-extrabold border border-[#d9f99d]">Ministry of Coal</span>
-                </div>
-            </div>
-            <div class="space-y-2.5 text-xs font-semibold text-gray-600">
-                <div class="flex justify-between py-2 border-b border-gray-100"><span>Role</span><span class="font-extrabold text-gray-900" id="modal-role-level">Senior GeoAI Lead</span></div>
-                <div class="flex justify-between py-2 border-b border-gray-100"><span>Security Level</span><span class="font-extrabold text-green-600">Level 4</span></div>
-                <div class="flex justify-between py-2"><span>Institutional Node</span><span class="font-extrabold text-gray-900">Bhopal #02</span></div>
-            </div>
-            <button onclick="logout()" class="w-full mt-6 py-3.5 bg-red-50 text-red-600 rounded-2xl font-black text-xs hover:bg-red-100 transition-colors flex items-center justify-center gap-2">
-                <i data-lucide="log-out" class="w-4 h-4"></i> Sign Out Session
-            </button>
-        </div>
+  <!-- ── PAGE: WORD CLOUD ──────────────────────────────────── -->
+  <div id="pg-wordcloud" class="page">
+    <div class="page-title">☁️ Word Cloud + Topics</div>
+    <div class="page-sub">Keyword frequency and topic clusters extracted from all indexed documents.</div>
+    <div class="card">
+      <h3>Word Cloud</h3>
+      <div class="row">
+        <select id="wc-sub">
+          <option value="">All Subsidiaries</option>
+          <option>ECL</option><option>BCCL</option><option>CCL</option><option>WCL</option>
+          <option>SECL</option><option>MCL</option><option>NCL</option><option>CMPDI</option>
+        </select>
+        <button onclick="loadWordCloud()">Load</button>
+      </div>
+      <div id="wc-out" style="margin-top:12px; line-height:2.2;">—</div>
     </div>
+    <div class="card">
+      <h3>Topic Clusters</h3>
+      <button onclick="loadClusters()">Load Clusters</button>
+      <div class="output" id="cluster-out" style="margin-top:10px;">—</div>
+    </div>
+    <div class="card">
+      <h3>AI Insights (Gemini Generated)</h3>
+      <button onclick="loadInsights()">Generate Insights</button>
+      <div class="output" id="insights-out" style="margin-top:10px;">—</div>
+    </div>
+  </div>
 
-    <!-- ================= APPLICATION SCRIPT ================= -->
-    <script>
-        // Initialize Lucide SVG Icons
-        lucide.createIcons();
+  <!-- ── PAGE: REPORT ──────────────────────────────────────── -->
+  <div id="pg-report" class="page">
+    <div class="page-title">📊 Report Generation</div>
+    <div class="page-sub">AI generates a formal report from indexed documents. Download as PDF, DOCX, or CSV.</div>
+    <div class="card">
+      <h3>Generate Report</h3>
+      <label>Report Type</label>
+      <select id="rpt-type">
+        <option value="parliamentary">Parliamentary Inquiry Response</option>
+        <option value="monthly">Monthly Coal Production Summary</option>
+        <option value="geological">Geological Reserve Assessment</option>
+        <option value="safety">Mines Safety & Compliance</option>
+      </select>
+      <label>Subsidiary</label>
+      <select id="rpt-sub">
+        <option>All Subsidiaries</option><option>ECL</option><option>BCCL</option>
+        <option>CCL</option><option>WCL</option><option>SECL</option><option>MCL</option>
+        <option>NCL</option><option>CMPDI</option>
+      </select>
+      <label>Keywords / Focus Area (optional)</label>
+      <input id="rpt-kw" placeholder="e.g. coal production, overburden, reserves" />
+      <label>Export Format</label>
+      <select id="rpt-fmt">
+        <option value="docx">Word (.docx)</option>
+        <option value="pdf">PDF (.pdf)</option>
+        <option value="csv">CSV (.csv)</option>
+      </select>
+      <button onclick="doReport()">Generate & Download</button>
+      <div class="output" id="rpt-out">—</div>
+    </div>
+  </div>
 
-        // Auth state check & Role Configuration
-        window.addEventListener('load', () => {
-            const authModal = document.getElementById('auth-modal');
-            const isLoggedIn = localStorage.getItem('cmpdi_logged_in');
-            
-            if (isLoggedIn === 'true') {
-                authModal.classList.add('hidden');
-                applyRoleSettings();
-            } else {
-                authModal.classList.remove('hidden');
-            }
+  <!-- ── PAGE: HEALTH ──────────────────────────────────────── -->
+  <div id="pg-health" class="page">
+    <div class="page-title">🟢 Health Check</div>
+    <div class="page-sub">Check if the backend server, database, and storage are all online.</div>
+    <div class="card">
+      <h3>Server Status</h3>
+      <button onclick="checkHealth()">Check Now</button>
+      <div class="output" id="health-out">—</div>
+    </div>
+    <div class="card">
+      <h3>Admin Metrics</h3>
+      <button onclick="loadMetrics()">Load Metrics</button>
+      <div class="output" id="metrics-out">—</div>
+    </div>
+  </div>
+
+  <!-- ── PAGE: ALL DOCS ─────────────────────────────────────── -->
+  <div id="pg-docs" class="page">
+    <div class="page-title">📂 All Documents</div>
+    <div class="page-sub">All documents currently indexed in the knowledge base.</div>
+    <div class="card">
+      <h3>Document List</h3>
+      <div class="row">
+        <select id="docs-sub">
+          <option value="">All Subsidiaries</option>
+          <option>ECL</option><option>BCCL</option><option>CCL</option><option>WCL</option>
+          <option>SECL</option><option>MCL</option><option>NCL</option><option>CMPDI</option>
+        </select>
+        <button onclick="loadDocs()">Load</button>
+      </div>
+      <div class="output" id="docs-out" style="margin-top:10px;">—</div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<script>
+// ── Global State ─────────────────────────────────────────────
+let TOKEN = localStorage.getItem('cmpdi_test_token') || '';
+
+function base() { return document.getElementById('api-base').value.replace(/\/+$/, ''); }
+
+function show(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+function out(id, text, cls='') {
+  const el = document.getElementById(id);
+  el.textContent = text;
+  el.className = 'output ' + cls;
+}
+
+function headers() {
+  const h = { 'Content-Type': 'application/json' };
+  if (TOKEN) h['Authorization'] = 'Bearer ' + TOKEN;
+  return h;
+}
+
+// ── Health Check ────────────────────────────────────────────
+async function checkHealth() {
+  try {
+    const r = await fetch(base() + '/api/health');
+    const d = await r.json();
+    document.getElementById('status-dot').className = 'dot green';
+    document.getElementById('status-text').textContent = 'Connected';
+    out('health-out', JSON.stringify(d, null, 2), 'success');
+  } catch(e) {
+    document.getElementById('status-dot').className = 'dot red';
+    document.getElementById('status-text').textContent = 'Offline';
+    out('health-out', 'Error: ' + e.message, 'error');
+  }
+}
+
+async function loadMetrics() {
+  try {
+    const r = await fetch(base() + '/api/admin/metrics', { headers: headers() });
+    const d = await r.json();
+    out('metrics-out', JSON.stringify(d, null, 2), 'success');
+  } catch(e) { out('metrics-out', 'Error: ' + e.message, 'error'); }
+}
+
+// ── Login ───────────────────────────────────────────────────
+async function doLogin() {
+  const email = document.getElementById('login-email').value;
+  const password = document.getElementById('login-pass').value;
+  out('login-out', 'Logging in...');
+  try {
+    const r = await fetch(base() + '/api/login', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    const d = await r.json();
+    if (!r.ok) { out('login-out', '❌ ' + (d.detail || 'Login failed'), 'error'); return; }
+    TOKEN = d.access_token;
+    localStorage.setItem('cmpdi_test_token', TOKEN);
+    out('login-out', '✅ Logged in!\n\nUser: ' + d.user.name + '\nRole: ' + d.user.role + '\nSubsidiary: ' + d.user.subsidiary, 'success');
+    document.getElementById('status-dot').className = 'dot green';
+    document.getElementById('status-text').textContent = d.user.role + ' | ' + d.user.email.split('@')[0];
+  } catch(e) { out('login-out', '❌ ' + e.message, 'error'); }
+}
+
+// ── Upload ──────────────────────────────────────────────────
+async function doUpload() {
+  const fileEl = document.getElementById('upload-file');
+  if (!fileEl.files.length) { out('upload-out', '❌ Please select a file', 'error'); return; }
+  out('upload-out', '⏳ Uploading and indexing... (may take 15-60 sec for large files)');
+  const fd = new FormData();
+  fd.append('file', fileEl.files[0]);
+  fd.append('subsidiary', document.getElementById('upload-sub').value);
+  fd.append('doc_category', document.getElementById('upload-cat').value);
+  fd.append('description', document.getElementById('upload-desc').value);
+  try {
+    const r = await fetch(base() + '/api/upload', {
+      method: 'POST',
+      headers: TOKEN ? { 'Authorization': 'Bearer ' + TOKEN } : {},
+      body: fd
+    });
+    const d = await r.json();
+    if (!r.ok) { out('upload-out', '❌ ' + (d.detail || 'Upload failed'), 'error'); return; }
+    out('upload-out',
+      '✅ Uploaded & Indexed!\n\n' +
+      'File: ' + d.filename + '\n' +
+      'Pages: ' + d.pages + '\n' +
+      'Chunks: ' + d.chunks + '\n' +
+      'Indexed: ' + d.indexed_chunks + ' new chunks\n' +
+      'Storage: ' + d.storage_type + '\n' +
+      'Time: ' + d.upload_time_sec + 's',
+    'success');
+  } catch(e) { out('upload-out', '❌ ' + e.message, 'error'); }
+}
+
+// ── Chat ────────────────────────────────────────────────────
+async function doChat() {
+  const input = document.getElementById('chat-input');
+  const query = input.value.trim();
+  if (!query) return;
+  input.value = '';
+
+  const box = document.getElementById('chat-box');
+  box.innerHTML += `<div class="msg user"><div class="msg-label">You</div><div class="msg-bubble">${query}</div></div>`;
+  box.innerHTML += `<div class="msg ai" id="ai-thinking"><div class="msg-label">GeoAI</div><div class="msg-bubble" style="color:#888;">Thinking...</div></div>`;
+  box.scrollTop = box.scrollHeight;
+
+  try {
+    const r = await fetch(base() + '/api/chat', {
+      method: 'POST', headers: headers(),
+      body: JSON.stringify({ query, top_k: 5 })
+    });
+    const d = await r.json();
+    document.getElementById('ai-thinking').remove();
+
+    if (!r.ok) {
+      box.innerHTML += `<div class="msg ai"><div class="msg-bubble" style="color:red;">❌ ${d.detail || 'Error'}</div></div>`;
+    } else {
+      box.innerHTML += `<div class="msg ai"><div class="msg-label">GeoAI</div><div class="msg-bubble">${d.answer}</div></div>`;
+
+      // Citations
+      const citBox = document.getElementById('citations-box');
+      if (d.citations && d.citations.length > 0) {
+        let html = '<div style="font-size:11px; color:#555; font-weight:bold; margin-bottom:6px;">📎 Sources Used:</div>';
+        d.citations.forEach(c => {
+          html += `<div class="citation">
+            <strong>${c.source}</strong> — Page ${c.page} &nbsp;
+            <span class="badge blue">${Math.round(c.confidence * 100)}% match</span>
+            <span class="badge orange">${c.subsidiary}</span>
+            <div style="color:#444; margin-top:4px;">${c.excerpt}</div>
+          </div>`;
         });
+        citBox.innerHTML = html;
+      }
+    }
+    box.scrollTop = box.scrollHeight;
+  } catch(e) {
+    document.getElementById('ai-thinking').remove();
+    box.innerHTML += `<div class="msg ai"><div class="msg-bubble" style="color:red;">❌ ${e.message}</div></div>`;
+  }
+}
 
-        let currentAuthRole = 'admin';
+async function clearChat() {
+  document.getElementById('chat-box').innerHTML = '<div style="color:#999; font-size:12px;">Chat cleared.</div>';
+  document.getElementById('citations-box').innerHTML = '';
+  await fetch(base() + '/api/chat/clear', { method: 'POST', headers: headers() });
+}
 
-        function openLoginForm(role) {
-            currentAuthRole = role;
-            
-            // Switch views smoothly
-            document.getElementById('view-role-select').classList.add('hidden');
-            document.getElementById('view-role-select').classList.remove('flex');
-            document.getElementById('view-login-form').classList.remove('hidden');
-            document.getElementById('view-login-form').classList.add('flex');
-            
-            // Update Form UI based on selected role
-            const roleIconContainer = document.getElementById('login-role-icon');
-            const roleText = document.getElementById('login-role-text');
-            const emailInput = document.getElementById('auth-email');
-            
-            if (role === 'admin') {
-                roleIconContainer.className = "w-12 h-12 mx-auto bg-[#111111] text-[#a3e635] rounded-2xl flex items-center justify-center mb-4 shadow-lg border border-gray-800";
-                roleIconContainer.innerHTML = '<i data-lucide="shield-check" class="w-6 h-6"></i>';
-                roleText.textContent = "Sign in to Administrator Portal";
-                emailInput.value = "admin.cmpdi@gov.in";
-            } else {
-                roleIconContainer.className = "w-12 h-12 mx-auto bg-[#ea580c] text-white rounded-2xl flex items-center justify-center mb-4 shadow-lg border border-orange-600";
-                roleIconContainer.innerHTML = '<i data-lucide="users" class="w-6 h-6"></i>';
-                roleText.textContent = "Sign in to User Data Portal";
-                emailInput.value = "user.cmpdi@gov.in";
-            }
-            
-            // Re-render lucide icons inside the dynamically updated innerHTML
-            lucide.createIcons();
-        }
+// ── Word Cloud ──────────────────────────────────────────────
+async function loadWordCloud() {
+  const sub = document.getElementById('wc-sub').value;
+  const url = base() + '/api/topics/wordcloud?top_n=80' + (sub ? '&subsidiary=' + sub : '');
+  document.getElementById('wc-out').innerHTML = 'Loading...';
+  try {
+    const r = await fetch(url, { headers: headers() });
+    const d = await r.json();
+    if (!d.wordcloud || d.wordcloud.length === 0) {
+      document.getElementById('wc-out').innerHTML = '<span style="color:#999;">No data — upload documents first.</span>';
+      return;
+    }
+    const max = Math.max(...d.wordcloud.map(w => w.value));
+    const html = d.wordcloud.map(w => {
+      const size = Math.round(11 + (w.value / max) * 20);
+      const opacity = 0.5 + (w.value / max) * 0.5;
+      return `<span class="wc-word" title="${w.value} occurrences" style="font-size:${size}px; opacity:${opacity};">${w.text}</span>`;
+    }).join('');
+    document.getElementById('wc-out').innerHTML = html || '<span style="color:#999;">No words found.</span>';
+  } catch(e) { document.getElementById('wc-out').innerHTML = '<span style="color:red;">Error: ' + e.message + '</span>'; }
+}
 
-        function goBackToRoles() {
-            document.getElementById('view-login-form').classList.add('hidden');
-            document.getElementById('view-login-form').classList.remove('flex');
-            document.getElementById('view-role-select').classList.remove('hidden');
-            document.getElementById('view-role-select').classList.add('flex');
-        }
+async function loadClusters() {
+  out('cluster-out', 'Loading...');
+  try {
+    const r = await fetch(base() + '/api/topics/clusters', { headers: headers() });
+    const d = await r.json();
+    if (!d.clusters || d.clusters.length === 0) { out('cluster-out', 'No clusters — upload documents first.'); return; }
+    const text = d.clusters.map(c =>
+      `📌 ${c.topic}  (score: ${c.score})\n   Keywords: ${c.top_keywords.join(', ')}\n   Docs: ${c.document_count}`
+    ).join('\n\n');
+    out('cluster-out', text, 'success');
+  } catch(e) { out('cluster-out', 'Error: ' + e.message, 'error'); }
+}
 
-        // ── LIVE BACKEND CONFIG ──────────────────────────────────────────
-        const API_BASE = 'https://cmpdi-geoai-hub.onrender.com';
+async function loadInsights() {
+  out('insights-out', '⏳ Generating insights with Gemini...');
+  try {
+    const r = await fetch(base() + '/api/topics/insights', { headers: headers() });
+    const d = await r.json();
+    out('insights-out', d.insights || 'No insights generated.', 'success');
+  } catch(e) { out('insights-out', 'Error: ' + e.message, 'error'); }
+}
 
-        function processActualLogin(e) {
-            if(e) e.preventDefault();
-            realLogin();
-        }
+// ── Report ──────────────────────────────────────────────────
+async function doReport() {
+  const type = document.getElementById('rpt-type').value;
+  const sub  = document.getElementById('rpt-sub').value;
+  const kw   = document.getElementById('rpt-kw').value;
+  const fmt  = document.getElementById('rpt-fmt').value;
+  out('rpt-out', '⏳ Generating report with Gemini... may take 20-30 seconds.');
+  try {
+    const r = await fetch(base() + '/api/generate-report', {
+      method: 'POST', headers: headers(),
+      body: JSON.stringify({ report_type: type, subsidiary: sub, keywords: kw, export_format: fmt })
+    });
+    if (!r.ok) {
+      const d = await r.json();
+      out('rpt-out', '❌ ' + (d.detail || 'Failed'), 'error'); return;
+    }
+    const blob = await r.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `CMPDI_${type}_${sub}.${fmt}`; a.click();
+    out('rpt-out', '✅ Report downloaded! Check your downloads folder.', 'success');
+  } catch(e) { out('rpt-out', '❌ ' + e.message, 'error'); }
+}
 
-        function processGoogleLogin() {
-            alertBox('Google login coming soon! Please use email & password for now.');
-        }
+// ── Documents ────────────────────────────────────────────────
+async function loadDocs() {
+  const sub = document.getElementById('docs-sub').value;
+  out('docs-out', 'Loading...');
+  try {
+    const r = await fetch(base() + '/api/documents' + (sub ? '?subsidiary=' + sub : ''), { headers: headers() });
+    const d = await r.json();
+    if (!d.documents || d.documents.length === 0) { out('docs-out', 'No documents found.'); return; }
+    const text = d.documents.map((doc, i) =>
+      `${i+1}. ${doc.filename}\n   Subsidiary: ${doc.subsidiary} | Pages: ${doc.pages} | Chunks: ${doc.chunks} | ${doc.uploaded_at}`
+    ).join('\n\n');
+    out('docs-out', `Total: ${d.total}\n\n` + text, 'success');
+  } catch(e) { out('docs-out', 'Error: ' + e.message, 'error'); }
+}
 
-        async function realLogin() {
-            const loading = document.getElementById('login-loading');
-            const spinner = document.getElementById('loading-spinner-ring');
-            const loadingText = document.getElementById('loading-role-text');
-            const email = document.getElementById('auth-email').value.trim();
-            const password = document.getElementById('auth-password').value.trim();
-
-            loading.classList.remove('hidden');
-            loading.classList.add('flex');
-
-            if(currentAuthRole === 'user') {
-                spinner.classList.remove('border-t-[#a3e635]');
-                spinner.classList.add('border-t-[#fb923c]');
-                loadingText.textContent = 'Authenticating User Node...';
-            } else {
-                spinner.classList.add('border-t-[#a3e635]');
-                spinner.classList.remove('border-t-[#fb923c]');
-                loadingText.textContent = 'Authenticating Admin Node...';
-            }
-
-            try {
-                const resp = await fetch(`${API_BASE}/api/login`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password })
-                });
-                const data = await resp.json();
-
-                if (!resp.ok) {
-                    loading.classList.add('hidden');
-                    loading.classList.remove('flex');
-                    alertBox('❌ ' + (data.detail || 'Invalid email or password.'));
-                    return;
-                }
-
-                // Save real JWT + user data from backend
-                localStorage.setItem('cmpdi_logged_in', 'true');
-                localStorage.setItem('cmpdi_token', data.access_token);
-                localStorage.setItem('cmpdi_user', data.user.email);
-                localStorage.setItem('cmpdi_name', data.user.name || data.user.email);
-                localStorage.setItem('cmpdi_role', data.user.role);
-                localStorage.setItem('cmpdi_subsidiary', data.user.subsidiary || 'General');
-
-                document.getElementById('auth-modal').classList.add('opacity-0', 'pointer-events-none');
-                setTimeout(() => {
-                    document.getElementById('auth-modal').classList.add('hidden');
-                    applyRoleSettings();
-                    window.location.hash = data.user.role === 'admin' ? '#dashboard' : '#user-upload';
-                    goBackToRoles();
-                    loading.classList.add('hidden');
-                    loading.classList.remove('flex');
-                    document.getElementById('auth-modal').classList.remove('opacity-0', 'pointer-events-none');
-                }, 300);
-
-            } catch(err) {
-                loading.classList.add('hidden');
-                loading.classList.remove('flex');
-                alertBox('❌ Cannot reach server. Please try again in a moment.');
-                console.error(err);
-            }
-        }
-
-        function executeLoginSequence(isGoogle = false) {
-            realLogin();
-        }
-
-        function logout() {
-            localStorage.removeItem('cmpdi_logged_in');
-            localStorage.removeItem('cmpdi_user');
-            localStorage.removeItem('cmpdi_role');
-            location.hash = '';
-            location.reload();
-        }
-
-        function applyRoleSettings() {
-            const role = localStorage.getItem('cmpdi_role') || 'admin';
-            const email = localStorage.getItem('cmpdi_user') || 'admin.cmpdi@gov.in';
-            
-            // Update Body Class for CSS hiding/showing
-            document.body.className = `bg-[#f3f4f6] text-gray-800 h-screen overflow-hidden p-2 sm:p-4 lg:p-6 flex items-center justify-center select-none role-${role}`;
-            
-            // Update Profile UI
-            const initials = role === 'admin' ? 'AD' : 'US';
-            const titleText = role === 'admin' ? 'Administrator' : 'Verified User';
-            const levelText = role === 'admin' ? 'Senior GeoAI Lead' : 'Data Entry Operator';
-            
-            document.getElementById('sidebar-initials').textContent = initials;
-            document.getElementById('modal-initials').textContent = initials;
-            document.getElementById('modal-role-name').textContent = titleText;
-            document.getElementById('modal-email').textContent = email;
-            document.getElementById('modal-role-level').textContent = levelText;
-            
-            handleRouting();
-        }
-
-        // Mobile Sidebar toggle
-        const sidebar = document.getElementById('sidebar');
-        const mobileOverlay = document.getElementById('mobile-overlay');
-        let isSidebarOpen = false;
-
-        function toggleSidebar() {
-            isSidebarOpen = !isSidebarOpen;
-            if (isSidebarOpen) {
-                sidebar.classList.remove('-translate-x-full');
-                mobileOverlay.classList.remove('hidden');
-            } else {
-                sidebar.classList.add('-translate-x-full');
-                mobileOverlay.classList.add('hidden');
-            }
-        }
-
-        // SPA Hash Navigation Manager
-        const pageMeta = {
-            'dashboard': { title: 'Dashboard <span class="text-xl">👋</span>', subtitle: 'Welcome to CMPDI GeoAI Hub!' },
-            'reports': { title: 'Reports Center', subtitle: 'View and generate analytical documents' },
-            'insights': { title: 'AI Insights & Topic Map', subtitle: 'Discover semantic trends and clusters' },
-            'query': { title: 'GeoAI Query Assistant', subtitle: 'Talk directly to your institutional repositories' },
-            'user-upload': { title: 'Upload Portal', subtitle: 'Feed geological datasets to the AI engine' },
-            'user-verify': { title: 'Verification Desk', subtitle: 'Audit and approve AI-generated reports' }
-        };
-
-        function handleRouting() {
-            let hash = window.location.hash || '';
-            const role = localStorage.getItem('cmpdi_role') || 'admin';
-            
-            if (!hash) {
-                hash = role === 'admin' ? '#dashboard' : '#user-upload';
-                window.location.hash = hash;
-                return; // will re-trigger hashchange
-            }
-
-            let pageId = hash.replace('#', '');
-            
-            // Security / Role Redirects
-            if (role === 'admin' && ['user-upload', 'user-verify'].includes(pageId)) {
-                window.location.hash = '#dashboard'; return;
-            }
-            if (role === 'user' && ['dashboard', 'reports', 'insights', 'query'].includes(pageId)) {
-                window.location.hash = '#user-upload'; return;
-            }
-
-            // Hide all views
-            document.querySelectorAll('.page-view').forEach(el => {
-                el.classList.remove('active');
-            });
-
-            // Show current active view
-            const target = document.getElementById('page-' + pageId);
-            if (target) target.classList.add('active');
-
-            // Update feature sidebar button states
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.classList.remove('active-tab');
-            });
-            const activeBtn = document.getElementById('nav-' + pageId);
-            if (activeBtn) {
-                activeBtn.classList.add('active-tab');
-            }
-
-            // Update header title text
-            if (pageMeta[pageId]) {
-                document.getElementById('header-title').innerHTML = pageMeta[pageId].title;
-                document.getElementById('header-subtitle').textContent = pageMeta[pageId].subtitle;
-            }
-
-            if (window.innerWidth < 1024 && isSidebarOpen) {
-                toggleSidebar();
-            }
-
-            const container = document.querySelector('.custom-scrollbar');
-            if (container) container.scrollTop = 0;
-            
-            // Trigger Chart resize if navigating to dashboard
-            if (pageId === 'dashboard' && window.productionChartInstance) {
-                setTimeout(() => window.productionChartInstance.resize(), 300);
-            }
-        }
-
-        window.addEventListener('hashchange', handleRouting);
-
-        // Modals Functions
-        function openAddDataModal() {
-            document.getElementById('add-data-modal').classList.remove('hidden');
-            document.getElementById('add-data-modal').classList.add('flex');
-        }
-        function closeAddDataModal() {
-            document.getElementById('add-data-modal').classList.add('hidden');
-            document.getElementById('add-data-modal').classList.remove('flex');
-        }
-        function openProfileModal() {
-            document.getElementById('profile-modal').classList.remove('hidden');
-            document.getElementById('profile-modal').classList.add('flex');
-        }
-        function closeProfileModal() {
-            document.getElementById('profile-modal').classList.add('hidden');
-            document.getElementById('profile-modal').classList.remove('flex');
-        }
-        function openSourceModal() {
-            document.getElementById('source-modal').classList.remove('hidden');
-            document.getElementById('source-modal').classList.add('flex');
-        }
-        function closeSourceModal() {
-            document.getElementById('source-modal').classList.add('hidden');
-            document.getElementById('source-modal').classList.remove('flex');
-        }
-
-        function handleAddDataSubmit(e) {
-            e.preventDefault();
-            const name = document.getElementById('new-doc-name').value;
-            const tbody = document.getElementById('documents-table-body');
-            
-            if(tbody) {
-                const newRow = document.createElement('div');
-                newRow.className = 'grid grid-cols-4 gap-4 items-center bg-gray-50 hover:bg-[#eefcce]/50 transition-all rounded-2xl p-3.5 px-4 cursor-pointer border border-gray-200/50 hover:border-[#a3e635]/60';
-                newRow.innerHTML = `
-                    <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-xl bg-[#a3e635] flex items-center justify-center shadow-2xs"><i data-lucide="file-text" class="w-4 h-4 text-[#111111]"></i></div>
-                        <span class="font-extrabold text-xs text-[#111111]">${name}</span>
-                    </div>
-                    <div class="text-xs text-gray-500 font-bold">${new Date().toLocaleDateString()}</div>
-                    <div><span class="inline-flex items-center gap-1.5 px-3 py-1 bg-white rounded-full text-xs font-extrabold text-[#111111] border border-gray-200/80 shadow-2xs"><i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-[#84cc16]"></i> 100%</span></div>
-                    <div class="text-xs font-black text-[#111111]">${Math.floor(Math.random() * 5000 + 500)}</div>
-                `;
-                tbody.prepend(newRow);
-                lucide.createIcons();
-            }
-            closeAddDataModal();
-            alertBox('Successfully indexed dataset: ' + name);
-        }
-
-        // Report Preview Sync (Admin feature)
-        function updateReportPreview() {
-            const type = document.getElementById('report-type-select').value;
-            const sub = document.getElementById('report-subsidiary-select').value;
-            const keyword = document.getElementById('report-keyword-input').value;
-
-            document.getElementById('preview-sub-badge').textContent = sub;
-            document.getElementById('preview-keyword-display').textContent = keyword ? keyword : 'None';
-
-            let subtitle = 'Draft Response to Parliamentary Inquiry No. 4052';
-            if (type === 'monthly') subtitle = 'Official Monthly Coal Production & Despatch Summary';
-            if (type === 'reserve') subtitle = 'Certified Geological Reserve Assessment Report';
-            document.getElementById('preview-subject-subtitle').textContent = subtitle;
-        }
-
-        function triggerReportGeneration() {
-            alertBox('Report compiled successfully! Downloading PDF package...');
-        }
-
-        function selectKeyword(kw) {
-            location.hash = '#reports';
-            setTimeout(() => {
-                document.getElementById('report-keyword-input').value = kw;
-                updateReportPreview();
-                alertBox('Loaded keyword "' + kw + '" into Report Generator.');
-            }, 150);
-        }
-
-        // AI Chat Handlers (Admin feature)
-        function sendPresetPrompt(promptText) {
-            document.getElementById('chat-input').value = promptText;
-            const form = document.querySelector('#page-query form');
-            if (form) {
-                const submitEvent = new Event('submit', { cancelable: true });
-                form.dispatchEvent(submitEvent);
-            }
-        }
-
-        function handleChatSubmit(e) {
-            e.preventDefault();
-            const input = document.getElementById('chat-input');
-            const query = input.value.trim();
-            if (!query) return;
-
-            const chatMessages = document.getElementById('chat-messages');
-            const chips = document.getElementById('suggested-chips');
-            if (chips) chips.style.display = 'none';
-
-            const userMsg = document.createElement('div');
-            userMsg.className = 'flex gap-3 max-w-[85%] ml-auto flex-row-reverse';
-            userMsg.innerHTML = `
-                <div class="w-9 h-9 rounded-xl bg-[#111111] flex items-center justify-center shrink-0 text-white font-extrabold text-xs shadow-md">A</div>
-                <div class="bg-[#111111] text-white rounded-2xl rounded-tr-xs p-4 shadow-md">
-                    <p class="font-medium text-xs sm:text-sm">${query}</p>
-                </div>
-            `;
-            chatMessages.appendChild(userMsg);
-            input.value = '';
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-
-            setTimeout(() => {
-                const aiMsg = document.createElement('div');
-                aiMsg.className = 'flex gap-3 max-w-[85%]';
-                aiMsg.innerHTML = `
-                    <div class="w-9 h-9 rounded-xl bg-[#eefcce] flex items-center justify-center shrink-0 shadow-2xs border border-[#d9f99d]"><i data-lucide="cpu" class="w-4 h-4 text-[#111111]"></i></div>
-                    <div class="bg-white rounded-2xl rounded-tl-xs p-4 shadow-2xs border border-gray-200/70">
-                        <p class="text-gray-900 font-extrabold mb-1.5 text-xs sm:text-sm">Synthesizing repositories for "${query}":</p>
-                        <p class="text-gray-700 font-medium text-xs sm:text-sm mb-2">Verified extraction rates align with projected targets at 98.2% confidence. No critical anomalies flagged in recent OCR audits across nodes.</p>
-                        <div class="flex items-center gap-2 pt-2 border-t border-gray-100 text-[10px] font-extrabold text-gray-400">
-                            <span>Consolidated_Repository_2023.db</span> • <span class="text-[#84cc16]">98.5% Confidence</span>
-                        </div>
-                    </div>
-                `;
-                chatMessages.appendChild(aiMsg);
-                lucide.createIcons();
-                chatMessages.scrollTop = chatMessages.scrollHeight;
-            }, 500);
-        }
-
-        function clearChat() {
-            const chatMessages = document.getElementById('chat-messages');
-            chatMessages.innerHTML = `
-                <div class="flex gap-3 max-w-[85%]">
-                    <div class="w-9 h-9 rounded-xl bg-white flex items-center justify-center shrink-0 border border-gray-200 shadow-2xs"><i data-lucide="cpu" class="w-4 h-4 text-gray-500"></i></div>
-                    <div class="bg-white rounded-2xl rounded-tl-xs p-4 shadow-2xs border border-gray-200/70">
-                        <p class="text-gray-800 font-semibold text-xs sm:text-sm">Chat cleared. Ready for your next query.</p>
-                    </div>
-                </div>
-            `;
-            lucide.createIcons();
-        }
-
-        function alertBox(msg) {
-            const box = document.createElement('div');
-            box.className = 'fixed bottom-6 right-6 z-[150] bg-[#111111] text-white px-5 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3 border border-gray-800 text-xs font-bold';
-            box.innerHTML = `<i data-lucide="check-circle-2" class="w-4 h-4 text-[#a3e635]"></i><span>${msg}</span>`;
-            document.body.appendChild(box);
-            lucide.createIcons();
-            setTimeout(() => {
-                box.style.opacity = '0';
-                box.style.transition = 'opacity 0.3s';
-                setTimeout(() => box.remove(), 300);
-            }, 3000);
-        }
-
-        function showNotificationDropdown() {
-            alertBox('No new institutional alerts. All extraction nodes running normally.');
-        }
-
-        function handleGlobalSearch(val) {
-            if (val.length > 2) {
-                // Global search handler logic here
-            }
-        }
-
-        // Render Chart.js Production Visualization
-        setTimeout(() => {
-            const canvas = document.getElementById('productionChart');
-            if(canvas) {
-                const ctx = canvas.getContext('2d');
-                window.productionChartInstance = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                        datasets: [
-                            {
-                                label: 'Coal (MT)',
-                                data: [4, 6, 8, 5, 4, 2, 1],
-                                backgroundColor: '#111111',
-                                borderRadius: 10,
-                                barThickness: 22,
-                                order: 2
-                            },
-                            {
-                                label: 'Overburden (M.Cum)',
-                                data: [2, 3, 5, 3, 2, 1, 0.5],
-                                type: 'line',
-                                borderColor: '#fb923c',
-                                backgroundColor: '#fb923c',
-                                borderWidth: 3,
-                                pointBackgroundColor: '#fb923c',
-                                pointBorderColor: '#ffffff',
-                                pointBorderWidth: 2,
-                                pointRadius: 5,
-                                tension: 0.4,
-                                order: 1
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: {
-                                backgroundColor: 'rgba(255, 255, 255, 0.98)',
-                                titleColor: '#111111',
-                                bodyColor: '#4b5563',
-                                borderColor: '#e5e7eb',
-                                borderWidth: 1,
-                                padding: 10,
-                                boxPadding: 4,
-                                usePointStyle: true,
-                                titleFont: { size: 12, family: 'Inter', weight: 'bold' },
-                                bodyFont: { size: 11, family: 'Inter', weight: 'bold' }
-                            }
-                        },
-                        scales: {
-                            x: {
-                                grid: { display: false },
-                                border: { display: false },
-                                ticks: { color: '#9ca3af', font: { family: 'Inter', weight: '700', size: 11 } }
-                            },
-                            y: {
-                                grid: { color: '#f3f4f6', drawBorder: false },
-                                border: { display: false },
-                                ticks: { color: '#9ca3af', font: { family: 'Inter', weight: '700', size: 11 } }
-                            }
-                        }
-                    }
-                });
-            }
-        }, 500);
-    </script>
+// ── Init ────────────────────────────────────────────────────
+checkHealth();
+if (TOKEN) {
+  document.getElementById('status-dot').className = 'dot green';
+  document.getElementById('status-text').textContent = 'Token saved';
+}
+</script>
 </body>
 </html>
