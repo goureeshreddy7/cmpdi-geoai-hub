@@ -21,13 +21,16 @@ if _env_path.exists():
             os.environ.setdefault(k.strip(), v.strip())
 
 # ── Robust Cascading Models ───────────────────────────────────────────────────
-DEFAULT_PRIMARY_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.8-flash")
+DEFAULT_PRIMARY_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.5-flash")
 FALLBACK_MODELS: List[str] = [
     DEFAULT_PRIMARY_MODEL,
-    "gemini-3.8-flash",
+    "gemini-3.5-flash",
     "gemini-3.6-flash",
-    "gemini-3.7-flash",
-    "gemini-flash-latest",
+    "gemini-3.5-flash-lite",
+    "gemini-3.1-flash-lite",
+    "gemini-3-flash-preview",
+    "gemini-flash-lite-latest",
+    "gemini-3.8-flash",
 ]
 
 _client: Optional[genai.Client] = None
@@ -91,13 +94,13 @@ def generate(prompt: str, model: Optional[str] = None, max_tokens: int = 2048) -
                 last_error = e
                 err_str = str(e).lower()
 
-                # If model is not found, jump immediately to next model in fallback list
-                if "404" in err_str or "not_found" in err_str or "no longer available" in err_str:
+                # If model is not found, unavailable (503), or deprecated, jump immediately to next model
+                if any(x in err_str for x in ["404", "not_found", "no longer available", "503", "unavailable"]):
                     break
 
-                # If rate limited (429) or overloaded (503), wait and retry
-                if "429" in err_str or "503" in err_str or "unavailable" in err_str or "resource_exhausted" in err_str:
-                    wait = (attempt + 1) * 3
+                # If rate limited (429), wait and retry
+                if "429" in err_str or "resource_exhausted" in err_str:
+                    wait = (attempt + 1) * 2
                     time.sleep(wait)
                     continue
                 else:
