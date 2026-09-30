@@ -274,7 +274,7 @@ class RegisterRequest(BaseModel):
 
 
 @app.post("/api/login", tags=["Auth"])
-async def login(req: LoginRequest, db: Session = Depends(get_db)):
+def login(req: LoginRequest, db: Session = Depends(get_db)):
     email = req.email.strip().lower()
     pwd = req.password.strip()
 
@@ -544,7 +544,7 @@ class ChatRequest(BaseModel):
 
 
 @app.post("/api/chat", tags=["AI Chat"])
-async def chat(req: ChatRequest):
+def chat(req: ChatRequest):
     """
     RAG Question & Answer with full source citations.
     Returns the AI answer + the exact document chunks it used (source file, page, confidence).
@@ -614,7 +614,7 @@ async def get_clusters(subsidiary: Optional[str] = Query(None)):
 
 
 @app.get("/api/topics/insights", tags=["Word Cloud"])
-async def get_insights(subsidiary: Optional[str] = Query(None)):
+def get_insights(subsidiary: Optional[str] = Query(None)):
     insights = topic_engine.get_ai_insights(subsidiary=subsidiary)
     return {"status": "ok", "insights": insights}
 
@@ -632,7 +632,7 @@ class ReportRequest(BaseModel):
 
 
 @app.post("/api/generate-report", tags=["Reports"])
-async def generate_report(req: ReportRequest, db: Session = Depends(get_db)):
+def generate_report(req: ReportRequest, db: Session = Depends(get_db)):
     """
     AI-generated institutional report using RAG context from indexed documents.
     Returns JSON metadata or a downloadable PDF, DOCX, or CSV file.

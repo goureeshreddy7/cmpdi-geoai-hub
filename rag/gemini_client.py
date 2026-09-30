@@ -21,16 +21,15 @@ if _env_path.exists():
             os.environ.setdefault(k.strip(), v.strip())
 
 # ── Robust Cascading Models ───────────────────────────────────────────────────
-DEFAULT_PRIMARY_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.5-flash")
+DEFAULT_PRIMARY_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.5-flash-lite")
 FALLBACK_MODELS: List[str] = [
     DEFAULT_PRIMARY_MODEL,
-    "gemini-3.5-flash",
-    "gemini-3.6-flash",
     "gemini-3.5-flash-lite",
     "gemini-3.1-flash-lite",
-    "gemini-3-flash-preview",
     "gemini-flash-lite-latest",
-    "gemini-3.8-flash",
+    "gemini-3.5-flash",
+    "gemini-3.6-flash",
+    "gemini-3-flash-preview",
 ]
 
 _client: Optional[genai.Client] = None
