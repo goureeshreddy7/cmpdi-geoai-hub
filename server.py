@@ -21,10 +21,7 @@ from pathlib import Path
 from typing import Optional, List
 
 # ── Telemetry Logger ──────────────────────────────────────────────────────────
-_deploy_table_checked = False
-
 def _neon_log(stage: str, msg: str):
-    global _deploy_table_checked
     url = os.getenv("DATABASE_URL", "").strip()
     if not url or "postgre" not in url:
         return
@@ -32,20 +29,10 @@ def _neon_log(stage: str, msg: str):
         import psycopg2
         with psycopg2.connect(url) as conn:
             with conn.cursor() as cur:
-                if not _deploy_table_checked:
-                    cur.execute("""
-                        CREATE TABLE IF NOT EXISTS deploy_logs (
-                            id SERIAL PRIMARY KEY,
-                            stage VARCHAR(64),
-                            message TEXT,
-                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                        );
-                    """)
-                    _deploy_table_checked = True
                 cur.execute("INSERT INTO deploy_logs (stage, message) VALUES (%s, %s);", (stage, msg[:4000]))
             conn.commit()
-    except Exception:
-        pass
+    except Exception as e:
+        print(f"[Telemetry Error] {e}")
 
 def _excepthook(exc_type, exc_value, exc_tb):
     tb = "".join(traceback.format_exception(exc_type, exc_value, exc_tb))
@@ -60,16 +47,13 @@ from fastapi import (
     Query, Path as FPath, Depends, Header, Response
 )
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse, FileResponse
+from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
-from sqlalchemy import text
 
 # ── Database & Auth ────────────────────────────────────────────────────────────
 from db.connection import get_db, init_db
 from db.models import User, Document
-from spatial.database import get_db as get_spatial_db
-from spatial.models import Mine, Report as SpatialReport
 from auth.security import (
     hash_password, verify_password, create_access_token, decode_access_token
 )
@@ -182,79 +166,23 @@ def get_current_user(
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-#  FRONTEND PAGES & STATIC ASSETS
+#  FRONTEND PAGES
 # ══════════════════════════════════════════════════════════════════════════════
 
 @app.get("/", response_class=HTMLResponse, include_in_schema=False)
 async def serve_index():
     p = FRONTEND_DIR / "index.html"
-    return HTMLResponse(
-        p.read_text(encoding="utf-8"),
-        headers={"Cache-Control": "no-cache, no-store, must-revalidate", "Pragma": "no-cache", "Expires": "0"}
-    ) if p.exists() else HTMLResponse("<h2>index.html not found</h2>", 404)
+    return HTMLResponse(p.read_text(encoding="utf-8")) if p.exists() else HTMLResponse("<h2>index.html not found</h2>", 404)
 
 @app.get("/admin", response_class=HTMLResponse, include_in_schema=False)
-@app.get("/admin.html", response_class=HTMLResponse, include_in_schema=False)
 async def serve_admin():
     p = FRONTEND_DIR / "admin.html"
-    return HTMLResponse(
-        p.read_text(encoding="utf-8"),
-        headers={"Cache-Control": "no-cache, no-store, must-revalidate", "Pragma": "no-cache", "Expires": "0"}
-    ) if p.exists() else HTMLResponse("<h2>admin.html not found</h2>", 404)
+    return HTMLResponse(p.read_text(encoding="utf-8")) if p.exists() else HTMLResponse("<h2>admin.html not found</h2>", 404)
 
 @app.get("/user", response_class=HTMLResponse, include_in_schema=False)
-@app.get("/user.html", response_class=HTMLResponse, include_in_schema=False)
 async def serve_user():
     p = FRONTEND_DIR / "user.html"
-    return HTMLResponse(
-        p.read_text(encoding="utf-8"),
-        headers={"Cache-Control": "no-cache, no-store, must-revalidate", "Pragma": "no-cache", "Expires": "0"}
-    ) if p.exists() else HTMLResponse("<h2>user.html not found</h2>", 404)
-
-@app.get("/test", response_class=HTMLResponse, include_in_schema=False)
-@app.get("/test_dashboard", response_class=HTMLResponse, include_in_schema=False)
-async def serve_test():
-    p = FRONTEND_DIR / "test_dashboard.html"
-    return HTMLResponse(p.read_text(encoding="utf-8")) if p.exists() else HTMLResponse("<h2>test_dashboard.html not found</h2>", 404)
-
-# Static Images & Icons
-@app.get("/avatar.jpg", include_in_schema=False)
-async def serve_avatar():
-    p = FRONTEND_DIR / "avatar.jpg"
-    return FileResponse(p) if p.exists() else HTMLResponse("Not found", 404)
-
-@app.get("/bot-icon.jpg", include_in_schema=False)
-@app.get("/bot-icon.png", include_in_schema=False)
-async def serve_bot_icon():
-    p = FRONTEND_DIR / "bot-icon.png"
-    if not p.exists():
-        p = FRONTEND_DIR / "bot-icon.jpg"
-    return FileResponse(p) if p.exists() else HTMLResponse("Not found", 404)
-
-@app.get("/ai-assistant.jpg", include_in_schema=False)
-async def serve_ai_assistant():
-    p = FRONTEND_DIR / "ai-assistant.jpg"
-    return FileResponse(p) if p.exists() else HTMLResponse("Not found", 404)
-
-@app.get("/insights-icon.png", include_in_schema=False)
-async def serve_insights_icon():
-    p = FRONTEND_DIR / "insights-icon.png"
-    return FileResponse(p) if p.exists() else HTMLResponse("Not found", 404)
-
-@app.get("/insights-icon-active.png", include_in_schema=False)
-async def serve_insights_icon_active():
-    p = FRONTEND_DIR / "insights-icon-active.png"
-    return FileResponse(p) if p.exists() else HTMLResponse("Not found", 404)
-
-@app.get("/insights-icon-card.png", include_in_schema=False)
-async def serve_insights_icon_card():
-    p = FRONTEND_DIR / "insights-icon-card.png"
-    return FileResponse(p) if p.exists() else HTMLResponse("Not found", 404)
-
-@app.get("/insights-icon-glyph.png", include_in_schema=False)
-async def serve_insights_icon_glyph():
-    p = FRONTEND_DIR / "insights-icon-glyph.png"
-    return FileResponse(p) if p.exists() else HTMLResponse("Not found", 404)
+    return HTMLResponse(p.read_text(encoding="utf-8")) if p.exists() else HTMLResponse("<h2>user.html not found</h2>", 404)
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -274,50 +202,14 @@ class RegisterRequest(BaseModel):
 
 
 @app.post("/api/login", tags=["Auth"])
-def login(req: LoginRequest, db: Session = Depends(get_db)):
+async def login(req: LoginRequest, db: Session = Depends(get_db)):
     email = req.email.strip().lower()
-    pwd = req.password.strip()
-
-    # Admin quick passkey match
-    if "admin" in email and pwd in ["cmpdi@2024", "password123", "admin", "admin123", "cmpdi"]:
-        token = create_access_token({"sub": email, "role": "admin", "id": 1})
-        return {
-            "status": "ok",
-            "role": "admin",
-            "email": email,
-            "access_token": token,
-            "token_type": "bearer",
-            "user": {"id": 1, "email": email, "name": "CMPDI Admin", "role": "admin", "subsidiary": "CMPDI"},
-        }
-
-    # Ministry / User quick passkey match
-    if ("ministry" in email or "coal" in email or "user" in email) and pwd in ["coal@2024", "password123", "user", "ministry", "coal"]:
-        token = create_access_token({"sub": email, "role": "user", "id": 2})
-        return {
-            "status": "ok",
-            "role": "user",
-            "email": email,
-            "access_token": token,
-            "token_type": "bearer",
-            "user": {"id": 2, "email": email, "name": "Ministry of Coal", "role": "user", "subsidiary": "General"},
-        }
-
     user = db.query(User).filter(User.email == email).first()
-    if not user or not verify_password(pwd, user.password_hash):
-        if pwd in ["password123", "cmpdi@2024", "coal@2024"]:
-            role = "admin" if "admin" in email else "user"
-            token = create_access_token({"sub": email, "role": role, "id": 999})
-            return {
-                "status": "ok", "role": role, "email": email, "access_token": token, "token_type": "bearer",
-                "user": {"id": 999, "email": email, "name": email.split("@")[0].title(), "role": role, "subsidiary": "General"}
-            }
+    if not user or not verify_password(req.password.strip(), user.password_hash):
         raise HTTPException(status_code=401, detail="Invalid email or password.")
-
     token = create_access_token({"sub": user.email, "role": user.role, "id": user.id})
     return {
         "status": "ok",
-        "role": user.role,
-        "email": user.email,
         "access_token": token,
         "token_type": "bearer",
         "user": {"id": user.id, "email": user.email, "name": user.name,
@@ -544,7 +436,7 @@ class ChatRequest(BaseModel):
 
 
 @app.post("/api/chat", tags=["AI Chat"])
-def chat(req: ChatRequest):
+async def chat(req: ChatRequest):
     """
     RAG Question & Answer with full source citations.
     Returns the AI answer + the exact document chunks it used (source file, page, confidence).
@@ -565,12 +457,9 @@ def chat(req: ChatRequest):
         citations = [
             {
                 "source": s["source"],
-                "file": s["source"],
                 "page": s["page"],
                 "subsidiary": s["subsidiary"],
                 "confidence": s["score"],
-                "score": s["score"],
-                "text": s["text"][:300],
                 "excerpt": s["text"][:300] + "..." if len(s["text"]) > 300 else s["text"],
             }
             for s in sources
@@ -581,7 +470,6 @@ def chat(req: ChatRequest):
             "query": req.query,
             "answer": answer,
             "citations": citations,
-            "sources": citations,
             "total_sources": len(citations),
         }
     except Exception as e:
@@ -614,7 +502,7 @@ async def get_clusters(subsidiary: Optional[str] = Query(None)):
 
 
 @app.get("/api/topics/insights", tags=["Word Cloud"])
-def get_insights(subsidiary: Optional[str] = Query(None)):
+async def get_insights(subsidiary: Optional[str] = Query(None)):
     insights = topic_engine.get_ai_insights(subsidiary=subsidiary)
     return {"status": "ok", "insights": insights}
 
@@ -628,14 +516,14 @@ class ReportRequest(BaseModel):
     subsidiary:  str = "All Subsidiaries"
     keywords:    str = ""
     financial_year: str = ""
-    export_format: Optional[str] = "json"         # json | pdf | docx | csv
+    export_format: str = "docx"         # pdf | docx | csv
 
 
 @app.post("/api/generate-report", tags=["Reports"])
-def generate_report(req: ReportRequest, db: Session = Depends(get_db)):
+async def generate_report(req: ReportRequest, db: Session = Depends(get_db)):
     """
     AI-generated institutional report using RAG context from indexed documents.
-    Returns JSON metadata or a downloadable PDF, DOCX, or CSV file.
+    Returns a downloadable PDF, DOCX, or CSV file.
     """
     try:
         # Build a targeted query from the report parameters
@@ -691,30 +579,15 @@ def generate_report(req: ReportRequest, db: Session = Depends(get_db)):
 
         raw_report = generate(prompt, max_tokens=2048)
 
-        fmt = (req.export_format or "json").lower()
-        if fmt == "json":
-            return {
-                "status": "ok",
-                "report": raw_report,
-                "time_taken": 2.2,
-                "metadata": {
-                    "type": req.report_type,
-                    "label": req.report_type.replace("_", " ").title(),
-                    "subsidiary": req.subsidiary,
-                    "keywords": req.keywords,
-                    "generated_at": datetime.now().strftime("%d %B %Y, %I:%M %p"),
-                    "sources_used": [c["source"] for c in chunks[:15]],
-                },
-            }
-
         report_data = {
-            "filename": f"{req.report_type}_report_{req.subsidiary}.{fmt}",
+            "filename": f"{req.report_type}_report_{req.subsidiary}.{req.export_format}",
             "raw_report": raw_report,
             "page_count": len(chunks),
             "char_count": len(raw_report),
         }
 
         # Export to requested format
+        fmt = req.export_format.lower()
         if fmt == "pdf":
             content = export_to_pdf(report_data)
             media_type = "application/pdf"
@@ -746,235 +619,6 @@ async def get_templates():
         {"id": "geological",    "label": "Geological Reserve Estimate"},
         {"id": "safety",        "label": "Mines Safety & Compliance"},
     ]}
-
-
-# ══════════════════════════════════════════════════════════════════════════════
-#  FEATURE: SPATIAL MINE INTELLIGENCE & MAP APIS
-# ══════════════════════════════════════════════════════════════════════════════
-
-@app.get("/api/mines", tags=["Spatial"])
-def list_mines(
-    type: Optional[str] = None,
-    state: Optional[str] = None,
-    subsidiary: Optional[str] = None,
-    search: Optional[str] = None,
-    db: Session = Depends(get_spatial_db),
-):
-    """Return GeoJSON FeatureCollection of mines with optional filters."""
-    q = db.query(Mine)
-    if type and isinstance(type, str) and type.lower() != "all":
-        q = q.filter(Mine.type == type)
-    if state and isinstance(state, str) and state.lower() != "all":
-        q = q.filter(Mine.state == state)
-    if subsidiary and isinstance(subsidiary, str) and subsidiary.lower() not in ("all", "all subsidiaries", ""):
-        q = q.filter(Mine.subsidiary == subsidiary)
-    if search and isinstance(search, str) and search.strip():
-        search_term = f"%{search.strip()}%"
-        q = q.filter(
-            (Mine.name.ilike(search_term)) |
-            (Mine.district.ilike(search_term)) |
-            (Mine.state.ilike(search_term)) |
-            (Mine.subsidiary.ilike(search_term))
-        )
-
-    mines = q.all()
-
-    features = []
-    for m in mines:
-        features.append({
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [m.longitude, m.latitude],
-            },
-            "properties": {
-                "mine_id": m.mine_id,
-                "name": m.name,
-                "subsidiary": m.subsidiary,
-                "state": m.state,
-                "district": m.district,
-                "type": m.type,
-            },
-        })
-
-    return {
-        "type": "FeatureCollection",
-        "features": features,
-        "count": len(features),
-    }
-
-
-@app.get("/api/mines/stats", tags=["Spatial"])
-def get_mines_stats(db: Session = Depends(get_spatial_db)):
-    """Return distinct filter options and count metrics for spatial mine dashboard."""
-    try:
-        mine_count = db.query(Mine).count()
-        report_count = db.query(SpatialReport).count()
-        states = [r[0] for r in db.execute(text("SELECT DISTINCT state FROM mines WHERE state IS NOT NULL AND state != '' ORDER BY state")).fetchall()]
-        subsidiaries = [r[0] for r in db.execute(text("SELECT DISTINCT subsidiary FROM mines WHERE subsidiary IS NOT NULL AND subsidiary != '' ORDER BY subsidiary")).fetchall()]
-        types = [r[0] for r in db.execute(text("SELECT DISTINCT type FROM mines WHERE type IS NOT NULL AND type != '' ORDER BY type")).fetchall()]
-        return {
-            "status": "ok",
-            "mine_count": mine_count,
-            "report_count": report_count,
-            "states": states,
-            "subsidiaries": subsidiaries,
-            "types": types,
-        }
-    except Exception as e:
-        return {"status": "error", "message": str(e), "mine_count": 0, "report_count": 0, "states": [], "subsidiaries": [], "types": []}
-
-
-@app.get("/api/mines/{mine_id}", tags=["Spatial"])
-def get_mine(mine_id: str, db: Session = Depends(get_spatial_db)):
-    """Return detailed metadata for a single mine, plus matched indexed documents."""
-    mine = db.query(Mine).filter(Mine.mine_id == mine_id).first()
-    if not mine:
-        raise HTTPException(404, "Mine not found")
-
-    report_count = db.query(SpatialReport).filter(SpatialReport.mine_id == mine_id).count()
-
-    matched_sources = []
-    try:
-        keywords = [w.lower() for w in mine.name.split() if len(w) > 2 and w.lower() not in ["mine", "ocp", "colliery", "coalfield"]]
-        all_sources = list_sources()
-        for src in all_sources:
-            src_lower = src.lower()
-            if (mine.subsidiary and mine.subsidiary.lower() in src_lower) or any(k in src_lower for k in keywords):
-                matched_sources.append(src)
-    except Exception:
-        matched_sources = []
-
-    return {
-        "mine_id": mine.mine_id,
-        "name": mine.name,
-        "subsidiary": mine.subsidiary,
-        "state": mine.state,
-        "district": mine.district,
-        "type": mine.type,
-        "latitude": mine.latitude,
-        "longitude": mine.longitude,
-        "report_count": report_count,
-        "matched_documents": matched_sources,
-    }
-
-
-@app.get("/api/mines/{mine_id}/reports", tags=["Spatial"])
-def get_mine_reports(mine_id: str, db: Session = Depends(get_spatial_db)):
-    """Return all reports linked to a mine, plus matched indexed documents."""
-    mine = db.query(Mine).filter(Mine.mine_id == mine_id).first()
-    if not mine:
-        raise HTTPException(404, "Mine not found")
-
-    reports = db.query(SpatialReport).filter(SpatialReport.mine_id == mine_id).order_by(SpatialReport.year.desc()).all()
-
-    matched_sources = []
-    try:
-        keywords = [w.lower() for w in mine.name.split() if len(w) > 2 and w.lower() not in ["mine", "ocp", "colliery", "coalfield"]]
-        all_sources = list_sources()
-        for src in all_sources:
-            src_lower = src.lower()
-            if (mine.subsidiary and mine.subsidiary.lower() in src_lower) or any(k in src_lower for k in keywords):
-                matched_sources.append(src)
-    except Exception:
-        matched_sources = []
-
-    return {
-        "mine_id": mine_id,
-        "mine_name": mine.name,
-        "subsidiary": mine.subsidiary,
-        "reports": [
-            {
-                "report_id": r.report_id,
-                "title": r.title,
-                "year": r.year,
-                "format": r.format,
-                "confidence_score": r.confidence_score,
-                "production_ytd": r.production_ytd,
-            }
-            for r in reports
-        ],
-        "matched_documents": matched_sources,
-    }
-
-
-@app.get("/api/reports/{report_id}", tags=["Spatial"])
-def get_report(report_id: str, db: Session = Depends(get_spatial_db)):
-    """Return full report document body for the live preview pane."""
-    report = db.query(SpatialReport).filter(SpatialReport.report_id == report_id).first()
-    if not report:
-        raise HTTPException(404, "Report not found")
-
-    mine = db.query(Mine).filter(Mine.mine_id == report.mine_id).first()
-    return {
-        "report_id": report.report_id,
-        "mine_id": report.mine_id,
-        "mine_name": mine.name if mine else "",
-        "subsidiary": mine.subsidiary if mine else "",
-        "title": report.title,
-        "year": report.year,
-        "format": report.format,
-        "confidence_score": report.confidence_score,
-        "production_ytd": report.production_ytd,
-        "content": report.content,
-    }
-
-
-@app.get("/api/stats", tags=["Spatial"])
-async def get_consolidated_stats(db: Session = Depends(get_spatial_db)):
-    """Unified statistics: preserves existing CMPDIPS RAG stats and adds spatial mine stats."""
-    try:
-        total = get_collection_stats().get("total", 0)
-        by_sub = get_stats_by_subsidiary()
-        sources = list_sources()
-    except Exception:
-        total = 0
-        by_sub = {}
-        sources = []
-
-    try:
-        mine_count = db.query(Mine).count()
-        report_count = db.query(SpatialReport).count()
-        states = [r[0] for r in db.execute(text("SELECT DISTINCT state FROM mines WHERE state IS NOT NULL AND state != '' ORDER BY state")).fetchall()]
-        subsidiaries = [r[0] for r in db.execute(text("SELECT DISTINCT subsidiary FROM mines WHERE subsidiary IS NOT NULL AND subsidiary != '' ORDER BY subsidiary")).fetchall()]
-        types = [r[0] for r in db.execute(text("SELECT DISTINCT type FROM mines WHERE type IS NOT NULL AND type != '' ORDER BY type")).fetchall()]
-    except Exception:
-        mine_count = 0
-        report_count = 0
-        states = []
-        subsidiaries = []
-        types = []
-
-    return {
-        "status": "ok",
-        "total_chunks": total,
-        "total_documents": len(sources),
-        "by_subsidiary": by_sub,
-        "sources": sources,
-        "mine_count": mine_count,
-        "report_count": report_count,
-        "states": states,
-        "subsidiaries": subsidiaries,
-        "types": types,
-    }
-
-
-@app.get("/api/documents/{filename}/preview", tags=["Ingestion"])
-async def preview_document(filename: str, db: Session = Depends(get_db)):
-    """Preview document snippet and metadata."""
-    try:
-        preview = get_document_preview(filename)
-        doc = db.query(Document).filter(Document.filename == filename).first()
-        return {
-            "status": "ok",
-            "filename": filename,
-            "subsidiary": doc.subsidiary if doc else "General",
-            "preview": preview,
-            "chunks": doc.chunks if doc else 0,
-            "pages": doc.pages if doc else 1,
-        }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
 
 
 # ══════════════════════════════════════════════════════════════════════════════

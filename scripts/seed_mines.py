@@ -492,14 +492,12 @@ def seed():
             tables_exist = result.scalar()
             if not tables_exist:
                 print("[schema] Running schema.sql …")
-                raw_conn = engine.raw_connection()
-                try:
-                    with open(schema_path, encoding="utf-8") as f:
-                        cur = raw_conn.cursor()
-                        cur.execute(f.read())
-                    raw_conn.commit()
-                finally:
-                    raw_conn.close()
+                with open(schema_path) as f:
+                    for stmt in f.read().split(";"):
+                        stmt = stmt.strip()
+                        if stmt:
+                            conn.execute(text(stmt))
+                conn.commit()
                 print("[schema] Done.")
             else:
                 print("[schema] Tables already exist — skipping.")
@@ -570,7 +568,7 @@ def seed():
                 report_count += 1
 
         session.commit()
-        print(f"[seed] [OK] Inserted {mine_count} mines and {report_count} reports.")
+        print(f"[seed] ✓ Inserted {mine_count} mines and {report_count} reports.")
     except Exception as exc:
         session.rollback()
         print(f"[seed] ERROR: {exc}")

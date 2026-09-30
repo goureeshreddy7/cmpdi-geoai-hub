@@ -1,35 +1,29 @@
 """
 Database connection and session management for CMPDIPS spatial module.
-Supports PostgreSQL (Neon) or SQLite (fallback for local dev).
+Supports PostgreSQL (with PostGIS) or SQLite (fallback for local dev).
 """
 
 import os
-from pathlib import Path
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-# Load .env if present
-_env_path = Path(__file__).parent.parent / ".env"
-if _env_path.exists():
-    for line in _env_path.read_text().splitlines():
-        line = line.strip()
-        if line and not line.startswith("#") and "=" in line:
-            k, v = line.split("=", 1)
-            os.environ.setdefault(k.strip(), v.strip())
+DATABASE_URL = os.getenv("DATABASE_URL", "")
 
-DATABASE_URL = os.getenv("DATABASE_URL", "").strip()
-
-if DATABASE_URL and DATABASE_URL.startswith("postgre"):
-    db_url = DATABASE_URL
-    if db_url.startswith("postgresql://"):
-        db_url = db_url.replace("postgresql://", "postgresql+psycopg2://", 1)
-    from sqlalchemy.pool import NullPool
-    engine = create_engine(db_url, echo=False, poolclass=NullPool)
+# Auto-detect: use PostgreSQL if configured, else fall back to SQLite
+if DATABASE_URL and DATABASE_URL.startswith("postgresql"):
+    engine = create_engine(DATABASE_URL, echo=False, pool_pre_ping=True)
     DB_TYPE = "postgresql"
 else:
-    ROOT_DIR = Path(__file__).parent.parent
-    data_path = ROOT_DIR / "cmpdi_hub.db"
-    DATABASE_URL = f"sqlite:///{data_path}"
+    ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    data_path = os.path.join(ROOT_DIR, "data", "cmpdips.db")
+    root_path = os.path.join(ROOT_DIR, "cmpdips.db")
+    if os.path.exists(data_path):
+        SQLITE_PATH = data_path
+    elif os.path.exists(root_path):
+        SQLITE_PATH = root_path
+    else:
+        SQLITE_PATH = data_path
+    DATABASE_URL = f"sqlite:///{SQLITE_PATH}"
     engine = create_engine(DATABASE_URL, echo=False, connect_args={"check_same_thread": False})
     DB_TYPE = "sqlite"
 
