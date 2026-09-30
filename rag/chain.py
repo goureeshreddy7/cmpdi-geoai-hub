@@ -100,10 +100,10 @@ def answer_query(
         prompt = build_prompt(query, chunks, history_text)
     else:
         # Grounded domain prompt without uploaded PDFs
+        hist_part = f"Conversation History:\n{history_text}\n\n" if history_text.strip() else ""
         prompt = f"""You are the CMPDI GeoAI Hub Mining & Geological Intelligence Assistant.
 Answer the following technical question accurately and concisely regarding Indian coal geology, mining engineering, CMPDI, or Coal India subsidiaries.
-{f"Conversation History:\n{history_text}\n" if history_text.strip() else ""}
-Question: {query}
+{hist_part}Question: {query}
 Answer:"""
 
     # Step 3: Call Gemini

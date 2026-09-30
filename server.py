@@ -21,7 +21,10 @@ from pathlib import Path
 from typing import Optional, List
 
 # ── Telemetry Logger ──────────────────────────────────────────────────────────
+_deploy_table_checked = False
+
 def _neon_log(stage: str, msg: str):
+    global _deploy_table_checked
     url = os.getenv("DATABASE_URL", "").strip()
     if not url or "postgre" not in url:
         return
@@ -29,10 +32,20 @@ def _neon_log(stage: str, msg: str):
         import psycopg2
         with psycopg2.connect(url) as conn:
             with conn.cursor() as cur:
+                if not _deploy_table_checked:
+                    cur.execute("""
+                        CREATE TABLE IF NOT EXISTS deploy_logs (
+                            id SERIAL PRIMARY KEY,
+                            stage VARCHAR(64),
+                            message TEXT,
+                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                        );
+                    """)
+                    _deploy_table_checked = True
                 cur.execute("INSERT INTO deploy_logs (stage, message) VALUES (%s, %s);", (stage, msg[:4000]))
             conn.commit()
-    except Exception as e:
-        print(f"[Telemetry Error] {e}")
+    except Exception:
+        pass
 
 def _excepthook(exc_type, exc_value, exc_tb):
     tb = "".join(traceback.format_exception(exc_type, exc_value, exc_tb))
