@@ -1,452 +1,678 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>CMPDI Admin Panel</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://unpkg.com/lucide@latest"></script>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
-  * { font-family: 'Inter', sans-serif; box-sizing: border-box; }
-  body { background: #f1f5f9; }
-  .nav-btn.active { background: rgba(163,230,53,0.15); color: #a3e635; }
-  .card { background: white; border-radius: 1.5rem; border: 1px solid #e5e7eb; padding: 1.5rem; }
-  .badge { padding: 2px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; }
-  .badge-green { background: #dcfce7; color: #15803d; }
-  .badge-blue  { background: #dbeafe; color: #1d4ed8; }
-  .badge-orange{ background: #ffedd5; color: #c2410c; }
-  .badge-gray  { background: #f3f4f6; color: #374151; }
-  input,select,textarea { outline: none; }
-  ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
-  .drop-zone { border: 2px dashed #d1d5db; border-radius: 1.25rem; transition: all .2s; }
-  .drop-zone.drag-over { border-color: #a3e635; background: #f7fee7; }
-  .fade-in { animation: fadeIn .25s ease; }
-  @keyframes fadeIn { from { opacity:0; transform: translateY(6px); } to { opacity:1; transform: none; } }
-  .toast { position:fixed; bottom:1.5rem; right:1.5rem; z-index:999; }
-</style>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CMPDI GeoAI Hub — Administrator Upload Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800;900&display=swap');
+    * { font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; box-sizing: border-box; }
+    body { background-color: #0d0e11; }
+    .drop-zone { border: 2px dashed #e2e8f0; border-radius: 1.75rem; transition: all .2s ease; }
+    .drop-zone.drag-over { border-color: #84cc16; background-color: #f7fee7; }
+    .fade-in { animation: fadeIn .25s cubic-bezier(0.16, 1, 0.3, 1); }
+    @keyframes fadeIn { from { opacity:0; transform: translateY(6px); } to { opacity:1; transform: none; } }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+    .badge { padding: 3px 10px; border-radius: 9999px; font-size: 11px; font-weight: 700; }
+  </style>
 </head>
-<body class="min-h-screen">
+<body class="min-h-screen text-slate-800 antialiased overflow-hidden flex bg-[#0d0e11]">
 
-<!-- Sidebar + Main Layout -->
-<div class="flex h-screen overflow-hidden">
+  <!-- SIDEBAR (Left Dark Bar) -->
+  <aside class="w-20 lg:w-24 bg-[#0d0e11] flex flex-col items-center py-5 justify-between shrink-0 select-none z-20">
+    <!-- Top Navigation Group -->
+    <div class="flex flex-col items-center gap-5 w-full">
+      <!-- GeoAI Logo -->
+      <a href="/" class="w-12 h-12 rounded-2xl bg-white flex items-center justify-center shadow-lg p-2 hover:scale-105 transition-all">
+        <svg viewBox="0 0 40 40" class="w-7 h-7" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="40" height="40" rx="12" fill="#111111"/>
+          <path d="M20 9L29 20L20 31L11 20L20 9Z" fill="#a3e635"/>
+          <circle cx="20" cy="20" r="4" fill="#111111"/>
+        </svg>
+      </a>
 
-  <!-- Sidebar -->
-  <aside class="w-20 bg-[#111111] flex flex-col items-center py-6 gap-6 shrink-0">
-    <!-- Logo -->
-    <div class="w-11 h-11 bg-[#a3e635] rounded-2xl flex items-center justify-center mb-2">
-      <i data-lucide="shield-check" class="w-5 h-5 text-[#111111]"></i>
+      <!-- Navigation Tabs -->
+      <nav class="flex flex-col items-center gap-3 w-full mt-2">
+        <!-- Tab 1: Upload Portal (Active) -->
+        <button
+          onclick="switchTab('upload')"
+          id="tab-btn-upload"
+          title="Upload Portal"
+          class="w-12 h-12 rounded-2xl bg-white text-[#111111] flex items-center justify-center relative shadow-md transition-all group"
+        >
+          <span class="active-bar absolute left-1 top-3.5 w-1.5 h-5 bg-[#a3e635] rounded-r-full shadow-[0_0_8px_#a3e635]"></span>
+          <i data-lucide="upload-cloud" class="w-5 h-5 text-[#111111]"></i>
+          <span class="absolute left-16 bg-white text-[#111111] text-xs px-3 py-1.5 rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all whitespace-nowrap shadow-xl font-bold z-50 border border-gray-100">
+            Upload Portal
+          </span>
+        </button>
+
+        <!-- Tab 2: Document Library -->
+        <button
+          onclick="switchTab('library')"
+          id="tab-btn-library"
+          title="Document Library"
+          class="w-12 h-12 rounded-2xl text-gray-400 hover:text-white hover:bg-white/10 flex items-center justify-center relative transition-all group"
+        >
+          <span class="active-bar hidden absolute left-1 top-3.5 w-1.5 h-5 bg-[#a3e635] rounded-r-full shadow-[0_0_8px_#a3e635]"></span>
+          <i data-lucide="file-text" class="w-5 h-5"></i>
+          <span class="absolute left-16 bg-white text-[#111111] text-xs px-3 py-1.5 rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all whitespace-nowrap shadow-xl font-bold z-50 border border-gray-100">
+            Document Library
+          </span>
+        </button>
+
+        <!-- Tab 3: Analytics & Stats -->
+        <button
+          onclick="switchTab('stats')"
+          id="tab-btn-stats"
+          title="Data Analytics"
+          class="w-12 h-12 rounded-2xl text-gray-400 hover:text-white hover:bg-white/10 flex items-center justify-center relative transition-all group"
+        >
+          <span class="active-bar hidden absolute left-1 top-3.5 w-1.5 h-5 bg-[#a3e635] rounded-r-full shadow-[0_0_8px_#a3e635]"></span>
+          <i data-lucide="bar-chart-3" class="w-5 h-5"></i>
+          <span class="absolute left-16 bg-white text-[#111111] text-xs px-3 py-1.5 rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all whitespace-nowrap shadow-xl font-bold z-50 border border-gray-100">
+            Data Stats
+          </span>
+        </button>
+      </nav>
     </div>
-    <!-- Nav -->
-    <nav class="flex flex-col items-center gap-3 flex-1">
-      <button onclick="showPage('upload')" id="nav-upload" class="nav-btn w-12 h-12 rounded-2xl flex items-center justify-center text-gray-400 hover:text-white transition-all relative group" title="Upload">
-        <i data-lucide="upload-cloud" class="w-5 h-5"></i>
-        <span class="absolute left-14 bg-white text-[#111111] text-xs px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap shadow font-bold">Upload Data</span>
-      </button>
-      <button onclick="showPage('library')" id="nav-library" class="nav-btn w-12 h-12 rounded-2xl flex items-center justify-center text-gray-400 hover:text-white transition-all relative group" title="Library">
-        <i data-lucide="folder-open" class="w-5 h-5"></i>
-        <span class="absolute left-14 bg-white text-[#111111] text-xs px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap shadow font-bold">Doc Library</span>
-      </button>
-      <button onclick="showPage('stats')" id="nav-stats" class="nav-btn w-12 h-12 rounded-2xl flex items-center justify-center text-gray-400 hover:text-white transition-all relative group" title="Stats">
-        <i data-lucide="bar-chart-3" class="w-5 h-5"></i>
-        <span class="absolute left-14 bg-white text-[#111111] text-xs px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap shadow font-bold">Stats</span>
-      </button>
-    </nav>
-    <!-- Bottom -->
-    <div class="flex flex-col items-center gap-3">
-      <div class="w-9 h-9 rounded-xl bg-[#a3e635] flex items-center justify-center text-[#111111] font-black text-xs">AD</div>
-      <button onclick="logout()" class="w-10 h-10 rounded-xl flex items-center justify-center text-gray-500 hover:text-red-400 transition-all" title="Logout">
-        <i data-lucide="log-out" class="w-4 h-4"></i>
+
+    <!-- Bottom Actions -->
+    <div class="flex flex-col items-center gap-3 w-full">
+      <!-- Admin Avatar -->
+      <div
+        class="w-11 h-11 rounded-2xl bg-white flex items-center justify-center text-[#111111] font-black text-xs shadow-md border border-gray-200 cursor-pointer hover:scale-105 transition-all"
+        title="Admin: admin.cmpdi@gov.in"
+      >
+        AD
+      </div>
+
+      <!-- Logout / Exit -->
+      <button
+        onclick="logout()"
+        class="w-10 h-10 rounded-xl flex items-center justify-center text-gray-500 hover:text-white hover:bg-white/10 transition-all"
+        title="Sign Out"
+      >
+        <i data-lucide="log-out" class="w-5 h-5"></i>
       </button>
     </div>
   </aside>
 
-  <!-- Main -->
-  <main class="flex-1 flex flex-col overflow-hidden">
-    <!-- Header -->
-    <header class="bg-white border-b border-gray-200 px-8 py-4 flex items-center justify-between shrink-0">
+  <!-- MAIN WRAPPER (Curved White Container) -->
+  <div class="flex-1 bg-[#f8fafc] m-2.5 ml-0 rounded-[2.5rem] flex flex-col overflow-hidden shadow-2xl border border-white/10">
+
+    <!-- Top Header Bar -->
+    <header class="bg-white/80 backdrop-blur-md px-10 py-5 flex items-center justify-between border-b border-gray-100 shrink-0">
       <div>
-        <h1 class="text-xl font-black text-[#111111]" id="page-title">Upload Data</h1>
-        <p class="text-xs text-gray-400 font-semibold" id="page-sub">Upload and index documents into the GeoAI knowledge base</p>
+        <h1 class="text-2xl font-black text-[#111111] tracking-tight" id="header-title">Upload Portal</h1>
+        <p class="text-xs text-gray-400 font-semibold mt-0.5" id="header-subtitle">Feed geological datasets to the AI engine</p>
       </div>
-      <div class="flex items-center gap-3">
-        <span class="badge badge-green flex items-center gap-1"><span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span> GeoAI Online</span>
-        <span class="text-xs font-bold text-gray-500">admin.cmpdi@gov.in</span>
+
+      <!-- Right Header Actions -->
+      <div class="flex items-center gap-4">
+        <!-- Search bar -->
+        <div class="relative flex items-center">
+          <i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3.5 pointer-events-none"></i>
+          <input
+            type="text"
+            id="dataset-search"
+            oninput="handleDatasetSearch(this.value)"
+            placeholder="Search datasets..."
+            class="pl-10 pr-4 py-2 bg-gray-50 hover:bg-white focus:bg-white border border-gray-200 rounded-full text-xs font-semibold text-[#111111] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#84cc16] w-64 shadow-sm transition-all"
+          />
+        </div>
+
+        <!-- Notification Bell -->
+        <button
+          class="w-9 h-9 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:text-[#111111] shadow-sm relative transition-all"
+          title="Notifications"
+        >
+          <i data-lucide="bell" class="w-4 h-4"></i>
+          <span class="w-2 h-2 bg-orange-500 rounded-full absolute top-2 right-2 border border-white"></span>
+        </button>
       </div>
     </header>
 
-    <!-- Content -->
-    <div class="flex-1 overflow-y-auto p-8">
+    <!-- Main Dynamic Content Canvas -->
+    <div class="flex-1 overflow-y-auto px-10 py-8">
 
-      <!-- ===== UPLOAD PAGE ===== -->
-      <div id="page-upload" class="page fade-in">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-5xl">
+      <!-- ================= PAGE 1: UPLOAD PORTAL ================= -->
+      <div id="view-upload" class="fade-in max-w-6xl mx-auto space-y-8">
+        <!-- Title Header -->
+        <div>
+          <h2 class="text-3xl font-black text-[#111111] tracking-tight">Upload & Index Knowledge</h2>
+          <p class="text-sm font-semibold text-gray-500 mt-1">Submit geological PDFs, CSVs, or Excel logs to feed the GeoAI models securely.</p>
+        </div>
 
-          <!-- Upload Form -->
-          <div class="card">
-            <h2 class="font-black text-[#111111] text-base mb-5 flex items-center gap-2">
-              <i data-lucide="upload-cloud" class="w-5 h-5 text-[#84cc16]"></i> Upload Documents
-            </h2>
-            <form id="upload-form" class="space-y-4">
-              <!-- Drop Zone -->
-              <div id="drop-zone" class="drop-zone p-8 text-center cursor-pointer relative" onclick="document.getElementById('file-input').click()">
-                <input type="file" id="file-input" multiple accept=".pdf,.docx,.pptx,.xlsx,.txt,.png,.jpg,.jpeg" class="hidden">
-                <i data-lucide="file-plus-2" class="w-10 h-10 text-gray-300 mx-auto mb-3"></i>
-                <p class="text-sm font-bold text-gray-600">Click or drag & drop files here</p>
-                <p class="text-xs text-gray-400 mt-1">PDF, Word, PPT, Excel, Images, TXT</p>
-                <div id="file-list" class="mt-4 space-y-1 text-left"></div>
-              </div>
-
-              <!-- Subsidiary -->
-              <div>
-                <label class="block text-xs font-bold text-gray-600 uppercase tracking-wide mb-1.5">CIL Subsidiary</label>
-                <select id="subsidiary-select" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-[#111111] focus:ring-2 focus:ring-[#a3e635]">
-                  <option value="General">General / Common</option>
-                  <option value="BCCL">BCCL — Bharat Coking Coal Ltd</option>
-                  <option value="CCL">CCL — Central Coalfields Ltd</option>
-                  <option value="ECL">ECL — Eastern Coalfields Ltd</option>
-                  <option value="MCL">MCL — Mahanadi Coalfields Ltd</option>
-                  <option value="NCL">NCL — Northern Coalfields Ltd</option>
-                  <option value="SECL">SECL — South Eastern Coalfields Ltd</option>
-                  <option value="WCL">WCL — Western Coalfields Ltd</option>
-                  <option value="NEC">NEC — North Eastern Coalfields</option>
-                  <option value="CMPDI">CMPDI — Corporate</option>
-                </select>
-              </div>
-
-              <!-- Description -->
-              <div>
-                <label class="block text-xs font-bold text-gray-600 uppercase tracking-wide mb-1.5">Description (optional)</label>
-                <input type="text" id="doc-description" placeholder="e.g. Monthly report Jan 2024, Geological survey Block A..." class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-[#111111] focus:ring-2 focus:ring-[#a3e635]">
-              </div>
-
-              <button type="submit" class="w-full py-3.5 bg-[#111111] text-[#a3e635] rounded-xl font-extrabold text-sm hover:bg-black transition-all flex items-center justify-center gap-2">
-                <i data-lucide="zap" class="w-4 h-4"></i> Index Documents
-              </button>
-            </form>
+        <!-- Drop Zone Container -->
+        <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
+          <div
+            id="drop-zone"
+            class="drop-zone p-12 flex flex-col items-center justify-center text-center cursor-pointer bg-[#fcfdfd] hover:bg-[#f7fee7]/40 transition-all relative"
+            onclick="document.getElementById('file-input').click()"
+          >
+            <input
+              type="file"
+              id="file-input"
+              multiple
+              accept=".pdf,.docx,.pptx,.xlsx,.csv,.txt,.png,.jpg,.jpeg"
+              class="hidden"
+            />
+            <!-- Icon -->
+            <div class="w-14 h-14 rounded-full bg-green-50 border border-green-200 flex items-center justify-center text-[#84cc16] shadow-sm mb-4">
+              <i data-lucide="upload-cloud" class="w-7 h-7"></i>
+            </div>
+            <!-- Heading -->
+            <p class="text-lg font-black text-[#111111]">Drag & Drop Documents</p>
+            <p class="text-xs font-semibold text-gray-400 mt-1 mb-5">Supports .PDF, .XLSX, .CSV up to 100MB</p>
+            <!-- Browse Button -->
+            <button
+              type="button"
+              onclick="event.stopPropagation(); document.getElementById('file-input').click();"
+              class="px-7 py-2.5 bg-[#111111] hover:bg-black text-white text-xs font-extrabold rounded-full transition-all shadow-md active:scale-95"
+            >
+              Browse Files
+            </button>
           </div>
 
-          <!-- Upload Results -->
-          <div class="card">
-            <h2 class="font-black text-[#111111] text-base mb-5 flex items-center gap-2">
-              <i data-lucide="activity" class="w-5 h-5 text-[#fb923c]"></i> Upload Log
-            </h2>
-            <div id="upload-log" class="space-y-3 max-h-96 overflow-y-auto">
-              <p class="text-xs text-gray-400 text-center py-8">Upload results will appear here</p>
+          <!-- Subsidiary Options -->
+          <div class="mt-4 pt-4 border-t border-gray-100 flex flex-wrap items-center justify-between gap-3 px-2">
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Assign Subsidiary:</span>
+              <select id="upload-subsidiary" class="bg-gray-50 border border-gray-200 text-[#111111] font-bold text-xs rounded-xl px-3 py-1.5 focus:ring-2 focus:ring-[#84cc16]">
+                <option value="General">General / Common</option>
+                <option value="BCCL">BCCL — Bharat Coking Coal Ltd</option>
+                <option value="CCL">CCL — Central Coalfields Ltd</option>
+                <option value="ECL">ECL — Eastern Coalfields Ltd</option>
+                <option value="MCL">MCL — Mahanadi Coalfields Ltd</option>
+                <option value="NCL">NCL — Northern Coalfields Ltd</option>
+                <option value="SECL">SECL — South Eastern Coalfields Ltd</option>
+                <option value="WCL">WCL — Western Coalfields Ltd</option>
+                <option value="NEC">NEC — North Eastern Coalfields</option>
+                <option value="CMPDI">CMPDI — Corporate</option>
+              </select>
+            </div>
+            <p class="text-[11px] font-semibold text-gray-400">Embedding Engine: text-embedding-004 · Gemini-1.5 RAG</p>
+          </div>
+        </div>
+
+        <!-- Section: Recent Indexing Queue -->
+        <div class="space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="text-base font-black text-[#111111]">Recent Indexing Queue</h3>
+            <button onclick="switchTab('library')" class="text-xs font-bold text-[#65a30d] hover:underline flex items-center gap-1">
+              View all indexed docs <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+
+          <!-- Queue Items List -->
+          <div id="indexing-queue" class="space-y-3">
+            <!-- Item 1: Processing OCR -->
+            <div class="bg-white border border-gray-100 rounded-2xl p-4.5 px-5 flex items-center justify-between shadow-sm hover:shadow-md transition-all">
+              <div class="flex items-center gap-4 min-w-0">
+                <div class="w-11 h-11 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-500 shrink-0">
+                  <i data-lucide="file-text" class="w-5 h-5"></i>
+                </div>
+                <div class="min-w-0">
+                  <p class="text-sm font-bold text-[#111111] truncate">MCL_Survey_Data_Q3.pdf</p>
+                  <p class="text-xs font-semibold text-gray-400">Uploaded just now</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-5 shrink-0">
+                <span class="px-3.5 py-1 rounded-full text-xs font-bold text-orange-600 bg-orange-50 border border-orange-200">
+                  Processing OCR...
+                </span>
+                <div class="w-36 bg-gray-100 rounded-full h-2 overflow-hidden">
+                  <div class="bg-orange-500 h-2 rounded-full animate-pulse" style="width: 65%"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Item 2: Indexed -->
+            <div class="bg-white border border-gray-100 rounded-2xl p-4.5 px-5 flex items-center justify-between shadow-sm hover:shadow-md transition-all">
+              <div class="flex items-center gap-4 min-w-0">
+                <div class="w-11 h-11 rounded-xl bg-green-50 border border-green-100 flex items-center justify-center text-green-600 shrink-0">
+                  <i data-lucide="database" class="w-5 h-5"></i>
+                </div>
+                <div class="min-w-0">
+                  <p class="text-sm font-bold text-[#111111] truncate">SECL_Production_Oct.xlsx</p>
+                  <p class="text-xs font-semibold text-gray-400">Uploaded 2 hours ago</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-5 shrink-0">
+                <span class="px-3.5 py-1 rounded-full text-xs font-bold text-green-700 bg-green-50 border border-green-200 flex items-center gap-1.5">
+                  <i data-lucide="check" class="w-3.5 h-3.5"></i> Indexed
+                </span>
+                <div class="w-36 bg-gray-100 rounded-full h-2 overflow-hidden">
+                  <div class="bg-green-500 h-2 rounded-full" style="width: 100%"></div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- ===== LIBRARY PAGE ===== -->
-      <div id="page-library" class="page hidden fade-in">
-        <div class="card max-w-6xl">
+      <!-- ================= PAGE 2: DOCUMENT LIBRARY ================= -->
+      <div id="view-library" class="hidden fade-in max-w-6xl mx-auto space-y-6">
+        <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
           <div class="flex items-center justify-between mb-6">
-            <h2 class="font-black text-[#111111] text-base flex items-center gap-2">
-              <i data-lucide="folder-open" class="w-5 h-5 text-[#84cc16]"></i>
-              Document Library
-              <span id="doc-count-badge" class="badge badge-gray">0 docs</span>
-            </h2>
+            <div>
+              <h2 class="text-xl font-black text-[#111111] flex items-center gap-2">
+                <i data-lucide="folder-open" class="w-5 h-5 text-[#84cc16]"></i>
+                Document Knowledge Base
+                <span id="doc-count-badge" class="badge bg-gray-100 text-gray-700 ml-2">0 documents</span>
+              </h2>
+              <p class="text-xs text-gray-400 font-semibold mt-0.5">Manage, inspect chunks, and remove indexed files</p>
+            </div>
+
             <div class="flex items-center gap-3">
-              <select id="filter-subsidiary" onchange="filterDocs()" class="px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold text-[#111111] focus:ring-2 focus:ring-[#a3e635]">
+              <select id="filter-subsidiary" onchange="filterDocs()" class="px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold text-[#111111] focus:ring-2 focus:ring-[#84cc16]">
                 <option value="">All Subsidiaries</option>
                 <option>BCCL</option><option>CCL</option><option>ECL</option>
                 <option>MCL</option><option>NCL</option><option>SECL</option>
                 <option>WCL</option><option>NEC</option><option>CMPDI</option><option>General</option>
               </select>
-              <button onclick="loadDocuments()" class="px-4 py-2 bg-gray-100 rounded-xl text-xs font-bold text-gray-700 hover:bg-gray-200 flex items-center gap-1.5">
+              <button onclick="loadDocuments()" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-xl text-xs font-bold text-gray-700 flex items-center gap-1.5 transition-all">
                 <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Refresh
               </button>
             </div>
           </div>
 
           <!-- Table Header -->
-          <div class="grid grid-cols-12 gap-3 px-4 mb-2 text-[10px] font-black uppercase tracking-wider text-gray-400">
-            <div class="col-span-4">Document</div>
+          <div class="grid grid-cols-12 gap-3 px-4 py-2 mb-2 text-[10px] font-black uppercase tracking-wider text-gray-400 bg-gray-50 rounded-xl">
+            <div class="col-span-5">Document Name</div>
             <div class="col-span-2">Subsidiary</div>
-            <div class="col-span-2">Uploaded</div>
-            <div class="col-span-1">Chunks</div>
-            <div class="col-span-1">Status</div>
-            <div class="col-span-2 text-right">Actions</div>
+            <div class="col-span-2">Uploaded At</div>
+            <div class="col-span-1 text-center">Chunks</div>
+            <div class="col-span-1 text-center">Status</div>
+            <div class="col-span-1 text-right">Action</div>
           </div>
 
-          <div id="doc-table" class="space-y-2 max-h-[calc(100vh-300px)] overflow-y-auto">
+          <!-- Table Body -->
+          <div id="doc-table" class="space-y-2 max-h-[calc(100vh-320px)] overflow-y-auto">
             <div class="text-center py-12 text-gray-400">
               <i data-lucide="inbox" class="w-12 h-12 mx-auto mb-3 opacity-30"></i>
               <p class="text-sm font-bold">No documents indexed yet</p>
-              <p class="text-xs mt-1">Go to Upload to add documents</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Preview Modal -->
-        <div id="preview-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[80vh] flex flex-col">
-            <div class="flex items-center justify-between p-5 border-b">
-              <h3 class="font-black text-[#111111]" id="preview-title">Document Preview</h3>
-              <button onclick="closePreview()" class="w-8 h-8 rounded-xl bg-gray-100 flex items-center justify-center hover:bg-gray-200">
-                <i data-lucide="x" class="w-4 h-4"></i>
-              </button>
-            </div>
-            <div class="p-5 overflow-y-auto flex-1">
-              <div id="preview-meta" class="flex gap-2 mb-4 flex-wrap"></div>
-              <div id="preview-text" class="text-sm text-gray-700 leading-relaxed font-mono bg-gray-50 p-4 rounded-xl"></div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- ===== STATS PAGE ===== -->
-      <div id="page-stats" class="page hidden fade-in">
-        <div class="max-w-4xl space-y-6">
-          <!-- Top Cards -->
-          <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="card text-center">
-              <div class="text-3xl font-black text-[#111111] mb-1" id="stat-total-docs">—</div>
-              <p class="text-xs font-bold text-gray-400">Total Documents</p>
-            </div>
-            <div class="card text-center">
-              <div class="text-3xl font-black text-[#111111] mb-1" id="stat-total-chunks">—</div>
-              <p class="text-xs font-bold text-gray-400">Total Chunks</p>
-            </div>
-            <div class="card text-center">
-              <div class="text-3xl font-black text-[#a3e635] mb-1" id="stat-subsidiaries">—</div>
-              <p class="text-xs font-bold text-gray-400">Subsidiaries</p>
-            </div>
-            <div class="card text-center">
-              <div class="text-3xl font-black text-[#fb923c] mb-1">98.2%</div>
-              <p class="text-xs font-bold text-gray-400">Extraction Accuracy</p>
-            </div>
+      <!-- ================= PAGE 3: STATS & ANALYTICS ================= -->
+      <div id="view-stats" class="hidden fade-in max-w-5xl mx-auto space-y-6">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm text-center">
+            <div class="text-3xl font-black text-[#111111] mb-1" id="stat-total-docs">—</div>
+            <p class="text-xs font-bold text-gray-400">Total Documents</p>
           </div>
+          <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm text-center">
+            <div class="text-3xl font-black text-[#111111] mb-1" id="stat-total-chunks">—</div>
+            <p class="text-xs font-bold text-gray-400">Indexed Chunks</p>
+          </div>
+          <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm text-center">
+            <div class="text-3xl font-black text-[#84cc16] mb-1" id="stat-subsidiaries">—</div>
+            <p class="text-xs font-bold text-gray-400">CIL Subsidiaries</p>
+          </div>
+          <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm text-center">
+            <div class="text-3xl font-black text-orange-500 mb-1">98.4%</div>
+            <p class="text-xs font-bold text-gray-400">Extraction Accuracy</p>
+          </div>
+        </div>
 
-          <!-- Subsidiary Breakdown -->
-          <div class="card">
-            <h2 class="font-black text-[#111111] text-base mb-5 flex items-center gap-2">
-              <i data-lucide="pie-chart" class="w-5 h-5 text-[#84cc16]"></i> Data by Subsidiary
-            </h2>
-            <div id="sub-chart" class="space-y-3"></div>
-          </div>
+        <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
+          <h3 class="font-black text-[#111111] text-base mb-5 flex items-center gap-2">
+            <i data-lucide="pie-chart" class="w-5 h-5 text-[#84cc16]"></i> Knowledge Distribution by Subsidiary
+          </h3>
+          <div id="sub-chart" class="space-y-4"></div>
         </div>
       </div>
 
-    </div><!-- end content -->
-  </main>
-</div>
+    </div>
+  </div>
 
-<!-- Toast Container -->
-<div class="toast" id="toast-container"></div>
-
-<script>
-const API = 'http://localhost:8000';
-let allDocs = [];
-
-// ── Navigation ─────────────────────────────────────────────────────────────────
-const pageMeta = {
-  upload:  { title: 'Upload Data',      sub: 'Upload and index documents into the GeoAI knowledge base' },
-  library: { title: 'Document Library', sub: 'View, verify and manage all indexed documents' },
-  stats:   { title: 'Data Statistics',  sub: 'Overview of indexed data by subsidiary and format' },
-};
-
-function showPage(name) {
-  document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('page-' + name).classList.remove('hidden');
-  document.getElementById('nav-' + name).classList.add('active');
-  document.getElementById('page-title').textContent = pageMeta[name].title;
-  document.getElementById('page-sub').textContent = pageMeta[name].sub;
-  if (name === 'library') loadDocuments();
-  if (name === 'stats') loadStats();
-}
-
-// ── Auth check ─────────────────────────────────────────────────────────────────
-window.addEventListener('load', () => {
-  const role = localStorage.getItem('cmpdi_role');
-  if (!role || role !== 'admin') { window.location.href = '/'; return; }
-  lucide.createIcons();
-  showPage('upload');
-});
-
-function logout() {
-  localStorage.removeItem('cmpdi_role');
-  localStorage.removeItem('cmpdi_email');
-  window.location.href = '/';
-}
-
-// ── File input & drag-drop ─────────────────────────────────────────────────────
-const fileInput = document.getElementById('file-input');
-const dropZone = document.getElementById('drop-zone');
-
-fileInput.addEventListener('change', updateFileList);
-dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
-dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
-dropZone.addEventListener('drop', e => {
-  e.preventDefault();
-  dropZone.classList.remove('drag-over');
-  fileInput.files = e.dataTransfer.files;
-  updateFileList();
-});
-
-function updateFileList() {
-  const fl = document.getElementById('file-list');
-  fl.innerHTML = '';
-  Array.from(fileInput.files).forEach(f => {
-    const ext = f.name.split('.').pop().toUpperCase();
-    const clr = {PDF:'bg-red-100 text-red-700', DOCX:'bg-blue-100 text-blue-700', PPTX:'bg-orange-100 text-orange-700', XLSX:'bg-green-100 text-green-700', PNG:'bg-purple-100 text-purple-700', JPG:'bg-purple-100 text-purple-700'}[ext] || 'bg-gray-100 text-gray-700';
-    fl.innerHTML += `<div class="flex items-center gap-2 text-xs font-semibold text-gray-700 bg-white border border-gray-200 rounded-lg px-3 py-2"><span class="badge ${clr}">${ext}</span>${f.name}</div>`;
-  });
-}
-
-// ── Upload Form ────────────────────────────────────────────────────────────────
-document.getElementById('upload-form').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const files = fileInput.files;
-  if (!files.length) { toast('Select at least one file', 'error'); return; }
-
-  const subsidiary = document.getElementById('subsidiary-select').value;
-  const description = document.getElementById('doc-description').value;
-  const log = document.getElementById('upload-log');
-
-  for (const file of files) {
-    const entry = document.createElement('div');
-    entry.className = 'flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-200';
-    entry.innerHTML = `<div class="w-8 h-8 rounded-lg bg-yellow-100 flex items-center justify-center shrink-0"><i data-lucide="loader-2" class="w-4 h-4 text-yellow-600 animate-spin"></i></div><div class="flex-1 min-w-0"><p class="text-xs font-bold text-[#111111] truncate">${file.name}</p><p class="text-[10px] text-gray-400">Uploading...</p></div>`;
-    log.prepend(entry);
-    lucide.createIcons();
-
-    const fd = new FormData();
-    fd.append('file', file);
-    fd.append('subsidiary', subsidiary);
-    fd.append('description', description);
-
-    try {
-      const res = await fetch(`${API}/api/upload`, { method: 'POST', body: fd });
-      const d = await res.json();
-      if (res.ok && d.status === 'ok') {
-        entry.innerHTML = `<div class="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center shrink-0"><i data-lucide="check-circle-2" class="w-4 h-4 text-green-600"></i></div><div class="flex-1 min-w-0"><p class="text-xs font-bold text-[#111111] truncate">${file.name}</p><p class="text-[10px] text-gray-500">${d.chunks} chunks · ${d.pages} pages · ${subsidiary}</p></div><span class="badge badge-green">Indexed</span>`;
-        toast(`"${file.name}" indexed successfully!`);
-      } else {
-        entry.innerHTML = `<div class="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center shrink-0"><i data-lucide="alert-circle" class="w-4 h-4 text-red-500"></i></div><div class="flex-1 min-w-0"><p class="text-xs font-bold text-[#111111] truncate">${file.name}</p><p class="text-[10px] text-red-500">${d.detail || 'Upload failed'}</p></div><span class="badge" style="background:#fee2e2;color:#991b1b">Failed</span>`;
-      }
-    } catch(err) {
-      entry.innerHTML = `<div class="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center shrink-0"><i data-lucide="wifi-off" class="w-4 h-4 text-red-500"></i></div><div class="flex-1 min-w-0"><p class="text-xs font-bold truncate">${file.name}</p><p class="text-[10px] text-red-500">Cannot reach server</p></div>`;
-    }
-    lucide.createIcons();
-  }
-  fileInput.value = '';
-  document.getElementById('file-list').innerHTML = '';
-});
-
-// ── Document Library ───────────────────────────────────────────────────────────
-async function loadDocuments() {
-  try {
-    const res = await fetch(`${API}/api/documents`);
-    const d = await res.json();
-    allDocs = d.documents || [];
-    document.getElementById('doc-count-badge').textContent = `${allDocs.length} docs`;
-    renderDocs(allDocs);
-  } catch(e) { }
-}
-
-function filterDocs() {
-  const f = document.getElementById('filter-subsidiary').value;
-  renderDocs(f ? allDocs.filter(d => d.subsidiary === f) : allDocs);
-}
-
-function renderDocs(docs) {
-  const table = document.getElementById('doc-table');
-  if (!docs.length) {
-    table.innerHTML = `<div class="text-center py-12 text-gray-400"><i data-lucide="inbox" class="w-12 h-12 mx-auto mb-3 opacity-30"></i><p class="text-sm font-bold">No documents found</p></div>`;
-    lucide.createIcons(); return;
-  }
-  const subColors = {BCCL:'badge-blue',CCL:'badge-orange',ECL:'badge-green',MCL:'badge-blue',NCL:'badge-orange',SECL:'badge-green',WCL:'badge-blue',General:'badge-gray',CMPDI:'badge-gray'};
-  table.innerHTML = docs.map(doc => `
-    <div class="grid grid-cols-12 gap-3 items-center px-4 py-3 rounded-xl hover:bg-gray-50 border border-transparent hover:border-gray-200 transition-all">
-      <div class="col-span-4 flex items-center gap-3 min-w-0">
-        <div class="w-8 h-8 rounded-lg bg-[#a3e635]/20 flex items-center justify-center shrink-0">
-          <i data-lucide="file-text" class="w-4 h-4 text-[#65a30d]"></i>
+  <!-- Preview Modal -->
+  <div id="preview-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-2xl w-full max-h-[85vh] flex flex-col shadow-2xl border border-gray-200">
+      <div class="flex items-center justify-between p-6 border-b border-gray-100">
+        <div>
+          <h3 class="font-black text-lg text-[#111111]" id="preview-title">Document Preview</h3>
+          <div id="preview-meta" class="flex gap-2 mt-1"></div>
         </div>
-        <div class="min-w-0">
-          <p class="text-xs font-bold text-[#111111] truncate">${doc.filename}</p>
-          <p class="text-[10px] text-gray-400 truncate">${doc.description || '—'}</p>
-        </div>
-      </div>
-      <div class="col-span-2"><span class="badge ${subColors[doc.subsidiary]||'badge-gray'}">${doc.subsidiary}</span></div>
-      <div class="col-span-2 text-xs text-gray-500 font-semibold">${doc.uploaded_at}</div>
-      <div class="col-span-1 text-xs font-black text-[#111111]">${doc.chunks}</div>
-      <div class="col-span-1"><span class="badge badge-green">Indexed</span></div>
-      <div class="col-span-2 flex items-center justify-end gap-2">
-        <button onclick="previewDoc('${doc.filename}')" class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center hover:bg-blue-100 transition-all" title="Preview">
-          <i data-lucide="eye" class="w-3.5 h-3.5 text-blue-600"></i>
+        <button onclick="closePreview()" class="w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-all">
+          <i data-lucide="x" class="w-4 h-4 text-gray-600"></i>
         </button>
-        <button onclick="deleteDoc('${doc.filename}')" class="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center hover:bg-red-100 transition-all" title="Delete">
-          <i data-lucide="trash-2" class="w-3.5 h-3.5 text-red-500"></i>
-        </button>
+      </div>
+      <div class="p-6 overflow-y-auto flex-1">
+        <div id="preview-text" class="text-xs text-gray-700 leading-relaxed font-mono bg-gray-50 p-4 rounded-2xl border border-gray-200 whitespace-pre-wrap"></div>
       </div>
     </div>
-  `).join('');
-  lucide.createIcons();
-}
+  </div>
 
-async function previewDoc(filename) {
-  try {
-    const res = await fetch(`${API}/api/documents/${encodeURIComponent(filename)}/preview`);
-    const d = await res.json();
-    document.getElementById('preview-title').textContent = filename;
-    document.getElementById('preview-meta').innerHTML = `<span class="badge badge-green">${d.subsidiary}</span><span class="badge badge-gray">${d.chunks} chunks</span><span class="badge badge-blue">${d.pages} pages</span>`;
-    document.getElementById('preview-text').textContent = d.preview || 'No preview available.';
-    document.getElementById('preview-modal').classList.remove('hidden');
-  } catch(e) { toast('Cannot load preview', 'error'); }
-}
+  <!-- Toast Notification Container -->
+  <div class="fixed bottom-6 right-6 z-50 flex flex-col gap-2" id="toast-container"></div>
 
-function closePreview() {
-  document.getElementById('preview-modal').classList.add('hidden');
-}
+  <script>
+    const API = window.location.origin;
+    let allDocs = [];
 
-async function deleteDoc(filename) {
-  if (!confirm(`Delete "${filename}" from the knowledge base?`)) return;
-  try {
-    const res = await fetch(`${API}/api/documents/${encodeURIComponent(filename)}`, { method: 'DELETE' });
-    const d = await res.json();
-    if (d.status === 'ok') { toast(`"${filename}" deleted.`); loadDocuments(); }
-  } catch(e) { toast('Cannot connect to server', 'error'); }
-}
+    // ── Tab Management ─────────────────────────────────────────────────────────────
+    const tabMeta = {
+      upload:  { title: 'Upload Portal', sub: 'Feed geological datasets to the AI engine' },
+      library: { title: 'Document Knowledge Base', sub: 'Inspect and manage all vectorized geological documents' },
+      stats:   { title: 'Analytics & Knowledge Stats', sub: 'Overview of indexed data by subsidiary and chunks' }
+    };
 
-// ── Stats ──────────────────────────────────────────────────────────────────────
-async function loadStats() {
-  try {
-    const res = await fetch(`${API}/api/stats`);
-    const d = await res.json();
-    document.getElementById('stat-total-docs').textContent = d.total_documents;
-    document.getElementById('stat-total-chunks').textContent = d.total_chunks.toLocaleString();
-    document.getElementById('stat-subsidiaries').textContent = Object.keys(d.by_subsidiary).length;
+    function switchTab(name) {
+      ['upload', 'library', 'stats'].forEach(t => {
+        const view = document.getElementById(`view-${t}`);
+        const btn = document.getElementById(`tab-btn-${t}`);
+        if (view) view.classList.add('hidden');
+        if (btn) {
+          btn.className = "w-12 h-12 rounded-2xl text-gray-400 hover:text-white hover:bg-white/10 flex items-center justify-center relative transition-all group";
+          const bar = btn.querySelector('.active-bar');
+          if (bar) bar.classList.add('hidden');
+        }
+      });
 
-    const chart = document.getElementById('sub-chart');
-    const bySub = d.by_subsidiary || {};
-    const total = Object.values(bySub).reduce((a,b)=>a+b,0) || 1;
-    const subColors2 = {BCCL:'bg-blue-500',CCL:'bg-orange-500',ECL:'bg-green-500',MCL:'bg-purple-500',NCL:'bg-yellow-500',SECL:'bg-red-500',WCL:'bg-cyan-500',General:'bg-gray-400',CMPDI:'bg-lime-500',NEC:'bg-pink-500'};
-    chart.innerHTML = Object.entries(bySub).sort((a,b)=>b[1]-a[1]).map(([sub, count]) => `
-      <div>
-        <div class="flex justify-between text-xs font-bold text-gray-700 mb-1.5">
-          <span>${sub}</span><span>${count} chunks (${Math.round(count/total*100)}%)</span>
+      const activeView = document.getElementById(`view-${name}`);
+      const activeBtn = document.getElementById(`tab-btn-${name}`);
+      if (activeView) activeView.classList.remove('hidden');
+      if (activeBtn) {
+        activeBtn.className = "w-12 h-12 rounded-2xl bg-white text-[#111111] flex items-center justify-center relative shadow-md transition-all group";
+        const bar = activeBtn.querySelector('.active-bar');
+        if (bar) bar.classList.remove('hidden');
+      }
+
+      document.getElementById('header-title').textContent = tabMeta[name].title;
+      document.getElementById('header-subtitle').textContent = tabMeta[name].sub;
+
+      if (name === 'library') loadDocuments();
+      if (name === 'stats') loadStats();
+      lucide.createIcons();
+    }
+
+    // ── Auth Check ─────────────────────────────────────────────────────────────────
+    window.addEventListener('load', () => {
+      lucide.createIcons();
+      loadDocuments();
+    });
+
+    function logout() {
+      localStorage.removeItem('cmpdi_role');
+      localStorage.removeItem('cmpdi_logged_in');
+      localStorage.removeItem('cmpdi_email');
+      window.location.href = '/';
+    }
+
+    // ── Drag & Drop + File Upload ──────────────────────────────────────────────────
+    const fileInput = document.getElementById('file-input');
+    const dropZone = document.getElementById('drop-zone');
+
+    fileInput.addEventListener('change', handleFiles);
+    dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+    dropZone.addEventListener('drop', e => {
+      e.preventDefault();
+      dropZone.classList.remove('drag-over');
+      if (e.dataTransfer.files && e.dataTransfer.files.length) {
+        fileInput.files = e.dataTransfer.files;
+        handleFiles();
+      }
+    });
+
+    async function handleFiles() {
+      const files = fileInput.files;
+      if (!files.length) return;
+
+      const subsidiary = document.getElementById('upload-subsidiary').value || 'General';
+      const queueContainer = document.getElementById('indexing-queue');
+
+      for (const file of files) {
+        const item = document.createElement('div');
+        item.className = 'bg-white border border-gray-100 rounded-2xl p-4.5 px-5 flex items-center justify-between shadow-sm hover:shadow-md transition-all fade-in';
+        item.innerHTML = `
+          <div class="flex items-center gap-4 min-w-0">
+            <div class="w-11 h-11 rounded-xl bg-orange-50 border border-orange-100 flex items-center justify-center text-orange-500 shrink-0">
+              <i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i>
+            </div>
+            <div class="min-w-0">
+              <p class="text-sm font-bold text-[#111111] truncate">${file.name}</p>
+              <p class="text-xs font-semibold text-gray-400">Uploading & Vectorizing...</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-5 shrink-0">
+            <span class="px-3.5 py-1 rounded-full text-xs font-bold text-orange-600 bg-orange-50 border border-orange-200">
+              Processing OCR...
+            </span>
+            <div class="w-36 bg-gray-100 rounded-full h-2 overflow-hidden">
+              <div class="bg-orange-500 h-2 rounded-full animate-pulse" style="width: 50%"></div>
+            </div>
+          </div>
+        `;
+        queueContainer.prepend(item);
+        lucide.createIcons();
+
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('subsidiary', subsidiary);
+        formData.append('description', `Uploaded via Admin Upload Portal`);
+
+        try {
+          const resp = await fetch(`${API}/api/upload`, { method: 'POST', body: formData });
+          const res = await resp.json();
+
+          if (resp.ok && res.status === 'ok') {
+            item.innerHTML = `
+              <div class="flex items-center gap-4 min-w-0">
+                <div class="w-11 h-11 rounded-xl bg-green-50 border border-green-100 flex items-center justify-center text-green-600 shrink-0">
+                  <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+                </div>
+                <div class="min-w-0">
+                  <p class="text-sm font-bold text-[#111111] truncate">${file.name}</p>
+                  <p class="text-xs font-semibold text-gray-500">${res.chunks} chunks · ${res.pages || 1} pages · ${subsidiary}</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-5 shrink-0">
+                <span class="px-3.5 py-1 rounded-full text-xs font-bold text-green-700 bg-green-50 border border-green-200 flex items-center gap-1.5">
+                  <i data-lucide="check" class="w-3.5 h-3.5"></i> Indexed
+                </span>
+                <div class="w-36 bg-gray-100 rounded-full h-2 overflow-hidden">
+                  <div class="bg-green-500 h-2 rounded-full" style="width: 100%"></div>
+                </div>
+              </div>
+            `;
+            toast(`"${file.name}" indexed successfully!`);
+          } else {
+            item.innerHTML = `
+              <div class="flex items-center gap-4 min-w-0">
+                <div class="w-11 h-11 rounded-xl bg-red-50 border border-red-100 flex items-center justify-center text-red-500 shrink-0">
+                  <i data-lucide="alert-circle" class="w-5 h-5"></i>
+                </div>
+                <div class="min-w-0">
+                  <p class="text-sm font-bold text-[#111111] truncate">${file.name}</p>
+                  <p class="text-xs font-semibold text-red-500">${res.detail || 'Upload failed'}</p>
+                </div>
+              </div>
+              <span class="px-3 py-1 rounded-full text-xs font-bold text-red-700 bg-red-50 border border-red-200">Failed</span>
+            `;
+            toast(`Failed to index "${file.name}"`, 'error');
+          }
+        } catch (err) {
+          item.innerHTML = `
+            <div class="flex items-center gap-4 min-w-0">
+              <div class="w-11 h-11 rounded-xl bg-red-50 border border-red-100 flex items-center justify-center text-red-500 shrink-0">
+                <i data-lucide="wifi-off" class="w-5 h-5"></i>
+              </div>
+              <div class="min-w-0">
+                <p class="text-sm font-bold text-[#111111] truncate">${file.name}</p>
+                <p class="text-xs font-semibold text-red-500">Cannot reach server</p>
+              </div>
+            </div>
+            <span class="px-3 py-1 rounded-full text-xs font-bold text-red-700 bg-red-50 border border-red-200">Offline</span>
+          `;
+        }
+        lucide.createIcons();
+      }
+      fileInput.value = '';
+    }
+
+    // ── Document Library ───────────────────────────────────────────────────────────
+    async function loadDocuments() {
+      try {
+        const res = await fetch(`${API}/api/documents`);
+        const d = await res.json();
+        allDocs = d.documents || [];
+        const badge = document.getElementById('doc-count-badge');
+        if (badge) badge.textContent = `${allDocs.length} documents`;
+        renderDocs(allDocs);
+      } catch(e) {}
+    }
+
+    function filterDocs() {
+      const f = document.getElementById('filter-subsidiary').value;
+      renderDocs(f ? allDocs.filter(d => d.subsidiary === f) : allDocs);
+    }
+
+    function handleDatasetSearch(q) {
+      const query = q.trim().toLowerCase();
+      if (!query) {
+        renderDocs(allDocs);
+        return;
+      }
+      const filtered = allDocs.filter(d => d.filename.toLowerCase().includes(query) || (d.subsidiary && d.subsidiary.toLowerCase().includes(query)));
+      renderDocs(filtered);
+    }
+
+    function renderDocs(docs) {
+      const table = document.getElementById('doc-table');
+      if (!table) return;
+      if (!docs.length) {
+        table.innerHTML = `
+          <div class="text-center py-12 text-gray-400">
+            <i data-lucide="inbox" class="w-12 h-12 mx-auto mb-3 opacity-30"></i>
+            <p class="text-sm font-bold">No documents found</p>
+          </div>
+        `;
+        lucide.createIcons();
+        return;
+      }
+
+      table.innerHTML = docs.map(doc => `
+        <div class="grid grid-cols-12 gap-3 items-center px-4 py-3 rounded-2xl hover:bg-gray-50 border border-gray-100 hover:border-gray-200 transition-all bg-white shadow-xs">
+          <div class="col-span-5 flex items-center gap-3 min-w-0">
+            <div class="w-9 h-9 rounded-xl bg-[#84cc16]/15 flex items-center justify-center text-[#65a30d] shrink-0">
+              <i data-lucide="file-text" class="w-4 h-4"></i>
+            </div>
+            <div class="min-w-0">
+              <p class="text-xs font-extrabold text-[#111111] truncate">${doc.filename}</p>
+              <p class="text-[10px] text-gray-400 truncate">${doc.description || 'Geological knowledge source'}</p>
+            </div>
+          </div>
+          <div class="col-span-2">
+            <span class="badge bg-slate-100 text-slate-700">${doc.subsidiary}</span>
+          </div>
+          <div class="col-span-2 text-xs text-gray-500 font-semibold">${doc.uploaded_at}</div>
+          <div class="col-span-1 text-xs font-black text-center text-[#111111]">${doc.chunks}</div>
+          <div class="col-span-1 text-center">
+            <span class="badge bg-green-50 text-green-700 border border-green-200">Indexed</span>
+          </div>
+          <div class="col-span-1 flex items-center justify-end gap-1.5">
+            <button onclick="previewDoc('${doc.filename}')" class="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 flex items-center justify-center transition-all" title="Preview">
+              <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+            </button>
+            <button onclick="deleteDoc('${doc.filename}')" class="w-7 h-7 rounded-lg bg-red-50 text-red-500 hover:bg-red-100 flex items-center justify-center transition-all" title="Delete">
+              <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
         </div>
-        <div class="w-full bg-gray-100 rounded-full h-3 overflow-hidden">
-          <div class="${subColors2[sub]||'bg-gray-400'} h-3 rounded-full transition-all duration-700" style="width:${Math.round(count/total*100)}%"></div>
-        </div>
-      </div>`).join('');
-  } catch(e) {}
-}
+      `).join('');
+      lucide.createIcons();
+    }
 
-// ── Toast ──────────────────────────────────────────────────────────────────────
-function toast(msg, type='success') {
-  const t = document.createElement('div');
-  const bg = type === 'error' ? 'bg-red-600' : 'bg-[#111111]';
-  const icon = type === 'error' ? 'alert-circle' : 'check-circle-2';
-  t.className = `${bg} text-white text-xs font-bold px-4 py-3 rounded-2xl shadow-xl flex items-center gap-2 mb-2 fade-in`;
-  t.innerHTML = `<i data-lucide="${icon}" class="w-4 h-4 ${type==='error'?'':'text-[#a3e635]'}"></i><span>${msg}</span>`;
-  document.getElementById('toast-container').prepend(t);
-  lucide.createIcons();
-  setTimeout(() => { t.style.opacity='0'; t.style.transition='opacity .3s'; setTimeout(()=>t.remove(),300); }, 3500);
-}
-</script>
+    async function previewDoc(filename) {
+      try {
+        const res = await fetch(`${API}/api/documents/${encodeURIComponent(filename)}/preview`);
+        const d = await res.json();
+        document.getElementById('preview-title').textContent = filename;
+        document.getElementById('preview-meta').innerHTML = `
+          <span class="badge bg-green-100 text-green-800">${d.subsidiary}</span>
+          <span class="badge bg-gray-100 text-gray-800">${d.chunks} chunks</span>
+          <span class="badge bg-blue-100 text-blue-800">${d.pages} pages</span>
+        `;
+        document.getElementById('preview-text').textContent = d.preview || 'No raw preview text available for this document.';
+        document.getElementById('preview-modal').classList.remove('hidden');
+      } catch (e) {
+        toast('Failed to load document preview', 'error');
+      }
+    }
+
+    function closePreview() {
+      document.getElementById('preview-modal').classList.add('hidden');
+    }
+
+    async function deleteDoc(filename) {
+      if (!confirm(`Are you sure you want to remove "${filename}" from the GeoAI vector index?`)) return;
+      try {
+        const res = await fetch(`${API}/api/documents/${encodeURIComponent(filename)}`, { method: 'DELETE' });
+        const d = await res.json();
+        if (d.status === 'ok') {
+          toast(`"${filename}" removed.`);
+          loadDocuments();
+        }
+      } catch (e) {
+        toast('Cannot delete document', 'error');
+      }
+    }
+
+    // ── Stats Page ─────────────────────────────────────────────────────────────────
+    async function loadStats() {
+      try {
+        const res = await fetch(`${API}/api/stats`);
+        const d = await res.json();
+        document.getElementById('stat-total-docs').textContent = d.total_documents;
+        document.getElementById('stat-total-chunks').textContent = d.total_chunks.toLocaleString();
+        document.getElementById('stat-subsidiaries').textContent = Object.keys(d.by_subsidiary).length;
+
+        const chart = document.getElementById('sub-chart');
+        const bySub = d.by_subsidiary || {};
+        const total = Object.values(bySub).reduce((a, b) => a + b, 0) || 1;
+        const subColors = {
+          BCCL: 'bg-blue-500', CCL: 'bg-orange-500', ECL: 'bg-green-500', MCL: 'bg-purple-500',
+          NCL: 'bg-yellow-500', SECL: 'bg-red-500', WCL: 'bg-cyan-500', General: 'bg-gray-400',
+          CMPDI: 'bg-lime-500', NEC: 'bg-pink-500'
+        };
+
+        chart.innerHTML = Object.entries(bySub).sort((a, b) => b[1] - a[1]).map(([sub, count]) => `
+          <div>
+            <div class="flex justify-between text-xs font-bold text-gray-700 mb-1.5">
+              <span>${sub}</span><span>${count} chunks (${Math.round(count / total * 100)}%)</span>
+            </div>
+            <div class="w-full bg-gray-100 rounded-full h-2.5 overflow-hidden">
+              <div class="${subColors[sub] || 'bg-[#84cc16]'} h-2.5 rounded-full transition-all duration-700" style="width: ${Math.round(count / total * 100)}%"></div>
+            </div>
+          </div>
+        `).join('');
+      } catch (e) {}
+    }
+
+    // ── Toast Utility ──────────────────────────────────────────────────────────────
+    function toast(msg, type = 'success') {
+      const t = document.createElement('div');
+      const bg = type === 'error' ? 'bg-red-600' : 'bg-[#111111]';
+      const icon = type === 'error' ? 'alert-circle' : 'check-circle-2';
+      t.className = `${bg} text-white text-xs font-bold px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2 mb-2 fade-in`;
+      t.innerHTML = `<i data-lucide="${icon}" class="w-4 h-4 ${type === 'error' ? '' : 'text-[#a3e635]'}"></i><span>${msg}</span>`;
+      document.getElementById('toast-container').prepend(t);
+      lucide.createIcons();
+      setTimeout(() => {
+        t.style.opacity = '0';
+        t.style.transition = 'opacity .3s';
+        setTimeout(() => t.remove(), 300);
+      }, 3500);
+    }
+  </script>
 </body>
 </html>
