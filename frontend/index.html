@@ -241,7 +241,7 @@
                         </div>
                         <div class="relative flex items-center">
                             <i data-lucide="lock" class="w-4 h-4 text-gray-400 absolute left-4"></i>
-                            <input type="password" id="auth-password" required value="securepassword123" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" class="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl text-xs font-bold text-[#111111] focus:ring-2 focus:ring-[#a3e635] focus:bg-white outline-none transition-all shadow-2xs">
+                            <input type="password" id="auth-password" required value="" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" class="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl text-xs font-bold text-[#111111] focus:ring-2 focus:ring-[#a3e635] focus:bg-white outline-none transition-all shadow-2xs">
                         </div>
                     </div>
                     
@@ -1151,11 +1151,13 @@
                 roleIconContainer.innerHTML = '<i data-lucide="shield-check" class="w-6 h-6"></i>';
                 roleText.textContent = "Sign in to Administrator Portal";
                 emailInput.value = "admin.cmpdi@gov.in";
+                document.getElementById("auth-password").value = "cmpdi@2024";
             } else {
                 roleIconContainer.className = "w-12 h-12 mx-auto bg-[#ea580c] text-white rounded-2xl flex items-center justify-center mb-4 shadow-lg border border-orange-600";
                 roleIconContainer.innerHTML = '<i data-lucide="users" class="w-6 h-6"></i>';
                 roleText.textContent = "Sign in to User Data Portal";
-                emailInput.value = "user.cmpdi@gov.in";
+                emailInput.value = "ministry@coal.gov.in";
+                document.getElementById("auth-password").value = "coal@2024";
             }
             
             // Re-render lucide icons inside the dynamically updated innerHTML
@@ -2077,6 +2079,7 @@
     </script>
 </body>
 </html>
+
 
 
 
