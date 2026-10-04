@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -176,7 +176,7 @@
                 </div>
 
                 <div class="mt-8 text-center pt-4 border-t border-gray-100/80">
-                    <p class="text-[10px] text-gray-400 font-bold tracking-widest uppercase">Restricted Access • Ministry of Coal</p>
+                    <p class="text-[10px] text-gray-400 font-bold tracking-widest uppercase">Restricted Access â€¢ Ministry of Coal</p>
                 </div>
             </div>
 
@@ -209,7 +209,7 @@
                         </div>
                         <div class="relative flex items-center">
                             <i data-lucide="lock" class="w-4 h-4 text-gray-400 absolute left-4"></i>
-                            <input type="password" id="auth-password" required value="securepassword123" placeholder="••••••••" class="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl text-xs font-bold text-[#111111] focus:ring-2 focus:ring-[#a3e635] focus:bg-white outline-none transition-all shadow-2xs">
+                            <input type="password" id="auth-password" required value="securepassword123" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" class="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl text-xs font-bold text-[#111111] focus:ring-2 focus:ring-[#a3e635] focus:bg-white outline-none transition-all shadow-2xs">
                         </div>
                     </div>
                     
@@ -335,7 +335,7 @@
                     </button>
                     <div>
                         <h2 class="text-xl lg:text-2xl font-black text-[#111111] flex items-center gap-2 tracking-tight" id="header-title">
-                            Dashboard <span class="text-xl">👋</span>
+                            Dashboard <span class="text-xl">ðŸ‘‹</span>
                         </h2>
                         <p class="text-xs font-semibold text-gray-500" id="header-subtitle">Welcome to CMPDI GeoAI Hub!</p>
                     </div>
@@ -710,8 +710,8 @@
                             </div>
 
                             <div id="suggested-chips" class="flex flex-wrap gap-2 pl-12 pt-1">
-                                <button onclick="sendPresetPrompt('What is total coal production for Q3?')" class="px-4 py-2 bg-white hover:bg-[#eefcce] text-gray-800 hover:text-[#111111] border border-gray-200 rounded-full text-[11px] font-extrabold transition-all shadow-2xs hover:scale-105">📊 Q3 Total Coal Production?</button>
-                                <button onclick="sendPresetPrompt('Reasons for delay in Gevra expansion?')" class="px-4 py-2 bg-white hover:bg-[#ffebd6] text-gray-800 hover:text-[#111111] border border-gray-200 rounded-full text-[11px] font-extrabold transition-all shadow-2xs hover:scale-105">⚠️ Gevra Expansion Delays</button>
+                                <button onclick="sendPresetPrompt('What is total coal production for Q3?')" class="px-4 py-2 bg-white hover:bg-[#eefcce] text-gray-800 hover:text-[#111111] border border-gray-200 rounded-full text-[11px] font-extrabold transition-all shadow-2xs hover:scale-105">ðŸ“Š Q3 Total Coal Production?</button>
+                                <button onclick="sendPresetPrompt('Reasons for delay in Gevra expansion?')" class="px-4 py-2 bg-white hover:bg-[#ffebd6] text-gray-800 hover:text-[#111111] border border-gray-200 rounded-full text-[11px] font-extrabold transition-all shadow-2xs hover:scale-105">âš ï¸ Gevra Expansion Delays</button>
                             </div>
 
                             <div class="flex gap-3 max-w-[85%] ml-auto flex-row-reverse">
@@ -730,7 +730,7 @@
                                         <li>Hydrological impact assessments required in Block B.</li>
                                     </ul>
                                     <div class="flex items-center gap-2 pt-2 border-t border-gray-100 text-[10px] font-extrabold text-gray-400">
-                                        <span>SECL_Clearance_2023.pdf</span> • <span class="text-[#84cc16]">99.1% Confidence</span>
+                                        <span>SECL_Clearance_2023.pdf</span> â€¢ <span class="text-[#84cc16]">99.1% Confidence</span>
                                     </div>
                                 </div>
                             </div>
@@ -761,52 +761,48 @@
                                 <p class="text-gray-500 text-xs sm:text-sm font-medium mt-1">Submit geological PDFs, CSVs, or Excel logs to feed the GeoAI models securely.</p>
                             </div>
 
+                            <input type="file" id="real-file-input" accept=".pdf,.xlsx,.csv,.docx" class="hidden" onchange="handleFileSelected(this.files[0])">
                             <div class="border-2 border-dashed border-gray-300 rounded-[2rem] p-10 flex flex-col items-center justify-center text-center bg-gray-50 hover:bg-[#eefcce]/20 hover:border-[#a3e635] transition-all cursor-pointer group mb-8">
                                 <div class="w-16 h-16 rounded-3xl bg-white border border-gray-200 flex items-center justify-center mb-4 group-hover:scale-110 group-hover:shadow-lg transition-all">
                                     <i data-lucide="upload-cloud" class="w-8 h-8 text-[#84cc16]"></i>
                                 </div>
                                 <h3 class="text-base font-extrabold text-[#111111] mb-1">Drag & Drop Documents</h3>
                                 <p class="text-xs text-gray-500 font-semibold mb-4">Supports .PDF, .XLSX, .CSV up to 100MB</p>
-                                <button onclick="alertBox('File selector opened (simulated)')" class="px-6 py-3 bg-[#111111] text-[#a3e635] rounded-xl font-extrabold text-xs shadow-md hover:bg-black transition-all">
+                                <button onclick="document.getElementById('real-file-input').click()" class="px-6 py-3 bg-[#111111] text-[#a3e635] rounded-xl font-extrabold text-xs shadow-md hover:bg-black transition-all">
                                     Browse Files
                                 </button>
                             </div>
 
                             <div>
                                 <h4 class="font-black text-sm text-[#111111] mb-4">Recent Indexing Queue</h4>
-                                <div class="space-y-3">
-                                    <div class="flex items-center justify-between p-4 bg-gray-50 border border-gray-200/80 rounded-2xl">
-                                        <div class="flex items-center gap-4">
-                                            <div class="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center"><i data-lucide="file-text" class="w-5 h-5 text-blue-600"></i></div>
-                                            <div>
-                                                <p class="font-extrabold text-xs text-gray-900">MCL_Survey_Data_Q3.pdf</p>
-                                                <p class="text-[10px] text-gray-500 font-bold mt-0.5">Uploaded just now</p>
-                                            </div>
-                                        </div>
-                                        <div class="flex items-center gap-3">
-                                            <span class="text-[10px] font-black text-orange-600 bg-orange-50 px-2.5 py-1 rounded-md border border-orange-200">Processing OCR...</span>
-                                            <div class="w-24 bg-gray-200 rounded-full h-1.5"><div class="bg-orange-500 h-1.5 rounded-full" style="width: 45%"></div></div>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-center justify-between p-4 bg-gray-50 border border-gray-200/80 rounded-2xl">
-                                        <div class="flex items-center gap-4">
-                                            <div class="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center"><i data-lucide="database" class="w-5 h-5 text-green-600"></i></div>
-                                            <div>
-                                                <p class="font-extrabold text-xs text-gray-900">SECL_Production_Oct.xlsx</p>
-                                                <p class="text-[10px] text-gray-500 font-bold mt-0.5">Uploaded 2 hours ago</p>
-                                            </div>
-                                        </div>
-                                        <div class="flex items-center gap-3">
-                                            <span class="text-[10px] font-black text-green-700 bg-green-50 px-2.5 py-1 rounded-md border border-green-200"><i data-lucide="check" class="w-3 h-3 inline"></i> Indexed</span>
-                                            <div class="w-24 bg-gray-200 rounded-full h-1.5"><div class="bg-green-500 h-1.5 rounded-full" style="width: 100%"></div></div>
-                                        </div>
-                                    </div>
+                                <div id="upload-queue-list" class="space-y-3">
+                                    <p class="text-xs text-gray-400 font-semibold italic">No uploads yet. Upload a document above to get started.</p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- ================= VERIFY REPORTS VIEW (USER) ================= -->
+                                        <!-- AI Chat for Users -->
+                    <div class="bg-white rounded-[2rem] border border-gray-200/80 card-elevate flex flex-col" style="min-height:420px;max-height:480px">
+                        <div class="p-5 border-b border-gray-100 flex items-center justify-between shrink-0">
+                            <div>
+                                <h3 class="font-extrabold text-[#111111] text-sm">GeoAI Query Assistant</h3>
+                                <p class="text-[10px] text-gray-400 font-semibold mt-0.5">Ask questions about indexed documents</p>
+                            </div>
+                            <button onclick="clearUserChat()" class="text-xs font-bold text-gray-600 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 px-3.5 py-2 rounded-xl transition-colors">Clear</button>
+                        </div>
+                        <div id="user-chat-messages" class="flex-1 overflow-y-auto p-5 space-y-4 bg-gray-50/50">
+                            <div class="flex gap-3 max-w-[85%]">
+                                <div class="w-9 h-9 rounded-xl bg-[#eefcce] flex items-center justify-center shrink-0 border border-[#d9f99d]"><i data-lucide="cpu" class="w-4 h-4 text-[#111111]"></i></div>
+                                <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-200/70"><p class="text-gray-800 font-semibold text-xs">Hello! Upload a PDF above and ask me anything about it.</p></div>
+                            </div>
+                        </div>
+                        <form onsubmit="handleUserChatSubmit(event)" class="p-4 border-t border-gray-100 flex gap-3 shrink-0">
+                            <input id="user-chat-input" type="text" placeholder="Ask about your documents..." class="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-xs font-bold text-[#111111] focus:ring-2 focus:ring-[#a3e635] outline-none">
+                            <button type="submit" class="px-5 py-3 bg-[#111111] text-[#a3e635] rounded-xl font-extrabold text-xs shadow-md hover:bg-black transition-all"><i data-lucide="send" class="w-4 h-4"></i></button>
+                        </form>
+                    </div>
+<!-- ================= VERIFY REPORTS VIEW (USER) ================= -->
                     <div id="page-user-verify" class="page-view flex-col space-y-6 h-[800px]">
                         <div class="flex items-center justify-between">
                             <div>
@@ -1083,7 +1079,7 @@
             document.getElementById('view-role-select').classList.add('flex');
         }
 
-        // ── LIVE BACKEND CONFIG ──────────────────────────────────────────
+        // â”€â”€ LIVE BACKEND CONFIG â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         const API_BASE = 'https://cmpdi-geoai-hub.onrender.com';
 
         function processActualLogin(e) {
@@ -1126,7 +1122,7 @@
                 if (!resp.ok) {
                     loading.classList.add('hidden');
                     loading.classList.remove('flex');
-                    alertBox('❌ ' + (data.detail || 'Invalid email or password.'));
+                    alertBox('âŒ ' + (data.detail || 'Invalid email or password.'));
                     return;
                 }
 
@@ -1153,7 +1149,7 @@
             } catch(err) {
                 loading.classList.add('hidden');
                 loading.classList.remove('flex');
-                alertBox('❌ Cannot reach server. Please try again in a moment.');
+                alertBox('âŒ Cannot reach server. Please try again in a moment.');
                 console.error(err);
             }
         }
@@ -1176,7 +1172,7 @@
         function getToken() { return localStorage.getItem('cmpdi_token') || ''; }
         function authHeaders() { return { 'Authorization': 'Bearer ' + getToken(), 'Content-Type': 'application/json' }; }
 
-        // ── WORD CLOUD (real API) ─────────────────────────────────────────
+        // â”€â”€ WORD CLOUD (real API) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         async function loadWordCloud() {
             try {
                 const resp = await fetch(`${API_BASE}/api/topics/wordcloud`, { headers: authHeaders() });
@@ -1232,7 +1228,7 @@
 
         // SPA Hash Navigation Manager
         const pageMeta = {
-            'dashboard': { title: 'Dashboard <span class="text-xl">👋</span>', subtitle: 'Welcome to CMPDI GeoAI Hub!' },
+            'dashboard': { title: 'Dashboard <span class="text-xl">ðŸ‘‹</span>', subtitle: 'Welcome to CMPDI GeoAI Hub!' },
             'reports': { title: 'Reports Center', subtitle: 'View and generate analytical documents' },
             'insights': { title: 'AI Insights & Topic Map', subtitle: 'Discover semantic trends and clusters' },
             'query': { title: 'GeoAI Query Assistant', subtitle: 'Talk directly to your institutional repositories' },
@@ -1347,6 +1343,117 @@
             }
             closeAddDataModal();
             alertBox('Successfully indexed dataset: ' + name);
+        // ── REAL FILE UPLOAD ─────────────────────────────────────────────
+        let _selectedFile = null;
+        function handleFileSelected(file) {
+            if (!file) return;
+            _selectedFile = file;
+            const area = document.getElementById('upload-selected-area');
+            document.getElementById('upload-filename').textContent = file.name;
+            document.getElementById('upload-filesize').textContent = (file.size / 1024).toFixed(1) + ' KB';
+            if (area) { area.classList.remove('hidden'); lucide.createIcons(); }
+        }
+
+        async function submitRealUpload() {
+            if (!_selectedFile) { alertBox('⚠️ Please select a file first.'); return; }
+            const sub = document.getElementById('upload-subsidiary-sel')?.value || localStorage.getItem('cmpdi_subsidiary') || 'General';
+            const progArea = document.getElementById('upload-progress-area');
+            const progBar = document.getElementById('upload-progress-bar');
+            const progText = document.getElementById('upload-progress-text');
+            const selArea = document.getElementById('upload-selected-area');
+            if (selArea) selArea.classList.add('hidden');
+            if (progArea) { progArea.classList.remove('hidden'); }
+            if (progBar) progBar.style.width = '20%';
+            if (progText) progText.textContent = 'Uploading to server...';
+
+            const formData = new FormData();
+            formData.append('file', _selectedFile);
+            formData.append('subsidiary', sub);
+            formData.append('category', 'General Report');
+
+            try {
+                if (progBar) progBar.style.width = '50%';
+                if (progText) progText.textContent = 'Indexing with AI...';
+                const resp = await fetch(API_BASE + '/api/upload', {
+                    method: 'POST',
+                    headers: { 'Authorization': 'Bearer ' + getToken() },
+                    body: formData
+                });
+                const data = await resp.json();
+                if (progBar) progBar.style.width = '100%';
+                if (!resp.ok) {
+                    if (progArea) progArea.classList.add('hidden');
+                    alertBox('❌ Upload failed: ' + (data.detail || resp.statusText)); return;
+                }
+                setTimeout(() => {
+                    if (progArea) progArea.classList.add('hidden');
+                    // Add to queue list
+                    const queue = document.getElementById('upload-queue-list');
+                    if (queue) {
+                        if (queue.querySelector('p')) queue.innerHTML = '';
+                        const row = document.createElement('div');
+                        row.className = 'flex items-center justify-between p-4 bg-gray-50 border border-gray-200/80 rounded-2xl';
+                        row.innerHTML = `<div class="flex items-center gap-4"><div class="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center"><i data-lucide="file-text" class="w-5 h-5 text-green-600"></i></div><div><p class="font-extrabold text-xs text-gray-900">${data.filename}</p><p class="text-[10px] text-gray-500 font-bold mt-0.5">${data.chunks} chunks • ${data.pages} pages • Just now</p></div></div><span class="text-[10px] font-black text-green-700 bg-green-50 px-2.5 py-1 rounded-md border border-green-200">✓ Indexed</span>`;
+                        queue.prepend(row);
+                        lucide.createIcons();
+                    }
+                    _selectedFile = null;
+                    alertBox('✅ Indexed: ' + data.filename + ' — ' + data.chunks + ' chunks');
+                    loadWordCloud();
+                }, 500);
+            } catch(err) {
+                if (progArea) progArea.classList.add('hidden');
+                alertBox('❌ Upload error: ' + err.message);
+            }
+        }
+
+        // ── USER CHAT (same RAG as admin) ────────────────────────────────
+        async function handleUserChatSubmit(e) {
+            e.preventDefault();
+            const input = document.getElementById('user-chat-input');
+            const query = input.value.trim();
+            if (!query) return;
+            const chatEl = document.getElementById('user-chat-messages');
+            const userMsg = document.createElement('div');
+            userMsg.className = 'flex gap-3 max-w-[85%] ml-auto flex-row-reverse';
+            userMsg.innerHTML = `<div class="w-9 h-9 rounded-xl bg-[#ea580c] flex items-center justify-center shrink-0 text-white font-extrabold text-xs shadow-md">U</div><div class="bg-[#ea580c] text-white rounded-2xl rounded-tr-xs p-4 shadow-md"><p class="font-medium text-xs">${query}</p></div>`;
+            chatEl.appendChild(userMsg);
+            input.value = '';
+            chatEl.scrollTop = chatEl.scrollHeight;
+
+            const thinkId = 'uthink-' + Date.now();
+            const thinkMsg = document.createElement('div');
+            thinkMsg.id = thinkId; thinkMsg.className = 'flex gap-3 max-w-[85%]';
+            thinkMsg.innerHTML = `<div class="w-9 h-9 rounded-xl bg-[#eefcce] flex items-center justify-center shrink-0 border border-[#d9f99d]"><i data-lucide="cpu" class="w-4 h-4 text-[#111111]"></i></div><div class="bg-white rounded-2xl p-4 border border-gray-200/70"><p class="text-gray-500 text-xs animate-pulse">🔍 Searching documents...</p></div>`;
+            chatEl.appendChild(thinkMsg); lucide.createIcons(); chatEl.scrollTop = chatEl.scrollHeight;
+
+            try {
+                const resp = await fetch(API_BASE + '/api/chat', { method: 'POST', headers: authHeaders(), body: JSON.stringify({ query, top_k: 5 }) });
+                const data = await resp.json();
+                document.getElementById(thinkId)?.remove();
+                const citations = data.citations || [];
+                let citHtml = citations.length > 0 ? `<div class="flex flex-wrap gap-1 mt-2 pt-2 border-t border-gray-100">` + citations.slice(0,3).map(c=>`<span class="bg-[#eefcce] text-[#111111] text-[10px] font-extrabold px-2 py-0.5 rounded-full">${c.source} p.${c.page}</span>`).join('') + `</div>` : '';
+                const aiMsg = document.createElement('div');
+                aiMsg.className = 'flex gap-3 max-w-[85%]';
+                aiMsg.innerHTML = `<div class="w-9 h-9 rounded-xl bg-[#eefcce] flex items-center justify-center shrink-0 border border-[#d9f99d]"><i data-lucide="cpu" class="w-4 h-4 text-[#111111]"></i></div><div class="bg-white rounded-2xl p-4 border border-gray-200/70"><p class="text-gray-700 font-medium text-xs mb-1">${data.answer || 'No answer found.'}</p>${citHtml}</div>`;
+                chatEl.appendChild(aiMsg);
+            } catch(err) {
+                document.getElementById(thinkId)?.remove();
+                const errMsg = document.createElement('div');
+                errMsg.className = 'flex gap-3 max-w-[85%]';
+                errMsg.innerHTML = `<div class="w-9 h-9 rounded-xl bg-red-100 flex items-center justify-center shrink-0"><i data-lucide="alert-circle" class="w-4 h-4 text-red-500"></i></div><div class="bg-white rounded-2xl p-4 border border-red-200"><p class="text-red-600 text-xs font-bold">❌ Could not reach AI backend.</p></div>`;
+                chatEl.appendChild(errMsg);
+            }
+            lucide.createIcons(); chatEl.scrollTop = chatEl.scrollHeight;
+        }
+
+        async function clearUserChat() {
+            try { await fetch(API_BASE + '/api/chat/clear', { method: 'POST', headers: authHeaders() }); } catch(e) {}
+            const chatEl = document.getElementById('user-chat-messages');
+            chatEl.innerHTML = `<div class="flex gap-3 max-w-[85%]"><div class="w-9 h-9 rounded-xl bg-[#eefcce] flex items-center justify-center shrink-0 border border-[#d9f99d]"><i data-lucide="cpu" class="w-4 h-4 text-[#111111]"></i></div><div class="bg-white rounded-2xl p-4 border border-gray-200/70"><p class="text-gray-800 font-semibold text-xs">Chat cleared. Ready for your next query.</p></div></div>`;
+            lucide.createIcons();
+        }
+
         }
 
         // Report Preview Sync (Admin feature)
@@ -1368,7 +1475,7 @@
             const type = document.getElementById('report-type-select')?.value || 'parliamentary';
             const sub = document.getElementById('report-subsidiary-select')?.value || 'All';
             const keyword = document.getElementById('report-keyword-input')?.value || '';
-            alertBox('⚙️ Generating AI report — this may take 10-20 seconds...');
+            alertBox('âš™ï¸ Generating AI report â€” this may take 10-20 seconds...');
             try {
                 const resp = await fetch(`${API_BASE}/api/generate-report`, {
                     method: 'POST', headers: authHeaders(),
@@ -1376,7 +1483,7 @@
                 });
                 if (!resp.ok) {
                     const e = await resp.json().catch(() => ({}));
-                    alertBox('❌ ' + (e.detail || 'Report generation failed.')); return;
+                    alertBox('âŒ ' + (e.detail || 'Report generation failed.')); return;
                 }
                 const blob = await resp.blob();
                 const contentDisp = resp.headers.get('content-disposition') || '';
@@ -1384,8 +1491,8 @@
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a'); a.href = url; a.download = fname;
                 document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
-                alertBox('✅ Report downloaded: ' + fname);
-            } catch(err) { alertBox('❌ Report error: ' + err.message); }
+                alertBox('âœ… Report downloaded: ' + fname);
+            } catch(err) { alertBox('âŒ Report error: ' + err.message); }
         }
 
         function selectKeyword(kw) {
@@ -1429,7 +1536,7 @@
             const thinkMsg = document.createElement('div');
             thinkMsg.className = 'flex gap-3 max-w-[85%]';
             thinkMsg.id = thinkId;
-            thinkMsg.innerHTML = `<div class="w-9 h-9 rounded-xl bg-[#eefcce] flex items-center justify-center shrink-0 shadow-2xs border border-[#d9f99d]"><i data-lucide="cpu" class="w-4 h-4 text-[#111111]"></i></div><div class="bg-white rounded-2xl rounded-tl-xs p-4 shadow-2xs border border-gray-200/70"><p class="text-gray-500 text-xs animate-pulse">🔍 Searching institutional documents...</p></div>`;
+            thinkMsg.innerHTML = `<div class="w-9 h-9 rounded-xl bg-[#eefcce] flex items-center justify-center shrink-0 shadow-2xs border border-[#d9f99d]"><i data-lucide="cpu" class="w-4 h-4 text-[#111111]"></i></div><div class="bg-white rounded-2xl rounded-tl-xs p-4 shadow-2xs border border-gray-200/70"><p class="text-gray-500 text-xs animate-pulse">ðŸ” Searching institutional documents...</p></div>`;
             chatMessages.appendChild(thinkMsg);
             lucide.createIcons();
             chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -1447,7 +1554,7 @@
                 let citHtml = '';
                 if (citations.length > 0) {
                     citHtml = `<div class="flex items-center gap-2 pt-2 border-t border-gray-100 text-[10px] font-extrabold text-gray-400 flex-wrap mt-2">` +
-                        citations.slice(0,4).map(c => `<span class="bg-[#eefcce] text-[#111111] px-2 py-0.5 rounded-full">${c.source} p.${c.page} • ${Math.round((c.confidence||c.score||0)*100)}%</span>`).join('') +
+                        citations.slice(0,4).map(c => `<span class="bg-[#eefcce] text-[#111111] px-2 py-0.5 rounded-full">${c.source} p.${c.page} â€¢ ${Math.round((c.confidence||c.score||0)*100)}%</span>`).join('') +
                     `</div>`;
                 }
                 const aiMsg = document.createElement('div');
@@ -1458,7 +1565,7 @@
                 document.getElementById(thinkId)?.remove();
                 const errMsg = document.createElement('div');
                 errMsg.className = 'flex gap-3 max-w-[85%]';
-                errMsg.innerHTML = `<div class="w-9 h-9 rounded-xl bg-red-100 flex items-center justify-center shrink-0"><i data-lucide="alert-circle" class="w-4 h-4 text-red-500"></i></div><div class="bg-white rounded-2xl p-4 border border-red-200"><p class="text-red-600 text-xs font-bold">❌ Could not reach AI backend. Please try again.</p></div>`;
+                errMsg.innerHTML = `<div class="w-9 h-9 rounded-xl bg-red-100 flex items-center justify-center shrink-0"><i data-lucide="alert-circle" class="w-4 h-4 text-red-500"></i></div><div class="bg-white rounded-2xl p-4 border border-red-200"><p class="text-red-600 text-xs font-bold">âŒ Could not reach AI backend. Please try again.</p></div>`;
                 chatMessages.appendChild(errMsg);
             }
             lucide.createIcons();
@@ -1566,3 +1673,6 @@
     </script>
 </body>
 </html>
+
+
+
