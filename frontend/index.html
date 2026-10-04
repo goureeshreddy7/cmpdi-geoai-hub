@@ -805,6 +805,34 @@
                                 </button>
                             </div>
 
+                            <!-- Selected file preview + actions (shown after file chosen) -->
+                            <div id="upload-selected-area" class="hidden mb-6 p-4 bg-[#eefcce]/40 border border-[#a3e635]/50 rounded-2xl flex items-center gap-3 flex-wrap">
+                                <div class="w-10 h-10 rounded-xl bg-[#a3e635] flex items-center justify-center shrink-0">
+                                    <i data-lucide="file-text" class="w-5 h-5 text-[#111111]"></i>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p id="upload-filename" class="font-extrabold text-xs text-[#111111] truncate">filename.pdf</p>
+                                    <p id="upload-filesize" class="text-[10px] text-gray-500 font-bold mt-0.5">0 KB</p>
+                                </div>
+                                <select id="upload-subsidiary-sel" class="bg-white border border-gray-200 rounded-xl px-3 py-2 text-xs font-bold text-[#111111] focus:ring-2 focus:ring-[#a3e635] outline-none">
+                                    <option>CMPDI</option><option>SECL</option><option>MCL</option><option>BCCL</option><option>ECL</option><option>CCL</option><option>WCL</option><option>NCL</option><option>General</option>
+                                </select>
+                                <button onclick="submitRealUpload()" class="px-5 py-2 bg-[#111111] text-[#a3e635] rounded-xl font-extrabold text-xs shadow-md hover:bg-black transition-all flex items-center gap-2">
+                                    <i data-lucide="zap" class="w-3 h-3"></i> Upload &amp; Index
+                                </button>
+                            </div>
+
+                            <!-- Upload progress bar -->
+                            <div id="upload-progress-area" class="hidden mb-6 p-4 bg-gray-50 border border-gray-200 rounded-2xl">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <div class="w-3 h-3 rounded-full bg-[#a3e635] animate-pulse"></div>
+                                    <p id="upload-progress-text" class="font-extrabold text-xs text-[#111111]">Uploading & indexing...</p>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div id="upload-progress-bar" class="bg-[#a3e635] h-2 rounded-full transition-all duration-500" style="width:10%"></div>
+                                </div>
+                            </div>
+
                             <div>
                                 <h4 class="font-black text-sm text-[#111111] mb-4">Recent Indexing Queue</h4>
                                 <div id="upload-queue-list" class="space-y-3">
@@ -2008,6 +2036,7 @@
     </script>
 </body>
 </html>
+
 
 
 
