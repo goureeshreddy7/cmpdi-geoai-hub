@@ -23,6 +23,7 @@ else:
         SQLITE_PATH = root_path
     else:
         SQLITE_PATH = data_path
+    os.makedirs(os.path.dirname(SQLITE_PATH), exist_ok=True)
     DATABASE_URL = f"sqlite:///{SQLITE_PATH}"
     engine = create_engine(DATABASE_URL, echo=False, connect_args={"check_same_thread": False})
     DB_TYPE = "sqlite"

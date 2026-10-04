@@ -20,6 +20,12 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional, List
 
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
 # ── Telemetry Logger ──────────────────────────────────────────────────────────
 def _neon_log(stage: str, msg: str):
     url = os.getenv("DATABASE_URL", "").strip()
@@ -48,8 +54,10 @@ from fastapi import (
 )
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
+from sqlalchemy import text
 
 # ── Database & Auth ────────────────────────────────────────────────────────────
 from db.connection import get_db, init_db
@@ -58,6 +66,8 @@ from auth.security import (
     hash_password, verify_password, create_access_token, decode_access_token
 )
 from storage.store import save_file, delete_file
+from spatial.database import get_db as get_spatial_db
+from spatial.models import Mine, Report as SpatialReport
 
 # ── RAG & AI modules ───────────────────────────────────────────────────────────
 from rag.smart_loader import load_document
@@ -92,6 +102,9 @@ app.add_middleware(
 )
 
 FRONTEND_DIR = Path(__file__).parent / "frontend"
+
+if FRONTEND_DIR.exists():
+    app.mount("/static", StaticFiles(directory=str(FRONTEND_DIR)), name="static")
 
 SUBSIDIARIES = [
     "All Subsidiaries", "ECL", "BCCL", "CCL", "WCL",
@@ -163,6 +176,12 @@ def get_current_user(
     if not payload or "sub" not in payload:
         return None
     return db.query(User).filter(User.email == payload["sub"]).first()
+
+
+@app.get("/api/config/maptiler")
+def get_maptiler_config():
+    key = os.getenv("VITE_MAPTILER_API_KEY") or os.getenv("MAPTILER_API_KEY", "")
+    return {"maptiler_api_key": key}
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -619,6 +638,199 @@ async def get_templates():
         {"id": "geological",    "label": "Geological Reserve Estimate"},
         {"id": "safety",        "label": "Mines Safety & Compliance"},
     ]}
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+#  FEATURE 6: SPATIAL MINE INTELLIGENCE & MAP
+# ══════════════════════════════════════════════════════════════════════════════
+
+@app.get("/api/mines", tags=["Spatial"])
+def list_mines(
+    type: Optional[str] = None,
+    state: Optional[str] = None,
+    subsidiary: Optional[str] = None,
+    search: Optional[str] = None,
+    db: Session = Depends(get_spatial_db),
+):
+    """Return GeoJSON FeatureCollection of mines with optional filters."""
+    q = db.query(Mine)
+    if type and isinstance(type, str) and type not in ("All Types", ""):
+        q = q.filter(Mine.type == type)
+    if state and isinstance(state, str) and state not in ("All States", ""):
+        q = q.filter(Mine.state == state)
+    if subsidiary and isinstance(subsidiary, str) and subsidiary not in ("All Subsidiaries", ""):
+        q = q.filter(Mine.subsidiary == subsidiary)
+    if search and isinstance(search, str) and search.strip():
+        search_term = f"%{search.strip()}%"
+        q = q.filter(
+            (Mine.name.ilike(search_term)) |
+            (Mine.district.ilike(search_term)) |
+            (Mine.state.ilike(search_term)) |
+            (Mine.subsidiary.ilike(search_term))
+        )
+
+    mines = q.all()
+
+    features = []
+    for m in mines:
+        features.append({
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [m.longitude, m.latitude],
+            },
+            "properties": {
+                "mine_id": m.mine_id,
+                "name": m.name,
+                "subsidiary": m.subsidiary,
+                "state": m.state,
+                "district": m.district,
+                "type": m.type,
+            },
+        })
+
+    return {
+        "type": "FeatureCollection",
+        "features": features,
+        "count": len(features),
+    }
+
+
+@app.get("/api/mines/stats", tags=["Spatial"])
+def get_mines_stats(db: Session = Depends(get_spatial_db)):
+    """Return distinct filter options and count metrics for spatial mine dashboard."""
+    try:
+        mine_count = db.query(Mine).count()
+        report_count = db.query(SpatialReport).count()
+        states = [r[0] for r in db.execute(text("SELECT DISTINCT state FROM mines WHERE state IS NOT NULL AND state != '' ORDER BY state")).fetchall()]
+        subsidiaries = [r[0] for r in db.execute(text("SELECT DISTINCT subsidiary FROM mines WHERE subsidiary IS NOT NULL AND subsidiary != '' ORDER BY subsidiary")).fetchall()]
+        types = [r[0] for r in db.execute(text("SELECT DISTINCT type FROM mines WHERE type IS NOT NULL AND type != '' ORDER BY type")).fetchall()]
+        return {
+            "status": "ok",
+            "mine_count": mine_count,
+            "report_count": report_count,
+            "states": states,
+            "subsidiaries": subsidiaries,
+            "types": types,
+        }
+    except Exception as e:
+        return {"status": "error", "message": str(e), "mine_count": 0, "report_count": 0, "states": [], "subsidiaries": [], "types": []}
+
+
+@app.get("/api/mines/{mine_id}", tags=["Spatial"])
+def get_mine(mine_id: str, db: Session = Depends(get_spatial_db), user_db: Session = Depends(get_db)):
+    """Return detailed metadata for a single mine, plus matched CMPDIPS indexed documents."""
+    mine = db.query(Mine).filter(Mine.mine_id == mine_id).first()
+    if not mine:
+        raise HTTPException(404, "Mine not found")
+
+    report_count = db.query(SpatialReport).filter(SpatialReport.mine_id == mine_id).count()
+
+    matched_sources = []
+    try:
+        keywords = [w.lower() for w in mine.name.split() if len(w) > 2 and w.lower() not in ["mine", "ocp", "colliery", "coalfield"]]
+        all_sources = [d.filename for d in user_db.query(Document).all()]
+        for src in all_sources:
+            src_lower = src.lower()
+            if (mine.subsidiary and mine.subsidiary.lower() in src_lower) or any(k in src_lower for k in keywords):
+                matched_sources.append(src)
+    except Exception:
+        matched_sources = []
+
+    return {
+        "mine_id": mine.mine_id,
+        "name": mine.name,
+        "subsidiary": mine.subsidiary,
+        "state": mine.state,
+        "district": mine.district,
+        "type": mine.type,
+        "latitude": mine.latitude,
+        "longitude": mine.longitude,
+        "report_count": report_count,
+        "matched_documents": matched_sources,
+    }
+
+
+@app.get("/api/mines/{mine_id}/reports", tags=["Spatial"])
+def get_mine_reports(mine_id: str, db: Session = Depends(get_spatial_db), user_db: Session = Depends(get_db)):
+    """Return all reports linked to a mine, plus matched CMPDIPS indexed documents."""
+    mine = db.query(Mine).filter(Mine.mine_id == mine_id).first()
+    if not mine:
+        raise HTTPException(404, "Mine not found")
+
+    reports = db.query(SpatialReport).filter(SpatialReport.mine_id == mine_id).order_by(SpatialReport.year.desc()).all()
+
+    matched_sources = []
+    try:
+        keywords = [w.lower() for w in mine.name.split() if len(w) > 2 and w.lower() not in ["mine", "ocp", "colliery", "coalfield"]]
+        all_sources = [d.filename for d in user_db.query(Document).all()]
+        for src in all_sources:
+            src_lower = src.lower()
+            if (mine.subsidiary and mine.subsidiary.lower() in src_lower) or any(k in src_lower for k in keywords):
+                matched_sources.append(src)
+    except Exception:
+        matched_sources = []
+
+    return {
+        "mine_id": mine_id,
+        "mine_name": mine.name,
+        "subsidiary": mine.subsidiary,
+        "reports": [
+            {
+                "report_id": r.report_id,
+                "title": r.title,
+                "year": r.year,
+                "format": r.format,
+                "confidence_score": r.confidence_score,
+                "production_ytd": r.production_ytd,
+            }
+            for r in reports
+        ],
+        "matched_documents": matched_sources,
+    }
+
+
+# ── Geological Coalfield Intelligence Endpoints ───────────────────────────────
+
+from spatial.geological_data import COALFIELDS_GEOJSON, COAL_BLOCKS_GEOJSON, BOREHOLES_GEOJSON
+
+@app.get("/api/geological/coalfields", tags=["Geological"])
+def get_geological_coalfields():
+    """Return GeoJSON FeatureCollection of major Indian coalfields with basin data."""
+    return COALFIELDS_GEOJSON
+
+@app.get("/api/geological/coalblocks", tags=["Geological"])
+def get_geological_coalblocks():
+    """Return GeoJSON FeatureCollection of key operational and allocated coal blocks."""
+    return COAL_BLOCKS_GEOJSON
+
+@app.get("/api/geological/boreholes", tags=["Geological"])
+def get_geological_boreholes():
+    """Return GeoJSON FeatureCollection of geological exploration borehole logs."""
+    return BOREHOLES_GEOJSON
+
+
+
+@app.get("/api/reports/{report_id}", tags=["Spatial"])
+def get_report_detail(report_id: str, db: Session = Depends(get_spatial_db)):
+    """Return full report document body for the live preview pane."""
+    report = db.query(SpatialReport).filter(SpatialReport.report_id == report_id).first()
+    if not report:
+        raise HTTPException(404, "Report not found")
+
+    mine = db.query(Mine).filter(Mine.mine_id == report.mine_id).first()
+    return {
+        "report_id": report.report_id,
+        "mine_id": report.mine_id,
+        "mine_name": mine.name if mine else "",
+        "subsidiary": mine.subsidiary if mine else "",
+        "title": report.title,
+        "year": report.year,
+        "format": report.format,
+        "confidence_score": report.confidence_score,
+        "production_ytd": report.production_ytd,
+        "content": report.content,
+    }
 
 
 # ══════════════════════════════════════════════════════════════════════════════
