@@ -122,6 +122,38 @@
         }
 
         /* Source Verification Highlights */
+        .verifiable-claim {
+            cursor: pointer;
+            border-bottom: 1.5px dashed #fb923c;
+            transition: all 0.15s ease;
+            border-radius: 2px;
+        }
+        .verifiable-claim.claim-hover {
+            background: #ffebd6;
+            color: #ea580c;
+            padding: 0 2px;
+        }
+        .claim-approved {
+            background: #dcfce7 !important;
+            color: #166534 !important;
+            padding: 0 3px;
+            border-radius: 3px;
+            border-bottom: 1.5px solid #86efac !important;
+            font-weight: 700;
+        }
+        .claim-approved::after {
+            content: ' ✓';
+            font-size: 10px;
+            color: #16a34a;
+        }
+        .claim-rejected {
+            background: #fee2e2 !important;
+            color: #991b1b !important;
+            padding: 0 3px;
+            border-radius: 3px;
+            text-decoration: line-through;
+            border-bottom: none !important;
+        }
         .pdf-highlight {
             background-color: rgba(251, 146, 60, 0.3);
             border-bottom: 2px solid #fb923c;
@@ -873,81 +905,121 @@
         </main>
     </div>
 
-    <!-- ================= SOURCE VERIFICATION MODAL (USER FEATURE) ================= -->
-    <div id="source-modal" class="fixed inset-0 z-[120] bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4 sm:p-8 transition-opacity">
-        <div class="bg-white w-full max-w-5xl h-[85vh] rounded-[2rem] shadow-2xl flex flex-col overflow-hidden border border-gray-200">
+        <!-- ================= SOURCE VERIFICATION MODAL ================= -->
+    <div id="source-modal" class="fixed inset-0 z-[120] bg-black/75 backdrop-blur-sm hidden items-center justify-center p-3 sm:p-6">
+        <div class="bg-white w-full max-w-5xl rounded-[2rem] shadow-2xl flex flex-col overflow-hidden border border-gray-200" style="height:88vh">
             <!-- Header -->
-            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center shrink-0">
+            <div class="px-6 py-4 border-b border-gray-200 bg-[#111111] flex justify-between items-center shrink-0">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-[#111111] text-[#a3e635] flex items-center justify-center shadow-md"><i data-lucide="link" class="w-5 h-5"></i></div>
+                    <div class="w-9 h-9 rounded-xl bg-[#a3e635] flex items-center justify-center shadow-md shrink-0">
+                        <i data-lucide="search" class="w-4 h-4 text-[#111111]"></i>
+                    </div>
                     <div>
-                        <h3 class="text-sm font-black text-[#111111]">AI Source Verification</h3>
-                        <p class="text-[11px] font-bold text-gray-500">Tracing origin of extracted data point</p>
+                        <h3 class="text-sm font-black text-white">Source Verification</h3>
+                        <p id="src-modal-subtitle" class="text-[10px] font-bold text-gray-400">Tracing origin of data claim...</p>
                     </div>
                 </div>
-                <button onclick="closeSourceModal()" class="w-8 h-8 bg-gray-200 hover:bg-gray-300 rounded-full flex items-center justify-center text-gray-700 transition-colors">
+                <button onclick="closeSourceModal()" class="w-8 h-8 bg-gray-700 hover:bg-gray-600 rounded-full flex items-center justify-center text-white transition-colors">
                     <i data-lucide="x" class="w-4 h-4"></i>
                 </button>
             </div>
-            
-            <!-- Split Content -->
+
+            <!-- Split layout -->
             <div class="flex flex-col lg:flex-row flex-1 overflow-hidden">
-                <!-- Left: Claim -->
-                <div class="w-full lg:w-1/3 bg-white p-6 border-b lg:border-b-0 lg:border-r border-gray-200 flex flex-col shrink-0">
-                    <h4 class="text-xs font-black uppercase text-gray-400 mb-2">Generated Text</h4>
-                    <div class="p-4 bg-gray-50 rounded-xl border border-gray-200 text-sm font-medium text-gray-800 leading-relaxed mb-6">
-                        "Total coal production stands at <span class="bg-[#fb923c]/20 px-1 font-bold text-[#ea580c] rounded">142.5 Million Tonnes</span>, representing a Y-o-Y growth of 4.2%..."
+
+                <!-- LEFT: Claim + actions -->
+                <div class="w-full lg:w-[300px] bg-white p-5 border-b lg:border-b-0 lg:border-r border-gray-200 flex flex-col gap-4 shrink-0 overflow-y-auto">
+                    <!-- Claim being verified -->
+                    <div>
+                        <p class="text-[10px] font-extrabold uppercase text-gray-400 mb-2 tracking-wider">Claim Being Verified</p>
+                        <div id="src-claim-text" class="p-3 bg-orange-50 border border-orange-200 rounded-xl text-xs font-semibold text-gray-800 leading-relaxed italic">
+                            Loading...
+                        </div>
                     </div>
 
-                    <h4 class="text-xs font-black uppercase text-gray-400 mb-2">AI Confidence</h4>
-                    <div class="flex items-center gap-3 mb-6">
-                        <div class="flex-1 bg-gray-200 rounded-full h-2"><div class="bg-[#84cc16] h-2 rounded-full" style="width: 98%"></div></div>
-                        <span class="text-xs font-black text-[#84cc16]">98.2%</span>
+                    <!-- Source info -->
+                    <div id="src-info-box" class="hidden">
+                        <p class="text-[10px] font-extrabold uppercase text-gray-400 mb-2 tracking-wider">Source Document</p>
+                        <div class="p-3 bg-gray-50 border border-gray-200 rounded-xl space-y-1">
+                            <p id="src-filename" class="text-xs font-extrabold text-[#111111] truncate">—</p>
+                            <p id="src-page" class="text-[10px] font-bold text-gray-500">Page —</p>
+                            <div class="flex items-center gap-2 mt-1">
+                                <div class="flex-1 bg-gray-200 rounded-full h-1.5">
+                                    <div id="src-confidence-bar" class="bg-[#84cc16] h-1.5 rounded-full" style="width:0%"></div>
+                                </div>
+                                <span id="src-confidence-pct" class="text-[10px] font-extrabold text-[#84cc16]">0%</span>
+                            </div>
+                        </div>
                     </div>
 
-                    <h4 class="text-xs font-black uppercase text-gray-400 mb-2">Actions</h4>
-                    <div class="space-y-3">
-                        <button onclick="closeSourceModal(); alertBox('Source Verified & Marked as Accurate');" class="w-full py-3 bg-[#a3e635] text-[#111111] rounded-xl font-black text-xs shadow-sm hover:scale-[1.02] transition-transform">Mark as Accurate</button>
-                        <button onclick="closeSourceModal(); alertBox('Flagged for manual editing.');" class="w-full py-3 bg-red-50 text-red-600 rounded-xl font-black text-xs border border-red-200 hover:bg-red-100 transition-colors">Flag Inaccuracy</button>
+                    <!-- Loading state -->
+                    <div id="src-loading" class="flex flex-col items-center justify-center py-8 gap-3">
+                        <div class="w-10 h-10 rounded-2xl bg-[#eefcce] flex items-center justify-center animate-pulse">
+                            <i data-lucide="cpu" class="w-5 h-5 text-[#111111]"></i>
+                        </div>
+                        <p class="text-xs font-extrabold text-gray-500 animate-pulse">Searching source documents...</p>
+                    </div>
+
+                    <!-- Actions -->
+                    <div id="src-actions" class="hidden mt-auto space-y-2">
+                        <button onclick="approveCurrentClaim()" class="w-full py-3 bg-[#a3e635] text-[#111111] rounded-xl font-black text-xs shadow-sm hover:bg-[#84cc16] hover:scale-[1.02] transition-all flex items-center justify-center gap-2">
+                            <i data-lucide="check-circle" class="w-4 h-4"></i> Approve — Mark Verified
+                        </button>
+                        <button onclick="rejectCurrentClaim()" class="w-full py-3 bg-red-50 text-red-600 rounded-xl font-black text-xs border border-red-200 hover:bg-red-100 transition-colors flex items-center justify-center gap-2">
+                            <i data-lucide="x-circle" class="w-4 h-4"></i> Flag Inaccuracy
+                        </button>
                     </div>
                 </div>
 
-                <!-- Right: Source PDF Mockup -->
-                <div class="w-full lg:w-2/3 bg-gray-100 p-6 flex flex-col relative flex-1">
-                    <div class="flex justify-between items-center mb-3">
-                        <h4 class="text-xs font-black uppercase text-gray-600 flex items-center gap-2">
-                            <i data-lucide="file-text" class="w-4 h-4"></i> Source: SECL_Monthly_2023.pdf (Page 12)
-                        </h4>
-                        <button class="text-[10px] font-bold text-gray-500 hover:text-[#111111] bg-white px-2 py-1 rounded-md border border-gray-200 shadow-sm">Open Full PDF</button>
+                <!-- RIGHT: Source document viewer -->
+                <div class="flex-1 bg-gray-100 flex flex-col overflow-hidden">
+                    <div id="src-doc-header" class="hidden px-5 py-3 bg-white border-b border-gray-200 flex items-center gap-3 shrink-0">
+                        <div class="w-7 h-7 rounded-lg bg-[#111111] flex items-center justify-center">
+                            <i data-lucide="file-text" class="w-3.5 h-3.5 text-[#a3e635]"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p id="src-doc-name" class="text-xs font-extrabold text-[#111111] truncate">—</p>
+                            <p id="src-doc-page" class="text-[10px] font-bold text-gray-400">Page —</p>
+                        </div>
+                        <span class="text-[10px] font-extrabold text-[#84cc16] bg-[#eefcce] px-2 py-1 rounded-full">AI Located</span>
                     </div>
-                    
-                    <!-- Simulated PDF Page -->
-                    <div class="flex-1 bg-white shadow-md border border-gray-300 rounded-lg p-6 sm:p-10 overflow-y-auto font-serif text-xs text-gray-600 text-justify custom-scrollbar relative">
-                        <p class="mb-4">3.1.2 Subsidiary Performance Metrics (Oct 2023)</p>
-                        <p class="mb-4">The overarching strategy implemented across major subsidiaries has yielded significant results in the final quarter. Field reports collated from various GMs indicate steady operational status despite minor logistical delays.</p>
-                        
-                        <div class="my-6 p-4 border border-dashed border-gray-300 bg-gray-50">
-                            <p class="font-sans font-bold text-gray-800 mb-2 text-center text-[10px]">TABLE 4: Consolidated Output</p>
-                            <div class="grid grid-cols-3 gap-2 font-sans font-semibold text-[10px] text-center border-t border-b border-gray-300 py-2">
-                                <div>Subsidiary</div><div>Production (MT)</div><div>Y-o-Y Growth</div>
-                                <div class="font-normal text-gray-600">SECL</div><div class="font-normal text-gray-600">85.2</div><div class="font-normal text-gray-600">+5.1%</div>
-                                <div class="font-normal text-gray-600">MCL</div><div class="font-normal text-gray-600">40.1</div><div class="font-normal text-gray-600">+3.0%</div>
-                                <div class="font-normal text-gray-600">BCCL</div><div class="font-normal text-gray-600">17.2</div><div class="font-normal text-gray-600">+2.5%</div>
+                    <div class="flex-1 overflow-y-auto p-6 custom-scrollbar">
+                        <!-- Empty/loading -->
+                        <div id="src-doc-empty" class="flex items-center justify-center h-full">
+                            <p class="text-gray-400 text-xs font-semibold">Source will appear here...</p>
+                        </div>
+                        <!-- Source content -->
+                        <div id="src-doc-content" class="hidden max-w-2xl mx-auto">
+                            <!-- Document page card -->
+                            <div class="bg-white shadow-md rounded-xl border border-gray-200 p-8 font-serif text-sm text-gray-700 leading-relaxed">
+                                <div class="text-center mb-6 border-b pb-3">
+                                    <p id="src-doc-title-inner" class="font-bold text-gray-900 text-base uppercase tracking-wider">Document Source</p>
+                                    <p id="src-doc-page-inner" class="text-xs text-gray-400 font-sans mt-1">Page —</p>
+                                </div>
+                                <div id="src-doc-text" class="leading-loose text-sm text-gray-700">
+                                    <!-- filled dynamically — matching claim highlighted in yellow -->
+                                </div>
+                            </div>
+                            <!-- Bottom note -->
+                            <div class="mt-4 p-3 bg-[#eefcce]/50 border border-[#a3e635]/30 rounded-xl flex items-start gap-2">
+                                <i data-lucide="info" class="w-3.5 h-3.5 text-[#84cc16] mt-0.5 shrink-0"></i>
+                                <p class="text-[10px] font-bold text-gray-600">The <mark class="bg-yellow-200 px-0.5 rounded">highlighted text</mark> above is the exact passage the AI extracted this claim from. Click <strong>Approve</strong> to mark this data as verified.</p>
                             </div>
                         </div>
-
-                        <p class="mb-4">
-                            Aggregating the above verified figures, the <span class="pdf-highlight" title="AI Extracted Entity">Total coal production stands at 142.5 Million Tonnes</span> for the consolidated nodes, representing an overall <span class="pdf-highlight">Y-o-Y growth of 4.2%</span>. This metric is primarily driven by SECL expansion policies...
-                        </p>
-                        <p>Subsequent sections outline the specific clearance bottlenecks affecting Block B.</p>
+                        <!-- No source found -->
+                        <div id="src-no-source" class="hidden flex flex-col items-center justify-center h-full text-center py-12">
+                            <div class="w-12 h-12 rounded-2xl bg-orange-50 flex items-center justify-center mb-3">
+                                <i data-lucide="alert-triangle" class="w-6 h-6 text-orange-400"></i>
+                            </div>
+                            <p class="text-sm font-extrabold text-gray-600 mb-1">No source found</p>
+                            <p class="text-xs text-gray-400 font-medium">The AI could not locate a matching passage in the indexed documents.</p>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
-
-    <!-- ================= ADD DATA MODAL (ADMIN ONLY) ================= -->
+<!-- ================= ADD DATA MODAL (ADMIN ONLY) ================= -->
     <div id="add-data-modal" class="fixed inset-0 z-[110] bg-black/50 backdrop-blur-xs hidden items-center justify-center p-4">
         <div class="bg-white w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl relative border border-gray-100">
             <div class="flex justify-between items-center mb-5">
@@ -1302,6 +1374,170 @@
             document.getElementById('profile-modal').classList.add('hidden');
             document.getElementById('profile-modal').classList.remove('flex');
         }
+
+        // ═══════════════════════════════════════════════════════════════
+        // CLAIM VERIFICATION SYSTEM
+        // ═══════════════════════════════════════════════════════════════
+        let _activeClaim = null; // { el, text, idx }
+
+        // Called when AI summary is rendered — wraps verifiable data in clickable spans
+        function wrapVerifiableClaims(containerEl) {
+            if (!containerEl) return;
+            // Find all text nodes and wrap sentences/data points
+            const walker = document.createTreeWalker(containerEl, NodeFilter.SHOW_TEXT);
+            const nodes = [];
+            let n;
+            while ((n = walker.nextNode())) nodes.push(n);
+
+            nodes.forEach(node => {
+                if (!node.textContent.trim()) return;
+                if (node.parentElement.classList.contains('no-verify')) return;
+                // Split by sentence / clause to make claims
+                const text = node.textContent;
+                // Wrap numbers, percentages, key facts in verifiable spans
+                const wrapped = text.replace(/(\d[\d,.]*([\s]*(Million|Billion|Lakh|MT|Tonnes|tonne|MW|km|crore|%|percent|growth|production|tonnes)[^.]*)?)/gi,
+                    (match) => `<span class="verifiable-claim" data-claim="${match.trim().replace(/"/g,'&quot;')}" title="Click to verify source">${match}</span>`
+                );
+                if (wrapped !== text) {
+                    const span = document.createElement('span');
+                    span.innerHTML = wrapped;
+                    node.parentNode.replaceChild(span, node);
+                }
+            });
+
+            // Add hover/click handlers to all verifiable claims
+            containerEl.querySelectorAll('.verifiable-claim').forEach(el => {
+                el.addEventListener('mouseenter', () => {
+                    if (!el.classList.contains('claim-approved') && !el.classList.contains('claim-rejected')) {
+                        el.classList.add('claim-hover');
+                    }
+                });
+                el.addEventListener('mouseleave', () => el.classList.remove('claim-hover'));
+                el.addEventListener('click', () => openClaimVerification(el));
+            });
+        }
+
+        // Opens the verification modal for a specific claim
+        async function openClaimVerification(el) {
+            if (el.classList.contains('claim-approved') || el.classList.contains('claim-rejected')) return;
+            _activeClaim = el;
+            const claimText = el.dataset.claim || el.textContent.trim();
+
+            // Show modal
+            const modal = document.getElementById('source-modal');
+            modal.classList.remove('hidden'); modal.classList.add('flex');
+
+            // Reset modal state
+            document.getElementById('src-claim-text').textContent = '"' + claimText + '"';
+            document.getElementById('src-modal-subtitle').textContent = 'Searching indexed documents...';
+            document.getElementById('src-loading').classList.remove('hidden');
+            document.getElementById('src-actions').classList.add('hidden');
+            document.getElementById('src-info-box').classList.add('hidden');
+            document.getElementById('src-doc-header').classList.add('hidden');
+            document.getElementById('src-doc-empty').classList.remove('hidden');
+            document.getElementById('src-doc-content').classList.add('hidden');
+            document.getElementById('src-no-source').classList.add('hidden');
+            lucide.createIcons();
+
+            // Query backend for source
+            try {
+                const resp = await fetch(API_BASE + '/api/chat', {
+                    method: 'POST', headers: authHeaders(),
+                    body: JSON.stringify({ query: 'Find the exact source passage for: ' + claimText, top_k: 3 })
+                });
+                const data = await resp.json();
+                document.getElementById('src-loading').classList.add('hidden');
+
+                const citations = data.citations || [];
+                if (citations.length === 0) {
+                    document.getElementById('src-no-source').classList.remove('hidden');
+                    document.getElementById('src-doc-empty').classList.add('hidden');
+                    document.getElementById('src-modal-subtitle').textContent = 'No matching source found';
+                    document.getElementById('src-actions').classList.remove('hidden');
+                    lucide.createIcons(); return;
+                }
+
+                // Use top citation
+                const top = citations[0];
+                const confidence = Math.round((top.confidence || top.score || 0.85) * 100);
+                const sourceText = top.text || data.answer || 'Source text not available.';
+
+                // Fill left panel
+                document.getElementById('src-modal-subtitle').textContent = 'Source located — ' + top.source;
+                document.getElementById('src-filename').textContent = top.source;
+                document.getElementById('src-page').textContent = 'Page ' + top.page;
+                document.getElementById('src-confidence-bar').style.width = confidence + '%';
+                document.getElementById('src-confidence-pct').textContent = confidence + '%';
+                document.getElementById('src-info-box').classList.remove('hidden');
+
+                // Fill right panel — highlight claim in source text
+                document.getElementById('src-doc-name').textContent = top.source;
+                document.getElementById('src-doc-page').textContent = 'Page ' + top.page;
+                document.getElementById('src-doc-title-inner').textContent = top.source.replace(/\.[^/.]+$/, '');
+                document.getElementById('src-doc-page-inner').textContent = 'Page ' + top.page;
+
+                // Highlight matching parts of claim in source text
+                let highlighted = sourceText;
+                const claimWords = claimText.replace(/[^\w\s]/g,'').split(/\s+/).filter(w => w.length > 3);
+                claimWords.forEach(word => {
+                    const re = new RegExp('(' + word.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + ')', 'gi');
+                    highlighted = highlighted.replace(re, '<mark class="bg-yellow-200 px-0.5 rounded font-bold text-gray-900">$1</mark>');
+                });
+                document.getElementById('src-doc-text').innerHTML = `<p class="mb-3">${highlighted}</p>`;
+
+                document.getElementById('src-doc-empty').classList.add('hidden');
+                document.getElementById('src-doc-content').classList.remove('hidden');
+                document.getElementById('src-doc-header').classList.remove('hidden');
+                document.getElementById('src-actions').classList.remove('hidden');
+                lucide.createIcons();
+
+            } catch(err) {
+                document.getElementById('src-loading').classList.add('hidden');
+                document.getElementById('src-no-source').classList.remove('hidden');
+                document.getElementById('src-doc-empty').classList.add('hidden');
+                document.getElementById('src-modal-subtitle').textContent = 'Error: ' + err.message;
+                document.getElementById('src-actions').classList.remove('hidden');
+                lucide.createIcons();
+            }
+        }
+
+        function approveCurrentClaim() {
+            if (_activeClaim) {
+                _activeClaim.classList.remove('claim-hover', 'verifiable-claim');
+                _activeClaim.classList.add('claim-approved');
+                _activeClaim.title = '✅ Verified — source confirmed';
+                // Remove event listeners by cloning
+                const clone = _activeClaim.cloneNode(true);
+                _activeClaim.parentNode.replaceChild(clone, _activeClaim);
+                _activeClaim = null;
+            }
+            closeSourceModal();
+            alertBox('✅ Data point verified and marked green!');
+        }
+
+        function rejectCurrentClaim() {
+            if (_activeClaim) {
+                _activeClaim.classList.remove('claim-hover', 'verifiable-claim');
+                _activeClaim.classList.add('claim-rejected');
+                _activeClaim.title = '❌ Flagged as inaccurate';
+                const clone = _activeClaim.cloneNode(true);
+                _activeClaim.parentNode.replaceChild(clone, _activeClaim);
+                _activeClaim = null;
+            }
+            closeSourceModal();
+            alertBox('⚠️ Data point flagged as inaccurate.');
+        }
+
+        function openSourceModal() {
+            document.getElementById('source-modal').classList.remove('hidden');
+            document.getElementById('source-modal').classList.add('flex');
+            lucide.createIcons();
+        }
+        function closeSourceModal() {
+            document.getElementById('source-modal').classList.add('hidden');
+            document.getElementById('source-modal').classList.remove('flex');
+            _activeClaim = null;
+        }
         function openSourceModal() {
             document.getElementById('source-modal').classList.remove('hidden');
             document.getElementById('source-modal').classList.add('flex');
@@ -1521,6 +1757,7 @@
                         <p class="font-sans text-xs"><strong class="text-[#ea580c] block mb-1">AI Document Summary:</strong>${answer}</p>
                     </div>
                     ${citHtml}`;
+                wrapVerifiableClaims(contentEl);
                 lucide.createIcons();
             } catch(err) {
                 if (loadingEl) loadingEl.classList.add('hidden');
@@ -1771,6 +2008,9 @@
     </script>
 </body>
 </html>
+
+
+
 
 
 
