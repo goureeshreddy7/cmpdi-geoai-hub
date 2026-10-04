@@ -803,75 +803,65 @@
                         </form>
                     </div>
 <!-- ================= VERIFY REPORTS VIEW (USER) ================= -->
-                    <div id="page-user-verify" class="page-view flex-col space-y-6 h-[800px]">
+                    <div id="page-user-verify" class="page-view flex-col space-y-6" style="min-height:600px">
                         <div class="flex items-center justify-between">
                             <div>
-                                <h2 class="text-2xl font-black text-[#111111] tracking-tight">Report Verification Desk</h2>
-                                <p class="text-xs text-gray-500 font-semibold mt-1">Review AI-generated assertions against source documents.</p>
+                                <h2 class="text-2xl font-black text-[#111111] tracking-tight">Verification Desk</h2>
+                                <p class="text-xs text-gray-500 font-semibold mt-1">Documents you uploaded — AI-analyzed summaries ready to review.</p>
                             </div>
-                            <span class="px-3 py-1.5 bg-[#ffebd6] text-[#ea580c] rounded-lg font-black text-xs border border-[#fdba74]">
-                                2 Pending Reviews
-                            </span>
+                            <span id="verify-pending-badge" class="px-3 py-1.5 bg-[#ffebd6] text-[#ea580c] rounded-lg font-black text-xs border border-[#fdba74]">0 Documents</span>
                         </div>
 
-                        <div class="flex flex-col md:flex-row gap-6 h-full pb-10">
-                            <!-- Left: List of Pending Reports -->
-                            <div class="w-full md:w-1/3 bg-white rounded-[2rem] border border-gray-200/80 card-elevate overflow-hidden flex flex-col min-h-[300px]">
-                                <div class="p-5 border-b border-gray-100 bg-gray-50/50">
-                                    <h3 class="font-extrabold text-[#111111] text-sm">Draft Reports Queue</h3>
+                        <div class="flex flex-col md:flex-row gap-6" style="min-height:520px">
+                            <!-- Left: Uploaded Documents List -->
+                            <div class="w-full md:w-1/3 bg-white rounded-[2rem] border border-gray-200/80 card-elevate overflow-hidden flex flex-col">
+                                <div class="p-5 border-b border-gray-100 bg-gray-50/50 flex items-center justify-between">
+                                    <h3 class="font-extrabold text-[#111111] text-sm">Uploaded Documents</h3>
+                                    <a href="#user-upload" class="text-[10px] font-extrabold text-[#84cc16] hover:underline">+ Upload New</a>
                                 </div>
-                                <div class="flex-1 overflow-y-auto p-3 space-y-2">
-                                    <div class="p-4 bg-white border-2 border-[#a3e635] rounded-2xl cursor-pointer shadow-sm relative">
-                                        <div class="absolute top-3 right-3 w-2 h-2 bg-[#ea580c] rounded-full animate-pulse"></div>
-                                        <h4 class="font-black text-xs text-gray-900 mb-1">Parliamentary Q3 Status</h4>
-                                        <p class="text-[11px] text-gray-500 font-medium line-clamp-2">Draft response summarizing coal production and clearance bottlenecks for SECL.</p>
-                                        <div class="mt-3 flex items-center justify-between text-[10px] font-extrabold">
-                                            <span class="text-gray-400">Generated Today, 09:30 AM</span>
-                                        </div>
-                                    </div>
-                                    <div class="p-4 bg-gray-50 border border-gray-100 rounded-2xl cursor-pointer hover:border-gray-300 transition-colors">
-                                        <h4 class="font-black text-xs text-gray-900 mb-1">Gevra Reserve Estimate</h4>
-                                        <p class="text-[11px] text-gray-500 font-medium line-clamp-2">Geological audit summary for new block acquisition in Zone B.</p>
-                                        <div class="mt-3 flex items-center justify-between text-[10px] font-extrabold">
-                                            <span class="text-gray-400">Generated Yesterday</span>
-                                        </div>
+                                <div id="verify-doc-list" class="flex-1 overflow-y-auto p-3 space-y-2">
+                                    <div class="p-6 text-center">
+                                        <i data-lucide="upload-cloud" class="w-8 h-8 text-gray-300 mx-auto mb-2"></i>
+                                        <p class="text-xs text-gray-400 font-semibold">No documents yet.</p>
+                                        <p class="text-[10px] text-gray-300 font-medium mt-1">Upload a PDF from the Upload Portal.</p>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Right: Report Editor & Verification -->
-                            <div class="w-full md:w-2/3 bg-white rounded-[2rem] border border-gray-200/80 card-elevate flex flex-col relative overflow-hidden min-h-[500px]">
+                            <!-- Right: AI Summary Viewer -->
+                            <div class="w-full md:w-2/3 bg-white rounded-[2rem] border border-gray-200/80 card-elevate flex flex-col relative overflow-hidden">
                                 <div class="p-5 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
-                                    <h3 class="font-extrabold text-[#111111] text-sm flex items-center gap-2">
-                                        <i data-lucide="file-check" class="w-4 h-4 text-[#84cc16]"></i> Draft Q3 Review
+                                    <h3 id="verify-doc-title" class="font-extrabold text-[#111111] text-sm flex items-center gap-2">
+                                        <i data-lucide="file-check" class="w-4 h-4 text-[#84cc16]"></i> Select a document
                                     </h3>
-                                    <div class="flex gap-2">
-                                        <button onclick="alertBox('Report Rejected and sent back to AI queue.')" class="px-4 py-2 bg-red-50 text-red-600 border border-red-200 rounded-xl text-[11px] font-black hover:bg-red-100 transition-all">Reject</button>
-                                        <button onclick="alertBox('Report Approved and Signed Digitally.')" class="px-4 py-2 bg-[#111111] text-[#a3e635] rounded-xl text-[11px] font-black shadow-md hover:bg-black transition-all">Approve Document</button>
+                                    <div id="verify-action-btns" class="flex gap-2 hidden">
+                                        <button onclick="verifyAction('reject')" class="px-4 py-2 bg-red-50 text-red-600 border border-red-200 rounded-xl text-[11px] font-black hover:bg-red-100 transition-all">Reject</button>
+                                        <button onclick="verifyAction('approve')" class="px-4 py-2 bg-[#111111] text-[#a3e635] rounded-xl text-[11px] font-black shadow-md hover:bg-black transition-all">Approve ✓</button>
                                     </div>
                                 </div>
-                                <div class="p-4 sm:p-8 flex-1 overflow-y-auto custom-scrollbar bg-gray-50">
-                                    <!-- Document Canvas -->
-                                    <div class="bg-white max-w-xl mx-auto shadow-sm rounded-xl p-6 sm:p-8 font-serif text-gray-800 border border-gray-200 text-sm leading-relaxed text-justify relative">
-                                        
-                                        <h1 class="text-center font-bold uppercase tracking-widest text-lg mb-6 border-b pb-2">Status of Coal Production</h1>
-                                        
-                                        <p class="mb-4">As per the consolidated data analysis across subsidiary nodes, total extracted volume has witnessed a positive trend.</p>
-                                        
-                                        <!-- AI GENERATED CLAIM TO VERIFY -->
-                                        <div class="relative group my-6 border border-orange-200 bg-[#ffebd6]/20 rounded-xl p-4 pl-14 shadow-sm">
-                                            <div class="absolute left-3 top-4">
-                                                <button onclick="openSourceModal()" class="w-8 h-8 bg-[#fb923c] text-white rounded-full flex items-center justify-center shadow-md hover:scale-110 transition-transform" title="Verify AI Source">
-                                                    <i data-lucide="search" class="w-4 h-4"></i>
-                                                </button>
-                                            </div>
-                                            <p class="font-sans text-xs">
-                                                <strong class="text-[#ea580c] block mb-1">AI Extracted Claim:</strong> 
-                                                Total coal production stands at <strong>142.5 Million Tonnes</strong>, representing a Y-o-Y growth of 4.2% across major open-cast mines primarily driven by SECL expansion.
-                                            </p>
+                                <div id="verify-content-area" class="p-6 flex-1 overflow-y-auto custom-scrollbar bg-gray-50">
+                                    <!-- Empty state -->
+                                    <div id="verify-empty-state" class="flex flex-col items-center justify-center h-full text-center py-16">
+                                        <div class="w-16 h-16 rounded-3xl bg-gray-100 flex items-center justify-center mb-4">
+                                            <i data-lucide="file-search" class="w-8 h-8 text-gray-300"></i>
                                         </div>
-
-                                        <p class="mb-4">Clearance bottlenecks in the Gevra expansion zone remain active, pending the final wildlife impact assessment expected by Q4.</p>
+                                        <h4 class="font-extrabold text-gray-400 text-sm mb-1">No document selected</h4>
+                                        <p class="text-xs text-gray-300 font-medium">Upload a document from the Upload Portal and click it here to view the AI summary.</p>
+                                        <a href="#user-upload" class="mt-4 px-5 py-2.5 bg-[#111111] text-[#a3e635] rounded-xl font-extrabold text-xs shadow-md hover:bg-black transition-all inline-flex items-center gap-2">
+                                            <i data-lucide="upload-cloud" class="w-3 h-3"></i> Go to Upload Portal
+                                        </a>
+                                    </div>
+                                    <!-- AI Summary (shown after selecting a doc) -->
+                                    <div id="verify-ai-summary" class="hidden">
+                                        <div id="verify-loading" class="hidden flex flex-col items-center justify-center py-12">
+                                            <div class="w-10 h-10 rounded-2xl bg-[#eefcce] flex items-center justify-center mb-3 animate-pulse">
+                                                <i data-lucide="cpu" class="w-5 h-5 text-[#111111]"></i>
+                                            </div>
+                                            <p class="text-xs font-extrabold text-gray-500 animate-pulse">AI is analyzing document...</p>
+                                        </div>
+                                        <div id="verify-summary-content" class="bg-white max-w-2xl mx-auto shadow-sm rounded-xl p-6 font-serif text-gray-800 border border-gray-200 text-sm leading-relaxed">
+                                            <!-- filled dynamically -->
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -1399,6 +1389,14 @@
                     }
                     _selectedFile = null;
                     alertBox('✅ Indexed: ' + data.filename + ' — ' + data.chunks + ' chunks');
+                    // Push to Verification Desk
+                    addDocToVerifyDesk({
+                        filename: data.filename,
+                        subsidiary: sub,
+                        chunks: data.chunks,
+                        pages: data.pages,
+                        uploadedAt: new Date().toLocaleTimeString()
+                    });
                     loadWordCloud();
                 }, 500);
             } catch(err) {
@@ -1447,6 +1445,106 @@
             lucide.createIcons(); chatEl.scrollTop = chatEl.scrollHeight;
         }
 
+
+        // ── VERIFICATION DESK ────────────────────────────────────────────
+        const _verifyDocs = []; // { filename, subsidiary, chunks, pages, uploadedAt }
+        let _activeVerifyDoc = null;
+
+        function addDocToVerifyDesk(docInfo) {
+            _verifyDocs.unshift(docInfo);
+            renderVerifyDocList();
+        }
+
+        function renderVerifyDocList() {
+            const list = document.getElementById('verify-doc-list');
+            const badge = document.getElementById('verify-pending-badge');
+            if (!list) return;
+            if (badge) badge.textContent = _verifyDocs.length + ' Document' + (_verifyDocs.length !== 1 ? 's' : '');
+            if (_verifyDocs.length === 0) {
+                list.innerHTML = `<div class="p-6 text-center"><i data-lucide="upload-cloud" class="w-8 h-8 text-gray-300 mx-auto mb-2"></i><p class="text-xs text-gray-400 font-semibold">No documents yet.</p><p class="text-[10px] text-gray-300 font-medium mt-1">Upload a PDF from the Upload Portal.</p></div>`;
+                lucide.createIcons(); return;
+            }
+            list.innerHTML = _verifyDocs.map((d, i) => `
+                <div onclick="openVerifyDoc(${i})" class="p-4 bg-white border-2 ${i === 0 ? 'border-[#a3e635]' : 'border-gray-100 hover:border-gray-300'} rounded-2xl cursor-pointer shadow-sm relative transition-all">
+                    ${i === 0 ? '<div class="absolute top-3 right-3 w-2 h-2 bg-[#ea580c] rounded-full animate-pulse"></div>' : ''}
+                    <h4 class="font-black text-xs text-gray-900 mb-1 pr-4 truncate">${d.filename}</h4>
+                    <p class="text-[11px] text-gray-500 font-medium">${d.subsidiary} • ${d.pages} pages • ${d.chunks} chunks</p>
+                    <div class="mt-2 text-[10px] font-extrabold text-gray-400">${d.uploadedAt}</div>
+                </div>`).join('');
+            lucide.createIcons();
+        }
+
+        async function openVerifyDoc(idx) {
+            const doc = _verifyDocs[idx];
+            if (!doc) return;
+            _activeVerifyDoc = idx;
+
+            // Update UI
+            const titleEl = document.getElementById('verify-doc-title');
+            const btns = document.getElementById('verify-action-btns');
+            const emptyState = document.getElementById('verify-empty-state');
+            const summaryArea = document.getElementById('verify-ai-summary');
+            const loadingEl = document.getElementById('verify-loading');
+            const contentEl = document.getElementById('verify-summary-content');
+
+            if (titleEl) titleEl.innerHTML = `<i data-lucide="file-check" class="w-4 h-4 text-[#84cc16]"></i> ${doc.filename}`;
+            if (btns) btns.classList.remove('hidden');
+            if (emptyState) emptyState.classList.add('hidden');
+            if (summaryArea) { summaryArea.classList.remove('hidden'); }
+            if (loadingEl) loadingEl.classList.remove('hidden');
+            if (contentEl) contentEl.innerHTML = '';
+            lucide.createIcons();
+
+            // Fetch AI summary via RAG query
+            try {
+                const resp = await fetch(API_BASE + '/api/chat', {
+                    method: 'POST', headers: authHeaders(),
+                    body: JSON.stringify({ query: `Summarize the key points and findings from the document: ${doc.filename}`, top_k: 8 })
+                });
+                const data = await resp.json();
+                if (loadingEl) loadingEl.classList.add('hidden');
+                const answer = data.answer || 'Could not generate summary.';
+                const citations = data.citations || [];
+                let citHtml = citations.length > 0 ?
+                    `<div class="mt-4 pt-4 border-t border-gray-100"><p class="text-[10px] font-extrabold text-gray-400 mb-2">SOURCE REFERENCES</p><div class="flex flex-wrap gap-2">` +
+                    citations.map(c => `<span class="bg-[#eefcce] text-[#111111] text-[10px] font-extrabold px-2 py-1 rounded-lg">${c.source} • p.${c.page} • ${Math.round((c.confidence||c.score||0)*100)}%</span>`).join('') +
+                    `</div></div>` : '';
+                if (contentEl) contentEl.innerHTML = `
+                    <h2 class="text-center font-bold uppercase tracking-widest text-base mb-4 border-b pb-2">${doc.filename.replace(/\.[^/.]+$/, "")}</h2>
+                    <div class="mb-4 flex gap-4 text-[10px] font-extrabold text-gray-400">
+                        <span>📁 ${doc.subsidiary}</span><span>📄 ${doc.pages} pages</span><span>🔢 ${doc.chunks} indexed chunks</span><span>🕐 ${doc.uploadedAt}</span>
+                    </div>
+                    <div class="relative my-4 border border-orange-200 bg-[#ffebd6]/20 rounded-xl p-4 pl-12">
+                        <div class="absolute left-3 top-4">
+                            <button onclick="openSourceModal()" class="w-7 h-7 bg-[#fb923c] text-white rounded-full flex items-center justify-center shadow-md hover:scale-110 transition-transform" title="View Source"><i data-lucide="search" class="w-3 h-3"></i></button>
+                        </div>
+                        <p class="font-sans text-xs"><strong class="text-[#ea580c] block mb-1">AI Document Summary:</strong>${answer}</p>
+                    </div>
+                    ${citHtml}`;
+                lucide.createIcons();
+            } catch(err) {
+                if (loadingEl) loadingEl.classList.add('hidden');
+                if (contentEl) contentEl.innerHTML = `<p class="text-red-500 text-xs font-bold">❌ Could not fetch AI summary: ${err.message}</p>`;
+            }
+        }
+
+        function verifyAction(action) {
+            const doc = _verifyDocs[_activeVerifyDoc];
+            if (action === 'approve') {
+                alertBox('✅ Document approved and signed digitally: ' + (doc?.filename || ''));
+                if (_verifyDocs[_activeVerifyDoc]) _verifyDocs[_activeVerifyDoc]._approved = true;
+            } else {
+                alertBox('❌ Document rejected and sent back for review: ' + (doc?.filename || ''));
+                _verifyDocs.splice(_activeVerifyDoc, 1);
+                renderVerifyDocList();
+                // Reset right panel
+                document.getElementById('verify-doc-title').innerHTML = '<i data-lucide="file-check" class="w-4 h-4 text-[#84cc16]"></i> Select a document';
+                document.getElementById('verify-action-btns')?.classList.add('hidden');
+                document.getElementById('verify-empty-state')?.classList.remove('hidden');
+                document.getElementById('verify-ai-summary')?.classList.add('hidden');
+                lucide.createIcons();
+            }
+        }
         async function clearUserChat() {
             try { await fetch(API_BASE + '/api/chat/clear', { method: 'POST', headers: authHeaders() }); } catch(e) {}
             const chatEl = document.getElementById('user-chat-messages');
@@ -1673,6 +1771,9 @@
     </script>
 </body>
 </html>
+
+
+
 
 
 
