@@ -322,20 +322,20 @@ radial_cloud_js = '''
 
     <!-- ================= FULL REPORT DOCUMENT VIEWER MODAL ================= -->
     <div id="full-report-viewer-modal" class="hidden flex items-center justify-center p-2 sm:p-4 animate-fadeIn" onclick="handleReportViewerBackdropClick(event)">
-        <div class="bg-white rounded-3xl shadow-2xl border border-gray-200 w-full max-w-4xl max-h-[92vh] flex flex-col overflow-hidden transform transition-all z-20" onclick="event.stopPropagation()">
+        <div class="bg-white rounded-2xl shadow-2xl border border-slate-300 w-full max-w-4xl max-h-[92vh] flex flex-col overflow-hidden transform transition-all z-20" onclick="event.stopPropagation()">
             
             <!-- Top Nav & Actions Bar -->
-            <div class="px-6 py-3.5 border-b border-gray-100 flex items-center justify-between bg-slate-50/90 shrink-0">
-                <button onclick="backToReportsList()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-gray-100 border border-gray-200/80 text-gray-700 hover:text-[#0f172a] font-bold text-xs transition-all shadow-2xs">
+            <div class="px-5 py-3 border-b border-slate-200 flex items-center justify-between bg-slate-50 shrink-0">
+                <button onclick="backToReportsList()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 hover:text-[#102A43] font-semibold text-xs transition-colors">
                     <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i> <span>Back to Reports</span>
                 </button>
                 
-                <div class="flex items-center gap-2">
-                    <span class="hidden sm:inline-flex px-2.5 py-0.5 rounded-md text-[10px] font-extrabold uppercase bg-emerald-100 text-emerald-800 border border-emerald-200">CMPDI Technical Archive</span>
-                    <button onclick="mockDownloadReport()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition-all shadow-2xs">
+                <div class="flex items-center gap-2.5">
+                    <span class="hidden sm:inline-flex px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-700 border border-slate-300">CMPDI Technical Archive</span>
+                    <button onclick="mockDownloadReport()" class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-md bg-[#102A43] hover:bg-[#1E3A5F] text-white font-semibold text-xs transition-colors shadow-2xs border border-[#102A43]">
                         <i data-lucide="download" class="w-3.5 h-3.5"></i> <span>Download PDF</span>
                     </button>
-                    <button onclick="closeFullReportViewer()" class="w-8 h-8 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-black flex items-center justify-center transition-all">
+                    <button onclick="closeFullReportViewer()" class="w-8 h-8 rounded-md bg-white hover:bg-slate-100 border border-slate-300 text-slate-600 hover:text-black flex items-center justify-center transition-colors">
                         <i data-lucide="x" class="w-4 h-4"></i>
                     </button>
                 </div>
@@ -1599,107 +1599,167 @@ radial_cloud_js = '''
             const viewerContent = document.getElementById('full-report-viewer-content');
             if (!viewerModal || !viewerContent) return;
 
-            const focusKey = targetKeyword || activeModalSearchKeyword || 'Mining Operations';
-            const mentionsCount = report.keywords[focusKey] || report.occ || 24;
+            const focusKey = targetKeyword || activeModalSearchKeyword || 'Overburden';
+            const mentionsCount = (report.keywords && report.keywords[focusKey]) || report.occ || 38;
+
+            // Determine dynamic project metadata
+            let coalfield = 'Gevra OCP / Korba';
+            let miningMethod = 'Mechanized Opencast (Dragline & Shovel)';
+            let geologyBasin = 'Gondwana Basin (Damodar Valley)';
+            
+            if (report.id.includes('GEVRA')) {
+                coalfield = 'Gevra Mega-OCP / Korba';
+                miningMethod = 'High-Capacity Opencast';
+                geologyBasin = 'Gondwana (Hasdeo-Arand Basin)';
+            } else if (report.id.includes('TALCHER')) {
+                coalfield = 'Talcher Coalfield / Sambalpur';
+                miningMethod = 'Continuous Surface Extraction';
+                geologyBasin = 'Mahanadi Basin (Barakar Formation)';
+            } else if (report.id.includes('DHA') || report.id.includes('BCCL')) {
+                coalfield = 'Jharia Coalfield / Dhanbad';
+                miningMethod = 'Deep Underground & Continuous Miner';
+                geologyBasin = 'Damodar Valley (Barakar Strata)';
+            } else if (report.id.includes('NAGPUR') || report.id.includes('WCL')) {
+                coalfield = 'Wardha Valley / Nagpur';
+                miningMethod = 'Mechanized Opencast Benches';
+                geologyBasin = 'Wardha-Kamptee Coalfield';
+            } else if (report.id.includes('RANIGANJ') || report.id.includes('ECL')) {
+                coalfield = 'Raniganj Basin / Sanctoria';
+                miningMethod = 'Longwall Caving & Caving Panels';
+                geologyBasin = 'Damodar Valley Basin';
+            } else if (report.id.includes('KARAN') || report.id.includes('CCL')) {
+                coalfield = 'North Karanpura / Ranchi';
+                miningMethod = 'Surface Mining & Heavy Washery';
+                geologyBasin = 'Damodar Basin (Karharbari Stage)';
+            } else if (report.id.includes('NMET')) {
+                coalfield = 'Raniganj East & Deocha-Pachami';
+                miningMethod = 'Core Drill Exploration & Seismic Analysis';
+                geologyBasin = 'Lower Gondwana Strata';
+            }
 
             viewerContent.innerHTML = `
                 <!-- Document Header Section -->
-                <div class="border-b border-gray-200 pb-5">
-                    <div class="flex items-center gap-2 flex-wrap mb-2">
-                        <span class="px-2.5 py-0.5 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-md font-bold text-[10px] uppercase tracking-wider">${report.agency}</span>
-                        <span class="px-2.5 py-0.5 bg-slate-100 text-slate-700 border border-slate-200 rounded-md font-bold text-[10px] uppercase tracking-wider">Doc ID: ${report.id}</span>
-                        <span class="px-2.5 py-0.5 bg-sky-50 text-sky-800 border border-sky-200 rounded-md font-bold text-[10px] uppercase tracking-wider">${report.type}</span>
-                        <span class="text-xs font-semibold text-gray-400">• Published: ${report.date}</span>
-                        <span class="text-xs font-semibold text-gray-400">• ${report.pages} Pages</span>
+                <div class="border-b border-slate-200 pb-5">
+                    <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-2 flex flex-wrap items-center gap-x-2 gap-y-1">
+                        <span>DOC ID: <strong class="text-slate-800 font-bold">\${report.id}</strong></span>
+                        <span class="text-slate-300">&bull;</span>
+                        <span>REPORT TYPE: <strong class="text-slate-800 font-bold">\${report.type}</strong></span>
+                        <span class="text-slate-300">&bull;</span>
+                        <span>PUBLISHED: <strong class="text-slate-800 font-bold">\${report.date}</strong></span>
+                        <span class="text-slate-300">&bull;</span>
+                        <span>PAGE COUNT: <strong class="text-slate-800 font-bold">\${report.pages} Pages</strong></span>
                     </div>
-                    <h2 class="text-xl sm:text-2xl font-black text-[#0f172a] leading-tight tracking-tight">
-                        ${report.title}
+                    <h2 class="text-xl sm:text-2xl font-bold text-[#102A43] leading-snug tracking-tight">
+                        \${report.title}
                     </h2>
-                    <p class="text-xs text-gray-500 font-medium mt-1">
+                    <div class="text-xs text-slate-500 font-medium mt-1.5">
                         Central Mine Planning &amp; Design Institute &bull; Coal India Limited Technical Repository
-                    </p>
+                    </div>
                 </div>
 
-                <!-- Active Focus Keyword & Frequency Callout Banner -->
-                <div class="p-3.5 bg-emerald-50/70 border border-emerald-200/80 rounded-2xl flex items-center justify-between gap-3">
-                    <div class="flex items-center gap-2.5">
-                        <div class="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-black text-xs">
-                            <i data-lucide="target" class="w-4 h-4"></i>
+                <!-- Semantic Query Match Evidence Section (Restrained & Analytical) -->
+                <div class="py-3 px-4 bg-slate-50 border border-slate-200 rounded-lg">
+                    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1 flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-emerald-600 inline-block"></span>
+                        <span>Semantic Query Match</span>
+                    </div>
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-0.5">
+                        <div class="text-xs text-slate-700 font-medium">
+                            <span class="font-bold text-[#102A43]">"\${focusKey}"</span> appears <strong class="text-[#102A43] font-bold">\${mentionsCount} times</strong> across this technical document.
                         </div>
-                        <div>
-                            <div class="text-[10px] font-bold uppercase text-emerald-900 tracking-wider">Semantic Query Match</div>
-                            <div class="text-xs font-bold text-emerald-950">
-                                "${focusKey}" appears <strong class="text-emerald-700 font-black">${mentionsCount} times</strong> across this technical document
+                        <div class="flex items-center gap-6 text-xs shrink-0">
+                            <div>
+                                <span class="text-[9px] uppercase font-bold text-slate-400">Occurrences:</span>
+                                <strong class="text-[#102A43] font-bold ml-1 text-sm">\${mentionsCount}</strong>
+                            </div>
+                            <div class="border-l border-slate-200 pl-5">
+                                <span class="text-[9px] uppercase font-bold text-slate-400">Confidence:</span>
+                                <strong class="text-emerald-700 font-bold ml-1 text-sm">98.4%</strong>
                             </div>
                         </div>
                     </div>
-                    <span class="px-2.5 py-1 bg-white text-emerald-800 rounded-xl text-[11px] font-extrabold border border-emerald-200 shadow-2xs">
-                        98.4% Confidence
-                    </span>
                 </div>
 
-                <!-- Key Project Parameters Grid -->
+                <!-- Key Project Metadata Grid (Structured Key-Value Rows) -->
                 <div>
-                    <h4 class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2.5">1. Key Project Metadata</h4>
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                        <div class="p-3 rounded-xl bg-gray-50/80 border border-gray-200/70">
-                            <div class="text-[10px] font-bold uppercase text-gray-400 tracking-wider">Coalfield Basin</div>
-                            <div class="text-xs font-extrabold text-[#0f172a] mt-0.5">Jharia / Raniganj / Korba</div>
-                        </div>
-                        <div class="p-3 rounded-xl bg-gray-50/80 border border-gray-200/70">
-                            <div class="text-[10px] font-bold uppercase text-gray-400 tracking-wider">Mining Method</div>
-                            <div class="text-xs font-extrabold text-[#0f172a] mt-0.5">Mechanized Opencast</div>
-                        </div>
-                        <div class="p-3 rounded-xl bg-gray-50/80 border border-gray-200/70">
-                            <div class="text-[10px] font-bold uppercase text-gray-400 tracking-wider">Stripping Ratio</div>
-                            <div class="text-xs font-extrabold text-[#0f172a] mt-0.5">1 : 3.8 CuM/T</div>
-                        </div>
-                        <div class="p-3 rounded-xl bg-gray-50/80 border border-gray-200/70">
-                            <div class="text-[10px] font-bold uppercase text-gray-400 tracking-wider">Reserve Status</div>
-                            <div class="text-xs font-extrabold text-emerald-700 mt-0.5">Proved (ISP Norms)</div>
+                    <div class="border-b border-slate-200 pb-1.5 mb-3">
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-700">1. Key Project Metadata</h4>
+                    </div>
+                    <div class="border border-slate-200 rounded-lg overflow-hidden bg-white">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-slate-200">
+                            <div class="divide-y divide-slate-200">
+                                <div class="p-3 bg-white flex justify-between items-start gap-2">
+                                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Coalfield / Mine</span>
+                                    <span class="text-xs font-bold text-[#102A43] text-right">\${coalfield}</span>
+                                </div>
+                                <div class="p-3 bg-white flex justify-between items-start gap-2">
+                                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Mining Method</span>
+                                    <span class="text-xs font-bold text-[#102A43] text-right">\${miningMethod}</span>
+                                </div>
+                                <div class="p-3 bg-white flex justify-between items-start gap-2">
+                                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Report Type</span>
+                                    <span class="text-xs font-bold text-[#102A43] text-right">\${report.type}</span>
+                                </div>
+                            </div>
+                            <div class="divide-y divide-slate-200">
+                                <div class="p-3 bg-white flex justify-between items-start gap-2">
+                                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Subsidiary / Agency</span>
+                                    <span class="text-xs font-bold text-[#102A43] text-right">\${report.agency}</span>
+                                </div>
+                                <div class="p-3 bg-white flex justify-between items-start gap-2">
+                                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Terrain / Geology</span>
+                                    <span class="text-xs font-bold text-[#102A43] text-right">\${geologyBasin}</span>
+                                </div>
+                                <div class="p-3 bg-white flex justify-between items-start gap-2">
+                                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Report Date</span>
+                                    <span class="text-xs font-bold text-[#102A43] text-right">\${report.date}</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Stratigraphy & Seams Breakdown Table -->
                 <div>
-                    <h4 class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2.5">2. Stratigraphy &amp; Coal Seam Analysis</h4>
-                    <div class="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-2xs">
-                        <table class="w-full text-left text-xs">
-                            <thead class="bg-gray-50 border-b border-gray-200 text-gray-600 font-bold text-[11px]">
+                    <div class="border-b border-slate-200 pb-1.5 mb-3">
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-700">2. Stratigraphy &amp; Coal Seam Analysis</h4>
+                    </div>
+                    <div class="overflow-x-auto border border-slate-200 rounded-lg bg-white">
+                        <table class="w-full text-left text-xs border-collapse">
+                            <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold text-[10px] uppercase tracking-wider">
                                 <tr>
-                                    <th class="p-2.5 pl-3">Seam Horizon</th>
-                                    <th class="p-2.5">Thickness (m)</th>
-                                    <th class="p-2.5">Mean Depth (m)</th>
-                                    <th class="p-2.5">Ash Content (%)</th>
-                                    <th class="p-2.5">Gross Calorific Value</th>
-                                    <th class="p-2.5 pr-3">Grade</th>
+                                    <th class="py-2.5 px-3 border-r border-slate-200">Seam Horizon</th>
+                                    <th class="py-2.5 px-3 border-r border-slate-200">Thickness (m)</th>
+                                    <th class="py-2.5 px-3 border-r border-slate-200">Mean Depth (m)</th>
+                                    <th class="py-2.5 px-3 border-r border-slate-200">Ash Content (%)</th>
+                                    <th class="py-2.5 px-3 border-r border-slate-200">Gross Calorific Value</th>
+                                    <th class="py-2.5 px-3">Grade</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-gray-100 font-medium text-gray-800 text-[11px]">
-                                <tr class="hover:bg-gray-50/80">
-                                    <td class="p-2.5 pl-3 font-bold text-[#0f172a]">Seam X (Top)</td>
-                                    <td class="p-2.5">6.40 m</td>
-                                    <td class="p-2.5">112 m</td>
-                                    <td class="p-2.5">18.4%</td>
-                                    <td class="p-2.5 font-bold text-emerald-700">6,240 kcal/kg</td>
-                                    <td class="p-2.5 pr-3"><span class="px-2 py-0.5 bg-emerald-50 text-emerald-700 rounded font-bold">G4</span></td>
+                            <tbody class="divide-y divide-slate-200 text-slate-800 text-xs">
+                                <tr class="hover:bg-slate-50/70 transition-colors">
+                                    <td class="py-2 px-3 font-bold text-[#102A43] border-r border-slate-200">Seam X (Top Horizon)</td>
+                                    <td class="py-2 px-3 border-r border-slate-200">6.40 m</td>
+                                    <td class="py-2 px-3 border-r border-slate-200">112 m</td>
+                                    <td class="py-2 px-3 border-r border-slate-200">18.4%</td>
+                                    <td class="py-2 px-3 font-semibold text-slate-900 border-r border-slate-200">6,240 kcal/kg</td>
+                                    <td class="py-2 px-3 font-bold text-emerald-800">G4</td>
                                 </tr>
-                                <tr class="hover:bg-gray-50/80">
-                                    <td class="p-2.5 pl-3 font-bold text-[#0f172a]">Seam IX (Middle)</td>
-                                    <td class="p-2.5">8.20 m</td>
-                                    <td class="p-2.5">148 m</td>
-                                    <td class="p-2.5">22.1%</td>
-                                    <td class="p-2.5 font-bold text-emerald-700">5,820 kcal/kg</td>
-                                    <td class="p-2.5 pr-3"><span class="px-2 py-0.5 bg-emerald-50 text-emerald-700 rounded font-bold">G6</span></td>
+                                <tr class="hover:bg-slate-50/70 transition-colors">
+                                    <td class="py-2 px-3 font-bold text-[#102A43] border-r border-slate-200">Seam IX (Middle Horizon)</td>
+                                    <td class="py-2 px-3 border-r border-slate-200">8.20 m</td>
+                                    <td class="py-2 px-3 border-r border-slate-200">148 m</td>
+                                    <td class="py-2 px-3 border-r border-slate-200">22.1%</td>
+                                    <td class="py-2 px-3 font-semibold text-slate-900 border-r border-slate-200">5,820 kcal/kg</td>
+                                    <td class="py-2 px-3 font-bold text-emerald-800">G6</td>
                                 </tr>
-                                <tr class="hover:bg-gray-50/80">
-                                    <td class="p-2.5 pl-3 font-bold text-[#0f172a]">Seam VIII (Bottom)</td>
-                                    <td class="p-2.5">4.80 m</td>
-                                    <td class="p-2.5">194 m</td>
-                                    <td class="p-2.5">26.5%</td>
-                                    <td class="p-2.5 font-bold text-sky-700">5,310 kcal/kg</td>
-                                    <td class="p-2.5 pr-3"><span class="px-2 py-0.5 bg-sky-50 text-sky-700 rounded font-bold">G8</span></td>
+                                <tr class="hover:bg-slate-50/70 transition-colors">
+                                    <td class="py-2 px-3 font-bold text-[#102A43] border-r border-slate-200">Seam VIII (Bottom Horizon)</td>
+                                    <td class="py-2 px-3 border-r border-slate-200">4.80 m</td>
+                                    <td class="py-2 px-3 border-r border-slate-200">194 m</td>
+                                    <td class="py-2 px-3 border-r border-slate-200">26.5%</td>
+                                    <td class="py-2 px-3 font-semibold text-slate-900 border-r border-slate-200">5,310 kcal/kg</td>
+                                    <td class="py-2 px-3 font-bold text-slate-800">G8</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -1707,39 +1767,42 @@ radial_cloud_js = '''
                 </div>
 
                 <!-- Full Report Technical Narrative Sections -->
-                <div class="space-y-4">
-                    <h4 class="text-xs font-bold uppercase tracking-wider text-gray-500">3. Technical Narrative &amp; Operational Observations</h4>
+                <div class="space-y-3">
+                    <div class="border-b border-slate-200 pb-1.5 mb-1">
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-700">3. Technical Narrative &amp; Operational Observations</h4>
+                    </div>
                     
-                    <div class="p-4 bg-gray-50/80 rounded-2xl border border-gray-200 space-y-2">
-                        <h5 class="font-bold text-[#0f172a] text-xs">Section 1: Overburden Removal &amp; Dragline Scheduling</h5>
-                        <p class="text-xs text-gray-700 leading-relaxed font-medium">
-                            The upper strata consists of medium to coarse-grained sandstone requiring systematic drilling and blasting with electronic delay detonators. Walking draglines handle primary overburden casting while shovel-dumper fleets evacuate interburden partings to prevent bench slope instability.
+                    <div class="p-3.5 bg-white rounded-lg border border-slate-200 space-y-1.5">
+                        <div class="text-xs font-bold text-[#102A43]">Section 3.1: Overburden Removal, Excavation &amp; Stripping Sequence</div>
+                        <p class="text-xs text-slate-700 leading-relaxed">
+                            The upper sedimentary sequence comprises medium to coarse-grained Barakar sandstone partings requiring controlled drilling and blast initiation with electronic delay detonators. High-capacity walking draglines handle primary overburden side-casting while shovel-dumper combinations systematically evacuate interburden partings to maintain bench stability.
                         </p>
                     </div>
 
-                    <div class="p-4 bg-gray-50/80 rounded-2xl border border-gray-200 space-y-2">
-                        <h5 class="font-bold text-[#0f172a] text-xs">Section 2: Hydrogeological &amp; Environmental Clearance Compliance</h5>
-                        <p class="text-xs text-gray-700 leading-relaxed font-medium">
-                            Comprehensive piezometer monitoring networks established across 12 perimeter locations confirm groundwater table stability. Sump dewatering systems channel drainage through modular multi-tier settling ponds with zero untreated effluent discharge outside concession limits.
+                    <div class="p-3.5 bg-white rounded-lg border border-slate-200 space-y-1.5">
+                        <div class="text-xs font-bold text-[#102A43]">Section 3.2: Hydrogeological Regime &amp; Environmental Clearance Compliance</div>
+                        <p class="text-xs text-slate-700 leading-relaxed">
+                            A multi-tier piezometric monitoring array across perimeter observation boreholes confirms local water table stability. In-pit sump dewatering circuits discharge runoff through multi-stage settling ponds with continuous turbidity and pH telemetry conforming to MoEFCC and SPCB environmental standards.
                         </p>
                     </div>
 
-                    <div class="p-4 bg-gray-50/80 rounded-2xl border border-gray-200 space-y-2">
-                        <h5 class="font-bold text-[#0f172a] text-xs">Section 3: Progressive Land Reclamation &amp; Mine Closure Status</h5>
-                        <p class="text-xs text-gray-700 leading-relaxed font-medium">
-                            Biological reclamation of decommissioned internal overburden dumps has restored over 145 hectares with native mixed afforestation. Satellite remote sensing validates canopy density growth complying with MoEFCC clearance stipulations.
+                    <div class="p-3.5 bg-white rounded-lg border border-slate-200 space-y-1.5">
+                        <div class="text-xs font-bold text-[#102A43]">Section 3.3: Progressive Biological Reclamation &amp; Mine Closure Status</div>
+                        <p class="text-xs text-slate-700 leading-relaxed">
+                            Technical grading and biological reclamation of internal overburden dumps have re-established stabilized vegetative cover across 145 hectares. High-resolution satellite remote sensing audits corroborate canopy density restoration in adherence with statutory mine closure schedules.
                         </p>
                     </div>
                 </div>
 
                 <!-- Document Verification & Sign-off Footer -->
-                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200 flex flex-wrap items-center justify-between gap-3 text-xs">
+                <div class="p-3.5 bg-slate-50 rounded-lg border border-slate-200 flex flex-wrap items-center justify-between gap-3 text-xs">
                     <div>
-                        <div class="font-bold text-[#0f172a]">CMPDI Central Geo-Data Repository</div>
-                        <div class="text-[11px] text-gray-400 font-medium">Verified by Regional Technical Advisory Committee (RTAC)</div>
+                        <div class="font-bold text-[#102A43]">CMPDI Central Geo-Data &amp; Technical Archive</div>
+                        <div class="text-[11px] text-slate-500">Verified and catalogued under DGMS &amp; CIL Technical Repository Guidelines</div>
                     </div>
                     <div class="flex items-center gap-2">
-                        <span class="px-2.5 py-1 bg-emerald-100 text-emerald-900 rounded-lg font-bold text-[10px] uppercase">Digitally Authenticated</span>
+                        <span class="px-2.5 py-1 bg-slate-200 text-slate-800 rounded font-bold text-[10px] uppercase tracking-wider border border-slate-300">Official Record</span>
+                        <span class="px-2.5 py-1 bg-emerald-50 text-emerald-800 rounded font-bold text-[10px] uppercase tracking-wider border border-emerald-200">Digitally Authenticated</span>
                     </div>
                 </div>
             `;
