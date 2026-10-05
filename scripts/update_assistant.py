@@ -2,7 +2,6 @@ import os
 import re
 
 ORIGINAL_HTML_PATH = 'c:/Users/LENOVO/Downloads/final_cmpdi/cmpdi-geoai-hub-main/original_render_index.html'
-MERGE_MAP_PATH = 'c:/Users/LENOVO/Downloads/final_cmpdi/cmpdi-geoai-hub-main/merge_map.py'
 AVATAR_B64_PATH = 'c:/Users/LENOVO/Downloads/final_cmpdi/cmpdi-geoai-hub-main/frontend/avatar_b64.txt'
 
 with open(ORIGINAL_HTML_PATH, 'r', encoding='utf-8') as f:
@@ -44,6 +43,13 @@ html = re.sub(old_funcs_1, '', html, flags=re.DOTALL)
 old_funcs_2 = r'// AI Chat Handlers \(Admin feature\).*?async function clearChat\(\) \{.*?\n        \}'
 html = re.sub(old_funcs_2, '', html, flags=re.DOTALL)
 
+# Remove any previous floating assistant markup if present before re-injecting
+float_start = html.find('<!-- ================= FLOATING GEOAI ASSISTANT (NAMASTE BOT) ================= -->')
+if float_start != -1:
+    body_end = html.find('</body>', float_start)
+    if body_end != -1:
+        html = html[:float_start] + html[body_end:]
+
 # Reposition alertBox so it appears at bottom-left and doesn't overlap the floating assistant
 html = html.replace("box.className = 'fixed bottom-6 right-6 z-[150]", "box.className = 'fixed bottom-6 left-6 z-[150]")
 
@@ -54,21 +60,29 @@ floating_assistant_block = f'''
         /* Glowing Ripple & Floating Animation */
         @keyframes avatarHaloGlow {{
             0%, 100% {{
-                box-shadow: 0 0 0 0 rgba(163, 230, 53, 0.7), 0 0 20px rgba(163, 230, 53, 0.5), 0 8px 30px rgba(0,0,0,0.3);
+                box-shadow: 0 0 0 0 rgba(163, 230, 53, 0.7), 0 0 24px rgba(163, 230, 53, 0.6), 0 8px 32px rgba(0,0,0,0.3);
             }}
             50% {{
-                box-shadow: 0 0 0 10px rgba(163, 230, 53, 0), 0 0 35px rgba(163, 230, 53, 0.8), 0 12px 35px rgba(0,0,0,0.35);
+                box-shadow: 0 0 0 12px rgba(163, 230, 53, 0), 0 0 42px rgba(163, 230, 53, 0.9), 0 14px 38px rgba(0,0,0,0.35);
             }}
         }}
 
         .assistant-avatar-halo {{
-            animation: avatarHaloGlow 3s infinite;
+            animation: avatarHaloGlow 3.2s infinite;
         }}
 
         /* Speech Bubble Pointer Arrow */
         .namaste-speech-bubble {{
-            position: relative;
+            position: absolute;
+            right: calc(100% + 12px);
+            top: 50%;
+            transform: translateY(-50%) translateX(6px);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            white-space: nowrap;
         }}
+
         .namaste-speech-bubble::after {{
             content: '';
             position: absolute;
@@ -82,10 +96,16 @@ floating_assistant_block = f'''
             border-left: 9px solid #111111;
         }}
 
+        #geoai-floating-trigger-container:hover .namaste-speech-bubble {{
+            opacity: 1;
+            transform: translateY(-50%) translateX(0);
+            pointer-events: auto;
+        }}
+
         /* Floating Window Expand Transitions */
         #geoai-floating-chat-window.chat-expanded {{
-            width: 760px !important;
-            height: 680px !important;
+            width: 780px !important;
+            height: 700px !important;
             max-width: calc(100vw - 32px) !important;
             max-height: calc(100vh - 40px) !important;
         }}
@@ -101,12 +121,12 @@ floating_assistant_block = f'''
     <div id="geoai-floating-assistant-root" class="fixed bottom-6 right-6 z-[9999] font-['Inter',sans-serif] flex flex-col items-end pointer-events-none select-none">
         
         <!-- Floating Interactive Chat Window -->
-        <div id="geoai-floating-chat-window" class="pointer-events-auto bg-white rounded-[2.25rem] border border-gray-200/90 shadow-[0_24px_70px_-15px_rgba(0,0,0,0.4),0_0_0_1px_rgba(0,0,0,0.06)] overflow-hidden flex flex-col origin-bottom-right mb-4 opacity-0 scale-95 translate-y-4 pointer-events-none" style="width: 400px; height: 570px; max-width: calc(100vw - 32px); max-height: calc(100vh - 100px); display: none;">
+        <div id="geoai-floating-chat-window" class="pointer-events-auto bg-white rounded-[2.25rem] border border-gray-200/90 shadow-[0_24px_70px_-15px_rgba(0,0,0,0.4),0_0_0_1px_rgba(0,0,0,0.06)] overflow-hidden flex flex-col origin-bottom-right mb-4 opacity-0 scale-95 translate-y-4 pointer-events-none" style="width: 420px; height: 580px; max-width: calc(100vw - 32px); max-height: calc(100vh - 110px); display: none;">
             
             <!-- Chat Header -->
             <div class="px-5 py-4 bg-[#111111] text-white flex items-center justify-between border-b border-gray-800 shrink-0 select-none">
                 <div class="flex items-center gap-3">
-                    <div class="relative w-10 h-10 rounded-full border-2 border-[#a3e635] p-0.5 shadow-[0_0_12px_rgba(163,230,53,0.8)] shrink-0 bg-white">
+                    <div class="relative w-11 h-11 rounded-full border-2 border-[#a3e635] p-0.5 shadow-[0_0_12px_rgba(163,230,53,0.8)] shrink-0 bg-white">
                         <img src="{avatar_b64}" alt="GeoAI Assistant" class="w-full h-full object-cover rounded-full">
                         <span class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-[#84cc16] border-2 border-[#111111] rounded-full flex items-center justify-center">
                             <span class="w-1 h-1 bg-white rounded-full"></span>
@@ -142,7 +162,7 @@ floating_assistant_block = f'''
             <div id="floating-chat-messages" class="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4 bg-gray-50/70 custom-scrollbar">
                 <!-- Initial Welcome Message from Assistant -->
                 <div class="flex gap-3 max-w-[92%]">
-                    <div class="w-8 h-8 rounded-full border border-[#a3e635] bg-white flex items-center justify-center shrink-0 overflow-hidden shadow-xs">
+                    <div class="w-9 h-9 rounded-full border border-[#a3e635] bg-white flex items-center justify-center shrink-0 overflow-hidden shadow-xs">
                         <img src="{avatar_b64}" alt="Bot" class="w-full h-full object-cover">
                     </div>
                     <div class="bg-white rounded-2xl rounded-tl-xs p-4 shadow-sm border border-gray-200/80 text-xs text-gray-800 leading-relaxed font-medium">
@@ -154,7 +174,7 @@ floating_assistant_block = f'''
                 </div>
 
                 <!-- Suggested Query Chips -->
-                <div id="floating-suggested-chips" class="flex flex-wrap gap-2 pl-11 pt-0.5">
+                <div id="floating-suggested-chips" class="flex flex-wrap gap-2 pl-12 pt-0.5">
                     <button onclick="sendFloatingPreset('What is the total coal production for Q3?')" class="px-3.5 py-1.5 bg-white hover:bg-[#eefcce] text-gray-800 hover:text-[#111111] border border-gray-200 rounded-full text-[11px] font-extrabold transition-all shadow-2xs hover:scale-105 text-left">📊 Q3 Production Summary</button>
                     <button onclick="sendFloatingPreset('Reasons for delay in Gevra expansion clearance?')" class="px-3.5 py-1.5 bg-white hover:bg-[#ffebd6] text-gray-800 hover:text-[#111111] border border-gray-200 rounded-full text-[11px] font-extrabold transition-all shadow-2xs hover:scale-105 text-left">⚠️ Gevra Expansion Delays</button>
                     <button onclick="sendFloatingPreset('List major coalfields and active opencast mines in Jharkhand')" class="px-3.5 py-1.5 bg-white hover:bg-[#eefcce] text-gray-800 hover:text-[#111111] border border-gray-200 rounded-full text-[11px] font-extrabold transition-all shadow-2xs hover:scale-105 text-left">🗺️ Jharkhand Coalfields & Mines</button>
@@ -178,21 +198,21 @@ floating_assistant_block = f'''
         </div>
 
         <!-- Floating Avatar Button Trigger + Namaste Speech Bubble on Hover -->
-        <div id="geoai-floating-trigger-container" class="pointer-events-auto relative flex items-center cursor-pointer group select-none" onclick="toggleFloatingChat(event)">
+        <div id="geoai-floating-trigger-container" class="pointer-events-auto relative inline-flex self-end items-center cursor-pointer group select-none" onclick="toggleFloatingChat(event)">
             
-            <!-- Hover "Namaste ! how may I help you?" Speech Bubble -->
-            <div class="namaste-speech-bubble absolute right-[calc(100%+14px)] top-1/2 -translate-y-1/2 bg-[#111111] text-white px-5 py-3 rounded-full text-xs sm:text-sm font-extrabold flex items-center gap-2.5 shadow-[0_12px_35px_rgba(0,0,0,0.5),0_0_0_1px_rgba(255,255,255,0.08)] opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-300 ease-out whitespace-nowrap translate-x-2 group-hover:translate-x-0 z-50">
+            <!-- Hover 'Namaste ! how may I help you?' Speech Bubble (Directly adjacent to avatar) -->
+            <div class="namaste-speech-bubble bg-[#111111] text-white px-5 py-3 rounded-full text-xs sm:text-sm font-extrabold flex items-center gap-2.5 shadow-[0_14px_40px_rgba(0,0,0,0.55),0_0_0_1px_rgba(255,255,255,0.08)] z-50">
                 <span class="w-2.5 h-2.5 rounded-full bg-[#a3e635] shadow-[0_0_10px_#a3e635] animate-pulse shrink-0"></span>
                 <span class="tracking-tight text-gray-100">Namaste ! how may I help you?</span>
             </div>
 
-            <!-- Avatar Glowing Circle -->
-            <div class="assistant-avatar-halo relative w-16 h-16 sm:w-[68px] sm:h-[68px] rounded-full border-[3px] border-[#a3e635] bg-white transition-all duration-300 group-hover:scale-105 group-active:scale-95 flex items-center justify-center p-0.5">
+            <!-- Avatar Glowing Circle (Bigger 82px avatar) -->
+            <div class="assistant-avatar-halo relative w-20 h-20 sm:w-[84px] sm:h-[84px] rounded-full border-[3.5px] border-[#a3e635] bg-white transition-all duration-300 group-hover:scale-105 group-active:scale-95 flex items-center justify-center p-0.5">
                 <img src="{avatar_b64}" alt="GeoAI Assistant" class="w-full h-full object-cover rounded-full">
                 
                 <!-- Online status dot with inner white core -->
-                <div class="absolute bottom-0 right-0 w-5 h-5 bg-[#84cc16] border-[2.5px] border-white rounded-full flex items-center justify-center shadow-md">
-                    <div class="w-1.5 h-1.5 bg-white rounded-full"></div>
+                <div class="absolute bottom-0.5 right-0.5 w-6 h-6 bg-[#84cc16] border-[2.5px] border-white rounded-full flex items-center justify-center shadow-md">
+                    <div class="w-2 h-2 bg-white rounded-full"></div>
                 </div>
             </div>
 
@@ -408,4 +428,4 @@ html = html.replace('</body>', f'{floating_assistant_block}\n</body>')
 with open(ORIGINAL_HTML_PATH, 'w', encoding='utf-8') as f:
     f.write(html)
 
-print("Updated original_render_index.html with Floating Assistant Widget successfully!")
+print("Updated original_render_index.html with adjusted sizes and adjacent positioning!")
