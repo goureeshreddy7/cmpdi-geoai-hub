@@ -128,15 +128,21 @@ new_insights_html = '''
                                             <div id="detail-topic-occ" class="text-lg font-black text-[#0f172a] mt-0.5">486</div>
                                         </div>
                                         
-                                        <!-- CLICKABLE DOCUMENTS CARD -->
-                                        <div onclick="openTopicDocumentsModal(currentSelectedTopicKey)" class="p-3 rounded-xl bg-gray-50/80 hover:bg-emerald-50/50 hover:border-emerald-300 border border-gray-200/60 cursor-pointer transition-all group relative">
+                                        <!-- CLICKABLE DOCUMENTS CARD (Entire Card is Interactive) -->
+                                        <div onclick="openTopicDocumentsModal(currentSelectedTopicKey)" 
+                                             tabindex="0"
+                                             role="button"
+                                             aria-label="View related documents"
+                                             onkeydown="if(event.key==='Enter'||event.key===' ') { event.preventDefault(); openTopicDocumentsModal(currentSelectedTopicKey); }"
+                                             class="p-3 rounded-xl bg-gray-50/80 hover:bg-slate-100/90 hover:border-slate-300 hover:shadow-xs border border-gray-200/60 cursor-pointer transition-all duration-150 group relative focus:outline-none focus:ring-2 focus:ring-slate-400/30">
                                             <div class="flex items-center justify-between">
-                                                <div class="text-[10px] font-bold uppercase text-gray-400 group-hover:text-emerald-700 transition-colors tracking-wider flex items-center gap-1">
-                                                    Documents <i data-lucide="external-link" class="w-2.5 h-2.5 opacity-60 group-hover:opacity-100"></i>
-                                                </div>
-                                                <span class="text-[9px] font-extrabold text-emerald-700 bg-emerald-100/70 px-1.5 py-0.5 rounded border border-emerald-200/60 group-hover:bg-emerald-600 group-hover:text-white transition-all">Explore</span>
+                                                <span class="text-[10px] font-bold uppercase text-gray-400 group-hover:text-slate-700 transition-colors tracking-wider">Documents</span>
+                                                <i data-lucide="arrow-up-right" class="w-3.5 h-3.5 text-gray-400 group-hover:text-slate-900 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all"></i>
                                             </div>
-                                            <div id="detail-topic-docs" class="text-lg font-black text-[#0f172a] mt-0.5 group-hover:text-emerald-700 transition-colors">173</div>
+                                            <div id="detail-topic-docs" class="text-lg font-black text-[#0f172a] mt-0.5 group-hover:text-slate-950 transition-colors">173</div>
+                                            <div id="detail-topic-docs-subtitle" class="text-[10.5px] font-medium text-gray-500 group-hover:text-slate-800 transition-colors mt-0.5">
+                                                View 173 related documents
+                                            </div>
                                         </div>
 
                                         <div class="p-3 rounded-xl bg-gray-50/80 border border-gray-200/60">
@@ -1136,6 +1142,10 @@ radial_cloud_js = '''
             document.getElementById('detail-topic-name').textContent = data.name;
             document.getElementById('detail-topic-occ').textContent = data.occ;
             document.getElementById('detail-topic-docs').textContent = data.docs;
+            const docsSubtitleEl = document.getElementById('detail-topic-docs-subtitle');
+            if (docsSubtitleEl) {
+                docsSubtitleEl.textContent = `View ${data.docs} related documents`;
+            }
             document.getElementById('detail-topic-rel').textContent = `${data.rel}%`;
             document.getElementById('detail-topic-cat').textContent = data.catLabel;
             document.getElementById('detail-ai-insight').textContent = `"${data.aiInsight}"`;
