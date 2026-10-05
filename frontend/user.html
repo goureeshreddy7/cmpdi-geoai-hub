@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -142,7 +142,7 @@
             font-weight: 700;
         }
         .claim-approved::after {
-            content: ' ✓';
+            content: ' âœ“';
             font-size: 10px;
             color: #16a34a;
         }
@@ -228,7 +228,7 @@
             outline: none !important;
         }
         
-        /* ── Cluster Marker Styling ── */
+        /* â”€â”€ Cluster Marker Styling â”€â”€ */
         .custom-cluster-icon {
             background: #111111;
             color: #a3e635;
@@ -242,7 +242,7 @@
             box-shadow: 0 4px 14px rgba(0,0,0,0.35);
         }
 
-        /* ── SVG Teardrop Pin Marker Styling ── */
+        /* â”€â”€ SVG Teardrop Pin Marker Styling â”€â”€ */
         .mine-pin-container {
             background: transparent !important;
             border: none !important;
@@ -276,7 +276,7 @@
             filter: blur(1px);
         }
 
-        /* ── Borehole Survey Marker Styling ── */
+        /* â”€â”€ Borehole Survey Marker Styling â”€â”€ */
         .borehole-marker-icon {
             width: 18px;
             height: 18px;
@@ -294,7 +294,7 @@
             z-index: 1000 !important;
         }
 
-        /* ── Hover Tooltip Pill Badge ── */
+        /* â”€â”€ Hover Tooltip Pill Badge â”€â”€ */
         .mine-tooltip-custom {
             background: #111111 !important;
             border: 1px solid rgba(255, 255, 255, 0.15) !important;
@@ -332,7 +332,7 @@
             color: #111111;
         }
 
-        /* ── Custom Popup Styling ── */
+        /* â”€â”€ Custom Popup Styling â”€â”€ */
         .mine-popup .leaflet-popup-content-wrapper {
             background: #ffffff;
             border-radius: 1.5rem;
@@ -419,7 +419,7 @@
                 </div>
 
                 <div class="mt-8 text-center pt-4 border-t border-gray-100/80">
-                    <p class="text-[10px] text-gray-400 font-bold tracking-widest uppercase">Restricted Access â€¢ Ministry of Coal</p>
+                    <p class="text-[10px] text-gray-400 font-bold tracking-widest uppercase">Restricted Access Ã¢â‚¬Â¢ Ministry of Coal</p>
                 </div>
             </div>
 
@@ -452,7 +452,7 @@
                         </div>
                         <div class="relative flex items-center">
                             <i data-lucide="lock" class="w-4 h-4 text-gray-400 absolute left-4"></i>
-                            <input type="password" id="auth-password" required value="" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" class="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl text-xs font-bold text-[#111111] focus:ring-2 focus:ring-[#a3e635] focus:bg-white outline-none transition-all shadow-2xs">
+                            <input type="password" id="auth-password" required value="" placeholder="Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢" class="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl text-xs font-bold text-[#111111] focus:ring-2 focus:ring-[#a3e635] focus:bg-white outline-none transition-all shadow-2xs">
                         </div>
                     </div>
                     
@@ -965,7 +965,7 @@
                                             <div class="flex items-center gap-2.5">
                                                 <h3 class="font-extrabold text-[#0f172a] text-base sm:text-lg tracking-tight">Interactive Word Map</h3>
                                                 <span class="px-2 py-0.5 bg-emerald-50 text-emerald-700 font-bold text-[9px] uppercase tracking-wider rounded border border-emerald-200">Semantic Graph</span>
-                                                <span class="text-[10px] text-gray-400 font-semibold">• 1,284 Indexed Reports</span>
+                                                <span class="text-[10px] text-gray-400 font-semibold">â€¢ 1,284 Indexed Reports</span>
                                             </div>
                                             <p class="text-xs font-medium text-gray-500 mt-0.5">Explore high-frequency mining terms and discover relationships across indexed reports.</p>
                                         </div>
@@ -1038,7 +1038,7 @@
                                         <span class="flex items-center gap-1.5 font-semibold text-[#be123c]"><span class="w-2 h-2 rounded-full bg-[#e11d48]"></span> Safety &amp; Ops</span>
                                     </div>
                                     <div class="text-[10px] text-gray-400 font-bold tracking-wider uppercase">
-                                        Size → Occurrence &bull; Color → Category &bull; Lines → Semantic Relation
+                                        Size â†’ Occurrence &bull; Color â†’ Category &bull; Lines â†’ Semantic Relation
                                     </div>
                                 </div>
 
@@ -1252,9 +1252,9 @@
                                     </div>
 
                                     <div id="suggested-chips" class="flex flex-wrap gap-2 pl-12 pt-1">
-                                        <button onclick="sendPresetPrompt('What is total coal production for Q3?')" class="px-4 py-2 bg-white hover:bg-[#eefcce] text-gray-800 hover:text-[#111111] border border-gray-200 rounded-full text-[11px] font-extrabold transition-all shadow-2xs hover:scale-105">📊 Q3 Total Coal Production?</button>
-                                        <button onclick="sendPresetPrompt('Reasons for delay in Gevra expansion?')" class="px-4 py-2 bg-white hover:bg-[#ffebd6] text-gray-800 hover:text-[#111111] border border-gray-200 rounded-full text-[11px] font-extrabold transition-all shadow-2xs hover:scale-105">⚠️ Gevra Expansion Delays</button>
-                                        <button onclick="sendPresetPrompt('List major coalfields and active opencast mines in Jharkhand')" class="px-4 py-2 bg-white hover:bg-[#eefcce] text-gray-800 hover:text-[#111111] border border-gray-200 rounded-full text-[11px] font-extrabold transition-all shadow-2xs hover:scale-105">🗺️ Jharkhand Coalfields</button>
+                                        <button onclick="sendPresetPrompt('What is total coal production for Q3?')" class="px-4 py-2 bg-white hover:bg-[#eefcce] text-gray-800 hover:text-[#111111] border border-gray-200 rounded-full text-[11px] font-extrabold transition-all shadow-2xs hover:scale-105">ðŸ“Š Q3 Total Coal Production?</button>
+                                        <button onclick="sendPresetPrompt('Reasons for delay in Gevra expansion?')" class="px-4 py-2 bg-white hover:bg-[#ffebd6] text-gray-800 hover:text-[#111111] border border-gray-200 rounded-full text-[11px] font-extrabold transition-all shadow-2xs hover:scale-105">âš ï¸ Gevra Expansion Delays</button>
+                                        <button onclick="sendPresetPrompt('List major coalfields and active opencast mines in Jharkhand')" class="px-4 py-2 bg-white hover:bg-[#eefcce] text-gray-800 hover:text-[#111111] border border-gray-200 rounded-full text-[11px] font-extrabold transition-all shadow-2xs hover:scale-105">ðŸ—ºï¸ Jharkhand Coalfields</button>
                                     </div>
 
                                     <div class="flex gap-3 max-w-[85%] ml-auto flex-row-reverse">
@@ -1273,7 +1273,7 @@
                                                 <li>Hydrological impact assessments required in Block B.</li>
                                             </ul>
                                             <div class="flex items-center gap-2 pt-2 border-t border-gray-100 text-[10px] font-extrabold text-gray-400">
-                                                <span>SECL_Clearance_2023.pdf</span> • <span class="text-[#84cc16]">99.1% Confidence</span>
+                                                <span>SECL_Clearance_2023.pdf</span> â€¢ <span class="text-[#84cc16]">99.1% Confidence</span>
                                             </div>
                                         </div>
                                     </div>
@@ -1368,9 +1368,9 @@
                                     </div>
 
                                     <div id="suggested-chips" class="flex flex-wrap gap-2 pl-12 pt-1">
-                                        <button onclick="sendPresetPrompt('What is total coal production for Q3?')" class="px-4 py-2 bg-white hover:bg-[#eefcce] text-gray-800 hover:text-[#111111] border border-gray-200 rounded-full text-[11px] font-extrabold transition-all shadow-2xs hover:scale-105">📊 Q3 Total Coal Production?</button>
-                                        <button onclick="sendPresetPrompt('Reasons for delay in Gevra expansion?')" class="px-4 py-2 bg-white hover:bg-[#ffebd6] text-gray-800 hover:text-[#111111] border border-gray-200 rounded-full text-[11px] font-extrabold transition-all shadow-2xs hover:scale-105">⚠️ Gevra Expansion Delays</button>
-                                        <button onclick="sendPresetPrompt('List major coalfields and active opencast mines in Jharkhand')" class="px-4 py-2 bg-white hover:bg-[#eefcce] text-gray-800 hover:text-[#111111] border border-gray-200 rounded-full text-[11px] font-extrabold transition-all shadow-2xs hover:scale-105">🗺️ Jharkhand Coalfields</button>
+                                        <button onclick="sendPresetPrompt('What is total coal production for Q3?')" class="px-4 py-2 bg-white hover:bg-[#eefcce] text-gray-800 hover:text-[#111111] border border-gray-200 rounded-full text-[11px] font-extrabold transition-all shadow-2xs hover:scale-105">ðŸ“Š Q3 Total Coal Production?</button>
+                                        <button onclick="sendPresetPrompt('Reasons for delay in Gevra expansion?')" class="px-4 py-2 bg-white hover:bg-[#ffebd6] text-gray-800 hover:text-[#111111] border border-gray-200 rounded-full text-[11px] font-extrabold transition-all shadow-2xs hover:scale-105">âš ï¸ Gevra Expansion Delays</button>
+                                        <button onclick="sendPresetPrompt('List major coalfields and active opencast mines in Jharkhand')" class="px-4 py-2 bg-white hover:bg-[#eefcce] text-gray-800 hover:text-[#111111] border border-gray-200 rounded-full text-[11px] font-extrabold transition-all shadow-2xs hover:scale-105">ðŸ—ºï¸ Jharkhand Coalfields</button>
                                     </div>
 
                                     <div class="flex gap-3 max-w-[85%] ml-auto flex-row-reverse">
@@ -1389,7 +1389,7 @@
                                                 <li>Hydrological impact assessments required in Block B.</li>
                                             </ul>
                                             <div class="flex items-center gap-2 pt-2 border-t border-gray-100 text-[10px] font-extrabold text-gray-400">
-                                                <span>SECL_Clearance_2023.pdf</span> • <span class="text-[#84cc16]">99.1% Confidence</span>
+                                                <span>SECL_Clearance_2023.pdf</span> â€¢ <span class="text-[#84cc16]">99.1% Confidence</span>
                                             </div>
                                         </div>
                                     </div>
@@ -1474,7 +1474,7 @@
                         <div class="flex items-center justify-between">
                             <div>
                                 <h2 class="text-2xl font-black text-[#111111] tracking-tight">Verification Desk</h2>
-                                <p class="text-xs text-gray-500 font-semibold mt-1">Documents you uploaded — AI-analyzed summaries ready to review.</p>
+                                <p class="text-xs text-gray-500 font-semibold mt-1">Documents you uploaded â€” AI-analyzed summaries ready to review.</p>
                             </div>
                             <span id="verify-pending-badge" class="px-3 py-1.5 bg-[#ffebd6] text-[#ea580c] rounded-lg font-black text-xs border border-[#fdba74]">0 Documents</span>
                         </div>
@@ -1503,7 +1503,7 @@
                                     </h3>
                                     <div id="verify-action-btns" class="flex gap-2 hidden">
                                         <button onclick="verifyAction('reject')" class="px-4 py-2 bg-red-50 text-red-600 border border-red-200 rounded-xl text-[11px] font-black hover:bg-red-100 transition-all">Reject</button>
-                                        <button onclick="verifyAction('approve')" class="px-4 py-2 bg-[#111111] text-[#a3e635] rounded-xl text-[11px] font-black shadow-md hover:bg-black transition-all">Approve ✓</button>
+                                        <button onclick="verifyAction('approve')" class="px-4 py-2 bg-[#111111] text-[#a3e635] rounded-xl text-[11px] font-black shadow-md hover:bg-black transition-all">Approve âœ“</button>
                                     </div>
                                 </div>
                                 <div id="verify-content-area" class="p-6 flex-1 overflow-y-auto custom-scrollbar bg-gray-50">
@@ -1576,8 +1576,8 @@
                     <div id="src-info-box" class="hidden">
                         <p class="text-[10px] font-extrabold uppercase text-gray-400 mb-2 tracking-wider">Source Document</p>
                         <div class="p-3 bg-gray-50 border border-gray-200 rounded-xl space-y-1">
-                            <p id="src-filename" class="text-xs font-extrabold text-[#111111] truncate">—</p>
-                            <p id="src-page" class="text-[10px] font-bold text-gray-500">Page —</p>
+                            <p id="src-filename" class="text-xs font-extrabold text-[#111111] truncate">â€”</p>
+                            <p id="src-page" class="text-[10px] font-bold text-gray-500">Page â€”</p>
                             <div class="flex items-center gap-2 mt-1">
                                 <div class="flex-1 bg-gray-200 rounded-full h-1.5">
                                     <div id="src-confidence-bar" class="bg-[#84cc16] h-1.5 rounded-full" style="width:0%"></div>
@@ -1598,7 +1598,7 @@
                     <!-- Actions -->
                     <div id="src-actions" class="hidden mt-auto space-y-2">
                         <button onclick="approveCurrentClaim()" class="w-full py-3 bg-[#a3e635] text-[#111111] rounded-xl font-black text-xs shadow-sm hover:bg-[#84cc16] hover:scale-[1.02] transition-all flex items-center justify-center gap-2">
-                            <i data-lucide="check-circle" class="w-4 h-4"></i> Approve — Mark Verified
+                            <i data-lucide="check-circle" class="w-4 h-4"></i> Approve â€” Mark Verified
                         </button>
                         <button onclick="rejectCurrentClaim()" class="w-full py-3 bg-red-50 text-red-600 rounded-xl font-black text-xs border border-red-200 hover:bg-red-100 transition-colors flex items-center justify-center gap-2">
                             <i data-lucide="x-circle" class="w-4 h-4"></i> Flag Inaccuracy
@@ -1613,8 +1613,8 @@
                             <i data-lucide="file-text" class="w-3.5 h-3.5 text-[#a3e635]"></i>
                         </div>
                         <div class="flex-1 min-w-0">
-                            <p id="src-doc-name" class="text-xs font-extrabold text-[#111111] truncate">—</p>
-                            <p id="src-doc-page" class="text-[10px] font-bold text-gray-400">Page —</p>
+                            <p id="src-doc-name" class="text-xs font-extrabold text-[#111111] truncate">â€”</p>
+                            <p id="src-doc-page" class="text-[10px] font-bold text-gray-400">Page â€”</p>
                         </div>
                         <span class="text-[10px] font-extrabold text-[#84cc16] bg-[#eefcce] px-2 py-1 rounded-full">AI Located</span>
                     </div>
@@ -1629,10 +1629,10 @@
                             <div class="bg-white shadow-md rounded-xl border border-gray-200 p-8 font-serif text-sm text-gray-700 leading-relaxed">
                                 <div class="text-center mb-6 border-b pb-3">
                                     <p id="src-doc-title-inner" class="font-bold text-gray-900 text-base uppercase tracking-wider">Document Source</p>
-                                    <p id="src-doc-page-inner" class="text-xs text-gray-400 font-sans mt-1">Page —</p>
+                                    <p id="src-doc-page-inner" class="text-xs text-gray-400 font-sans mt-1">Page â€”</p>
                                 </div>
                                 <div id="src-doc-text" class="leading-loose text-sm text-gray-700">
-                                    <!-- filled dynamically — matching claim highlighted in yellow -->
+                                    <!-- filled dynamically â€” matching claim highlighted in yellow -->
                                 </div>
                             </div>
                             <!-- Bottom note -->
@@ -1778,7 +1778,7 @@
             document.getElementById('view-role-select').classList.add('flex');
         }
 
-        // â”€â”€ LIVE BACKEND CONFIG â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // Ã¢â€â‚¬Ã¢â€â‚¬ LIVE BACKEND CONFIG Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
         const API_BASE = (window.location.protocol === 'file:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? '' : 'https://cmpdi-geoai-hub.onrender.com';
 
         function processActualLogin(e) {
@@ -1821,7 +1821,7 @@
                 if (!resp.ok) {
                     loading.classList.add('hidden');
                     loading.classList.remove('flex');
-                    alertBox('âŒ ' + (data.detail || 'Invalid email or password.'));
+                    alertBox('Ã¢ÂÅ’ ' + (data.detail || 'Invalid email or password.'));
                     return;
                 }
 
@@ -1849,7 +1849,7 @@
             } catch(err) {
                 loading.classList.add('hidden');
                 loading.classList.remove('flex');
-                alertBox('âŒ Cannot reach server. Please try again in a moment.');
+                alertBox('Ã¢ÂÅ’ Cannot reach server. Please try again in a moment.');
                 console.error(err);
             }
         }
@@ -1870,10 +1870,139 @@
             location.reload();
         }
 
+
+        // ══════════════════════════════════════════════════════════════
+        // VERIFICATION DESK — Document Management
+        // ══════════════════════════════════════════════════════════════
+        const _verifyDocs = [];
+        let _activeVerifyDoc = null;
+
+        function addDocToVerifyDesk(docInfo) {
+            const stored = JSON.parse(localStorage.getItem('cmpdi_uploaded_docs') || '[]');
+            stored.unshift(docInfo);
+            localStorage.setItem('cmpdi_uploaded_docs', JSON.stringify(stored.slice(0, 50)));
+            _verifyDocs.length = 0;
+            stored.forEach(d => _verifyDocs.push(d));
+            renderVerifyDocList();
+        }
+
+        function renderVerifyDocList() {
+            const list = document.getElementById('verify-doc-list');
+            const badge = document.getElementById('verify-pending-badge');
+            if (!list) return;
+            if (badge) badge.textContent = _verifyDocs.length + ' Document' + (_verifyDocs.length !== 1 ? 's' : '');
+            if (_verifyDocs.length === 0) {
+                list.innerHTML = `<div class="p-6 text-center"><i data-lucide="upload-cloud" class="w-8 h-8 text-gray-300 mx-auto mb-2"></i><p class="text-xs text-gray-400 font-semibold">No documents yet.</p><p class="text-[10px] text-gray-300 mt-1">Upload a PDF from the Upload Portal.</p></div>`;
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+                return;
+            }
+            list.innerHTML = _verifyDocs.map((d, i) => `
+                <div onclick="openVerifyDoc(${i})" class="p-4 bg-white border-2 ${i === 0 ? 'border-[#a3e635]' : 'border-gray-100 hover:border-gray-300'} rounded-2xl cursor-pointer shadow-sm relative transition-all mb-2">
+                    ${i === 0 ? '<div class="absolute top-3 right-3 w-2 h-2 bg-[#ea580c] rounded-full animate-pulse"></div>' : ''}
+                    <h4 class="font-black text-xs text-gray-900 mb-1 pr-4 truncate">${d.filename}</h4>
+                    <p class="text-[11px] text-gray-500 font-medium">${d.subsidiary || 'General'} • ${d.pages || 0} pages • ${d.chunks || 0} chunks</p>
+                    <div class="mt-2 text-[10px] font-extrabold text-gray-400">${d.uploadedAt || d.uploaded_at || 'Recently'}</div>
+                </div>`).join('');
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        async function loadVerifyDocs() {
+            // Load from localStorage instantly
+            const stored = JSON.parse(localStorage.getItem('cmpdi_uploaded_docs') || '[]');
+            if (stored.length > 0) {
+                _verifyDocs.length = 0;
+                stored.forEach(d => _verifyDocs.push(d));
+                renderVerifyDocList();
+            }
+            // Sync from backend API
+            try {
+                const resp = await fetch(API_BASE + '/api/documents', {
+                    headers: { 'Authorization': 'Bearer ' + getToken() }
+                });
+                if (!resp.ok) return;
+                const data = await resp.json();
+                if (data.documents && data.documents.length > 0) {
+                    _verifyDocs.length = 0;
+                    data.documents.forEach(d => _verifyDocs.push({
+                        filename: d.filename,
+                        subsidiary: d.subsidiary || 'General',
+                        chunks: d.chunks || 0,
+                        pages: d.pages || 0,
+                        uploadedAt: d.uploaded_at || 'Recently',
+                        category: d.doc_category || ''
+                    }));
+                    localStorage.setItem('cmpdi_uploaded_docs', JSON.stringify(_verifyDocs.slice(0, 50)));
+                    renderVerifyDocList();
+                }
+            } catch(e) { console.log('loadVerifyDocs:', e.message); }
+        }
+
+        async function openVerifyDoc(idx) {
+            const doc = _verifyDocs[idx];
+            if (!doc) return;
+            _activeVerifyDoc = idx;
+            const titleEl = document.getElementById('verify-doc-title');
+            const btns = document.getElementById('verify-action-btns');
+            const emptyState = document.getElementById('verify-empty-state');
+            const summaryArea = document.getElementById('verify-ai-summary');
+            const loadingEl = document.getElementById('verify-loading');
+            const contentEl = document.getElementById('verify-summary-content');
+            if (titleEl) titleEl.innerHTML = `<i data-lucide="file-check" class="w-4 h-4 text-[#84cc16]"></i> ${doc.filename}`;
+            if (btns) btns.classList.remove('hidden');
+            if (emptyState) emptyState.classList.add('hidden');
+            if (summaryArea) summaryArea.classList.remove('hidden');
+            if (loadingEl) loadingEl.classList.remove('hidden');
+            if (contentEl) contentEl.innerHTML = '';
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+            try {
+                const resp = await fetch(API_BASE + '/api/chat', {
+                    method: 'POST',
+                    headers: { 'Authorization': 'Bearer ' + getToken(), 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: 'Summarize the key findings from: ' + doc.filename, top_k: 8 })
+                });
+                const data = await resp.json();
+                if (loadingEl) loadingEl.classList.add('hidden');
+                const answer = data.answer || 'Could not generate summary.';
+                const citations = (data.citations || []).slice(0, 4);
+                let citHtml = citations.length > 0
+                    ? `<div class="mt-4 pt-4 border-t border-gray-100"><p class="text-[10px] font-extrabold text-gray-400 mb-2 uppercase tracking-wider">Source References</p><div class="flex flex-wrap gap-2">`
+                      + citations.map(c => `<span class="bg-[#eefcce] text-[#111111] text-[10px] font-extrabold px-2 py-1 rounded-lg">${c.source} • p.${c.page}</span>`).join('') + `</div></div>` : '';
+                if (contentEl) contentEl.innerHTML = `
+                    <h2 class="text-center font-bold uppercase tracking-widest text-base mb-3 border-b pb-2">${doc.filename.replace(/\.[^/.]+$/, '')}</h2>
+                    <div class="mb-3 flex gap-4 text-[10px] font-extrabold text-gray-400">
+                        <span>📁 ${doc.subsidiary}</span><span>📄 ${doc.pages} pages</span><span>🔢 ${doc.chunks} chunks</span>
+                    </div>
+                    <div class="my-4 border border-orange-200 bg-[#ffebd6]/20 rounded-xl p-4">
+                        <p class="font-sans text-xs"><strong class="text-[#ea580c] block mb-1">AI Summary:</strong>${answer}</p>
+                    </div>${citHtml}`;
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+            } catch(err) {
+                if (loadingEl) loadingEl.classList.add('hidden');
+                if (contentEl) contentEl.innerHTML = `<p class="text-red-500 text-xs font-bold">❌ Could not fetch summary: ${err.message}</p>`;
+            }
+        }
+
+        function verifyAction(action) {
+            const doc = _verifyDocs[_activeVerifyDoc];
+            if (action === 'approve') {
+                alertBox('✅ Approved: ' + (doc?.filename || ''));
+            } else {
+                _verifyDocs.splice(_activeVerifyDoc, 1);
+                localStorage.setItem('cmpdi_uploaded_docs', JSON.stringify(_verifyDocs));
+                renderVerifyDocList();
+                const titleEl = document.getElementById('verify-doc-title');
+                if (titleEl) titleEl.innerHTML = '<i data-lucide="file-check" class="w-4 h-4 text-[#84cc16]"></i> Select a document';
+                document.getElementById('verify-action-btns')?.classList.add('hidden');
+                document.getElementById('verify-empty-state')?.classList.remove('hidden');
+                document.getElementById('verify-ai-summary')?.classList.add('hidden');
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+                alertBox('❌ Rejected and removed.');
+            }
+        }
         function getToken() { return localStorage.getItem('cmpdi_token') || ''; }
         function authHeaders() { return { 'Authorization': 'Bearer ' + getToken(), 'Content-Type': 'application/json' }; }
 
-        // â”€â”€ WORD CLOUD (real API) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // Ã¢â€â‚¬Ã¢â€â‚¬ WORD CLOUD (real API) Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
         async function loadWordCloud() {
             try {
                 const resp = await fetch(`${API_BASE}/api/topics/wordcloud`, { headers: authHeaders() });
@@ -2026,12 +2155,12 @@
             document.getElementById('profile-modal').classList.remove('flex');
         }
 
-        // ═══════════════════════════════════════════════════════════════
+        // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
         // CLAIM VERIFICATION SYSTEM
-        // ═══════════════════════════════════════════════════════════════
+        // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
         let _activeClaim = null; // { el, text, idx }
 
-        // Called when AI summary is rendered — wraps verifiable data in clickable spans
+        // Called when AI summary is rendered â€” wraps verifiable data in clickable spans
         function wrapVerifiableClaims(containerEl) {
             if (!containerEl) return;
             // Find all text nodes and wrap sentences/data points
@@ -2114,14 +2243,14 @@
                 const sourceText = top.text || data.answer || 'Source text not available.';
 
                 // Fill left panel
-                document.getElementById('src-modal-subtitle').textContent = 'Source located — ' + top.source;
+                document.getElementById('src-modal-subtitle').textContent = 'Source located â€” ' + top.source;
                 document.getElementById('src-filename').textContent = top.source;
                 document.getElementById('src-page').textContent = 'Page ' + top.page;
                 document.getElementById('src-confidence-bar').style.width = confidence + '%';
                 document.getElementById('src-confidence-pct').textContent = confidence + '%';
                 document.getElementById('src-info-box').classList.remove('hidden');
 
-                // Fill right panel — highlight claim in source text
+                // Fill right panel â€” highlight claim in source text
                 document.getElementById('src-doc-name').textContent = top.source;
                 document.getElementById('src-doc-page').textContent = 'Page ' + top.page;
                 document.getElementById('src-doc-title-inner').textContent = top.source.replace(/\.[^/.]+$/, '');
@@ -2156,27 +2285,27 @@
             if (_activeClaim) {
                 _activeClaim.classList.remove('claim-hover', 'verifiable-claim');
                 _activeClaim.classList.add('claim-approved');
-                _activeClaim.title = '✅ Verified — source confirmed';
+                _activeClaim.title = 'âœ… Verified â€” source confirmed';
                 // Remove event listeners by cloning
                 const clone = _activeClaim.cloneNode(true);
                 _activeClaim.parentNode.replaceChild(clone, _activeClaim);
                 _activeClaim = null;
             }
             closeSourceModal();
-            alertBox('✅ Data point verified and marked green!');
+            alertBox('âœ… Data point verified and marked green!');
         }
 
         function rejectCurrentClaim() {
             if (_activeClaim) {
                 _activeClaim.classList.remove('claim-hover', 'verifiable-claim');
                 _activeClaim.classList.add('claim-rejected');
-                _activeClaim.title = '❌ Flagged as inaccurate';
+                _activeClaim.title = 'âŒ Flagged as inaccurate';
                 const clone = _activeClaim.cloneNode(true);
                 _activeClaim.parentNode.replaceChild(clone, _activeClaim);
                 _activeClaim = null;
             }
             closeSourceModal();
-            alertBox('⚠️ Data point flagged as inaccurate.');
+            alertBox('âš ï¸ Data point flagged as inaccurate.');
         }
 
         function openSourceModal() {
@@ -2220,7 +2349,7 @@
             }
             closeAddDataModal();
             alertBox('Successfully indexed dataset: ' + name);
-        // ── REAL FILE UPLOAD ─────────────────────────────────────────────
+        // â”€â”€ REAL FILE UPLOAD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         let _selectedFile = null;
         function handleFileSelected(file) {
             if (!file) return;
@@ -2232,7 +2361,7 @@
         }
 
         async function submitRealUpload() {
-            if (!_selectedFile) { alertBox('⚠️ Please select a file first.'); return; }
+            if (!_selectedFile) { alertBox('âš ï¸ Please select a file first.'); return; }
             const sub = document.getElementById('upload-subsidiary-sel')?.value || localStorage.getItem('cmpdi_subsidiary') || 'General';
             const progArea = document.getElementById('upload-progress-area');
             const progBar = document.getElementById('upload-progress-bar');
@@ -2260,7 +2389,7 @@
                 if (progBar) progBar.style.width = '100%';
                 if (!resp.ok) {
                     if (progArea) progArea.classList.add('hidden');
-                    alertBox('❌ Upload failed: ' + (data.detail || resp.statusText)); return;
+                    alertBox('âŒ Upload failed: ' + (data.detail || resp.statusText)); return;
                 }
                 setTimeout(() => {
                     if (progArea) progArea.classList.add('hidden');
@@ -2270,12 +2399,12 @@
                         if (queue.querySelector('p')) queue.innerHTML = '';
                         const row = document.createElement('div');
                         row.className = 'flex items-center justify-between p-4 bg-gray-50 border border-gray-200/80 rounded-2xl';
-                        row.innerHTML = `<div class="flex items-center gap-4"><div class="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center"><i data-lucide="file-text" class="w-5 h-5 text-green-600"></i></div><div><p class="font-extrabold text-xs text-gray-900">${data.filename}</p><p class="text-[10px] text-gray-500 font-bold mt-0.5">${data.chunks} chunks • ${data.pages} pages • Just now</p></div></div><span class="text-[10px] font-black text-green-700 bg-green-50 px-2.5 py-1 rounded-md border border-green-200">✓ Indexed</span>`;
+                        row.innerHTML = `<div class="flex items-center gap-4"><div class="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center"><i data-lucide="file-text" class="w-5 h-5 text-green-600"></i></div><div><p class="font-extrabold text-xs text-gray-900">${data.filename}</p><p class="text-[10px] text-gray-500 font-bold mt-0.5">${data.chunks} chunks â€¢ ${data.pages} pages â€¢ Just now</p></div></div><span class="text-[10px] font-black text-green-700 bg-green-50 px-2.5 py-1 rounded-md border border-green-200">âœ“ Indexed</span>`;
                         queue.prepend(row);
                         lucide.createIcons();
                     }
                     _selectedFile = null;
-                    alertBox('✅ Indexed: ' + data.filename + ' — ' + data.chunks + ' chunks');
+                    alertBox('âœ… Indexed: ' + data.filename + ' â€” ' + data.chunks + ' chunks');
                     // Push to Verification Desk
                     addDocToVerifyDesk({
                         filename: data.filename,
@@ -2288,11 +2417,11 @@
                 }, 500);
             } catch(err) {
                 if (progArea) progArea.classList.add('hidden');
-                alertBox('❌ Upload error: ' + err.message);
+                alertBox('âŒ Upload error: ' + err.message);
             }
         }
 
-        // ── USER CHAT (same RAG as admin) ────────────────────────────────
+        // â”€â”€ USER CHAT (same RAG as admin) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         
 
         }
@@ -2316,7 +2445,7 @@
             const type = document.getElementById('report-type-select')?.value || 'parliamentary';
             const sub = document.getElementById('report-subsidiary-select')?.value || 'All';
             const keyword = document.getElementById('report-keyword-input')?.value || '';
-            alertBox('âš™ï¸ Generating AI report â€” this may take 10-20 seconds...');
+            alertBox('Ã¢Å¡â„¢Ã¯Â¸Â Generating AI report Ã¢â‚¬â€ this may take 10-20 seconds...');
             try {
                 const resp = await fetch(`${API_BASE}/api/generate-report`, {
                     method: 'POST', headers: authHeaders(),
@@ -2324,7 +2453,7 @@
                 });
                 if (!resp.ok) {
                     const e = await resp.json().catch(() => ({}));
-                    alertBox('âŒ ' + (e.detail || 'Report generation failed.')); return;
+                    alertBox('Ã¢ÂÅ’ ' + (e.detail || 'Report generation failed.')); return;
                 }
                 const blob = await resp.blob();
                 const contentDisp = resp.headers.get('content-disposition') || '';
@@ -2332,8 +2461,8 @@
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a'); a.href = url; a.download = fname;
                 document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
-                alertBox('âœ… Report downloaded: ' + fname);
-            } catch(err) { alertBox('âŒ Report error: ' + err.message); }
+                alertBox('Ã¢Å“â€¦ Report downloaded: ' + fname);
+            } catch(err) { alertBox('Ã¢ÂÅ’ Report error: ' + err.message); }
         }
 
         function selectKeyword(kw) {
@@ -2516,7 +2645,7 @@
                     </div>
                     <div class="bg-white rounded-2xl rounded-tl-xs p-4 shadow-sm border border-gray-200/80 text-xs text-gray-800 leading-relaxed font-medium">
                         <p class="font-extrabold text-[#111111] mb-1.5 text-xs flex items-center gap-1.5">
-                            <span class="text-sm">🙏</span> <span>Namaste! How may I help you?</span>
+                            <span class="text-sm">ðŸ™</span> <span>Namaste! How may I help you?</span>
                         </p>
                         <p class="text-gray-600">I am your <strong>CMPDI GeoAI Assistant</strong>. Ask me anything about coalfields, borehole survey logs, monthly production summaries, parliamentary inquiries, or uploaded institutional documents.</p>
                     </div>
@@ -2524,10 +2653,10 @@
 
                 <!-- Suggested Query Chips -->
                 <div id="floating-suggested-chips" class="flex flex-wrap gap-2 pl-12 pt-0.5">
-                    <button onclick="sendFloatingPreset('What is the total coal production for Q3?')" class="px-3.5 py-1.5 bg-white hover:bg-[#eefcce] text-gray-800 hover:text-[#111111] border border-gray-200 rounded-full text-[11px] font-extrabold transition-all shadow-2xs hover:scale-105 text-left">📊 Q3 Production Summary</button>
-                    <button onclick="sendFloatingPreset('Reasons for delay in Gevra expansion clearance?')" class="px-3.5 py-1.5 bg-white hover:bg-[#ffebd6] text-gray-800 hover:text-[#111111] border border-gray-200 rounded-full text-[11px] font-extrabold transition-all shadow-2xs hover:scale-105 text-left">⚠️ Gevra Expansion Delays</button>
-                    <button onclick="sendFloatingPreset('List major coalfields and active opencast mines in Jharkhand')" class="px-3.5 py-1.5 bg-white hover:bg-[#eefcce] text-gray-800 hover:text-[#111111] border border-gray-200 rounded-full text-[11px] font-extrabold transition-all shadow-2xs hover:scale-105 text-left">🗺️ Jharkhand Coalfields & Mines</button>
-                    <button onclick="sendFloatingPreset('Summarize environmental clearance status across SECL and MCL')" class="px-3.5 py-1.5 bg-white hover:bg-[#f1f5f9] text-gray-800 hover:text-[#111111] border border-gray-200 rounded-full text-[11px] font-extrabold transition-all shadow-2xs hover:scale-105 text-left">📑 EC Status SECL / MCL</button>
+                    <button onclick="sendFloatingPreset('What is the total coal production for Q3?')" class="px-3.5 py-1.5 bg-white hover:bg-[#eefcce] text-gray-800 hover:text-[#111111] border border-gray-200 rounded-full text-[11px] font-extrabold transition-all shadow-2xs hover:scale-105 text-left">ðŸ“Š Q3 Production Summary</button>
+                    <button onclick="sendFloatingPreset('Reasons for delay in Gevra expansion clearance?')" class="px-3.5 py-1.5 bg-white hover:bg-[#ffebd6] text-gray-800 hover:text-[#111111] border border-gray-200 rounded-full text-[11px] font-extrabold transition-all shadow-2xs hover:scale-105 text-left">âš ï¸ Gevra Expansion Delays</button>
+                    <button onclick="sendFloatingPreset('List major coalfields and active opencast mines in Jharkhand')" class="px-3.5 py-1.5 bg-white hover:bg-[#eefcce] text-gray-800 hover:text-[#111111] border border-gray-200 rounded-full text-[11px] font-extrabold transition-all shadow-2xs hover:scale-105 text-left">ðŸ—ºï¸ Jharkhand Coalfields & Mines</button>
+                    <button onclick="sendFloatingPreset('Summarize environmental clearance status across SECL and MCL')" class="px-3.5 py-1.5 bg-white hover:bg-[#f1f5f9] text-gray-800 hover:text-[#111111] border border-gray-200 rounded-full text-[11px] font-extrabold transition-all shadow-2xs hover:scale-105 text-left">ðŸ“‘ EC Status SECL / MCL</button>
                 </div>
             </div>
 
@@ -2541,7 +2670,7 @@
                 </form>
                 <div class="flex items-center justify-between px-2 pt-2 text-[10px] text-gray-400 font-semibold">
                     <span>CMPDI GeoAI Engine</span>
-                    <span>Press <kbd class="px-1.5 py-0.5 bg-gray-100 border border-gray-300 rounded text-[9px] text-gray-700 font-bold">Enter ↵</kbd> to send</span>
+                    <span>Press <kbd class="px-1.5 py-0.5 bg-gray-100 border border-gray-300 rounded text-[9px] text-gray-700 font-bold">Enter â†µ</kbd> to send</span>
                 </div>
             </div>
         </div>
@@ -2571,7 +2700,7 @@
 
     <!-- Page Query & Floating Assistant Controller Scripts -->
     <script>
-        // ── CHAT HISTORY DATA & MANAGER ──
+        // â”€â”€ CHAT HISTORY DATA & MANAGER â”€â”€
         let querySessionsHistory = [
             {
                 id: 'sess-1',
@@ -2690,7 +2819,7 @@
             renderQueryHistoryList();
         }, 200);
 
-        // ── DEDICATED PAGE CHAT HANDLERS (#page-query) ──
+        // â”€â”€ DEDICATED PAGE CHAT HANDLERS (#page-query) â”€â”€
         function sendPresetPrompt(promptText) {
             const input = document.getElementById('chat-input');
             if (input) {
@@ -2743,7 +2872,7 @@
             const thinkMsg = document.createElement('div');
             thinkMsg.className = 'flex gap-3 max-w-[85%]';
             thinkMsg.id = thinkId;
-            thinkMsg.innerHTML = `<div class="w-9 h-9 rounded-xl bg-[#eefcce] flex items-center justify-center shrink-0 shadow-2xs border border-[#d9f99d]"><i data-lucide="cpu" class="w-4 h-4 text-[#111111]"></i></div><div class="bg-white rounded-2xl rounded-tl-xs p-4 shadow-2xs border border-gray-200/70"><p class="text-gray-500 text-xs animate-pulse">🔍 Searching institutional documents...</p></div>`;
+            thinkMsg.innerHTML = `<div class="w-9 h-9 rounded-xl bg-[#eefcce] flex items-center justify-center shrink-0 shadow-2xs border border-[#d9f99d]"><i data-lucide="cpu" class="w-4 h-4 text-[#111111]"></i></div><div class="bg-white rounded-2xl rounded-tl-xs p-4 shadow-2xs border border-gray-200/70"><p class="text-gray-500 text-xs animate-pulse">ðŸ” Searching institutional documents...</p></div>`;
             chatMessages.appendChild(thinkMsg);
             if (window.lucide) lucide.createIcons();
             chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -2761,7 +2890,7 @@
                 let citHtml = '';
                 if (citations.length > 0) {
                     citHtml = `<div class="flex items-center gap-2 pt-2 border-t border-gray-100 text-[10px] font-extrabold text-gray-400 flex-wrap mt-2">` +
-                        citations.slice(0,4).map(c => `<span class="bg-[#eefcce] text-[#111111] px-2 py-0.5 rounded-full border border-[#d9f99d]">${c.source} p.${c.page} • ${Math.round((c.confidence||c.score||0.9)*100)}%</span>`).join('') +
+                        citations.slice(0,4).map(c => `<span class="bg-[#eefcce] text-[#111111] px-2 py-0.5 rounded-full border border-[#d9f99d]">${c.source} p.${c.page} â€¢ ${Math.round((c.confidence||c.score||0.9)*100)}%</span>`).join('') +
                     `</div>`;
                 }
                 const aiMsg = document.createElement('div');
@@ -2772,7 +2901,7 @@
                 document.getElementById(thinkId)?.remove();
                 const errMsg = document.createElement('div');
                 errMsg.className = 'flex gap-3 max-w-[85%]';
-                errMsg.innerHTML = `<div class="w-9 h-9 rounded-xl bg-red-100 flex items-center justify-center shrink-0"><i data-lucide="alert-circle" class="w-4 h-4 text-red-500"></i></div><div class="bg-white rounded-2xl p-4 border border-red-200"><p class="text-red-600 text-xs font-bold">❌ Could not reach AI backend. Please try again.</p></div>`;
+                errMsg.innerHTML = `<div class="w-9 h-9 rounded-xl bg-red-100 flex items-center justify-center shrink-0"><i data-lucide="alert-circle" class="w-4 h-4 text-red-500"></i></div><div class="bg-white rounded-2xl p-4 border border-red-200"><p class="text-red-600 text-xs font-bold">âŒ Could not reach AI backend. Please try again.</p></div>`;
                 chatMessages.appendChild(errMsg);
             }
             if (window.lucide) lucide.createIcons();
@@ -2789,7 +2918,7 @@
         }
 
 
-        // ── FLOATING ASSISTANT CONTROLLER (BOTTOM RIGHT WIDGET) ──
+        // â”€â”€ FLOATING ASSISTANT CONTROLLER (BOTTOM RIGHT WIDGET) â”€â”€
         let isFloatingChatOpen = false;
         let isFloatingChatExpanded = false;
 
@@ -2945,7 +3074,7 @@
                 let citHtml = '';
                 if (citations.length > 0) {
                     citHtml = `<div class="flex items-center gap-1.5 pt-2 border-t border-gray-100 text-[10px] font-extrabold text-gray-400 flex-wrap mt-2">` +
-                        citations.slice(0, 3).map(c => `<span class="bg-[#eefcce] text-[#111111] px-2 py-0.5 rounded-full border border-[#d9f99d]">${c.source} p.${c.page} • ${Math.round((c.confidence||c.score||0.9)*100)}%</span>`).join('') +
+                        citations.slice(0, 3).map(c => `<span class="bg-[#eefcce] text-[#111111] px-2 py-0.5 rounded-full border border-[#d9f99d]">${c.source} p.${c.page} â€¢ ${Math.round((c.confidence||c.score||0.9)*100)}%</span>`).join('') +
                     `</div>`;
                 }
 
@@ -2993,9 +3122,9 @@
                         </div>
                     </div>
                     <div id="floating-suggested-chips" class="flex flex-wrap gap-2 pl-11 pt-0.5">
-                        <button onclick="sendFloatingPreset('What is the total coal production for Q3?')" class="px-3.5 py-1.5 bg-white hover:bg-[#eefcce] text-gray-800 hover:text-[#111111] border border-gray-200 rounded-full text-[11px] font-extrabold transition-all shadow-2xs hover:scale-105 text-left">📊 Q3 Production Summary</button>
-                        <button onclick="sendFloatingPreset('Reasons for delay in Gevra expansion clearance?')" class="px-3.5 py-1.5 bg-white hover:bg-[#ffebd6] text-gray-800 hover:text-[#111111] border border-gray-200 rounded-full text-[11px] font-extrabold transition-all shadow-2xs hover:scale-105 text-left">⚠️ Gevra Expansion Delays</button>
-                        <button onclick="sendFloatingPreset('List major coalfields and active opencast mines in Jharkhand')" class="px-3.5 py-1.5 bg-white hover:bg-[#eefcce] text-gray-800 hover:text-[#111111] border border-gray-200 rounded-full text-[11px] font-extrabold transition-all shadow-2xs hover:scale-105 text-left">🗺️ Jharkhand Coalfields & Mines</button>
+                        <button onclick="sendFloatingPreset('What is the total coal production for Q3?')" class="px-3.5 py-1.5 bg-white hover:bg-[#eefcce] text-gray-800 hover:text-[#111111] border border-gray-200 rounded-full text-[11px] font-extrabold transition-all shadow-2xs hover:scale-105 text-left">ðŸ“Š Q3 Production Summary</button>
+                        <button onclick="sendFloatingPreset('Reasons for delay in Gevra expansion clearance?')" class="px-3.5 py-1.5 bg-white hover:bg-[#ffebd6] text-gray-800 hover:text-[#111111] border border-gray-200 rounded-full text-[11px] font-extrabold transition-all shadow-2xs hover:scale-105 text-left">âš ï¸ Gevra Expansion Delays</button>
+                        <button onclick="sendFloatingPreset('List major coalfields and active opencast mines in Jharkhand')" class="px-3.5 py-1.5 bg-white hover:bg-[#eefcce] text-gray-800 hover:text-[#111111] border border-gray-200 rounded-full text-[11px] font-extrabold transition-all shadow-2xs hover:scale-105 text-left">ðŸ—ºï¸ Jharkhand Coalfields & Mines</button>
                     </div>
                 `;
                 if (window.lucide) lucide.createIcons();
@@ -3158,7 +3287,7 @@
     </style>
 
     <script>
-        // ── TOPIC DATA REPOSITORY (24 Mining Terms with Organic Balanced Coordinates) ──
+        // â”€â”€ TOPIC DATA REPOSITORY (24 Mining Terms with Organic Balanced Coordinates) â”€â”€
         const MINING_TOPICS = {
             'Extraction': {
                 name: 'Extraction',
@@ -3600,7 +3729,7 @@
             }
         };
 
-        // ── COMPREHENSIVE INDEXED REPORTS DATABASE ──
+        // â”€â”€ COMPREHENSIVE INDEXED REPORTS DATABASE â”€â”€
         const INDEXED_REPORTS_DATABASE = [
             {
                 id: 'CMPDI-GEO-2024-JHA-IV',
@@ -4135,7 +4264,7 @@
             });
         }
 
-        // ── TOPIC DOCUMENTS MODAL CONTROLS & RANKING ENGINE ──
+        // â”€â”€ TOPIC DOCUMENTS MODAL CONTROLS & RANKING ENGINE â”€â”€
         let activeModalSearchKeyword = 'Overburden';
 
         function openTopicDocumentsModal(keyword) {
@@ -4262,7 +4391,7 @@
                 }
             });
 
-            // ── CRITICAL: SORT IN DESCENDING ORDER BY MAXIMUM NUMBER OF OCCURRENCES ──
+            // â”€â”€ CRITICAL: SORT IN DESCENDING ORDER BY MAXIMUM NUMBER OF OCCURRENCES â”€â”€
             matchedReports.sort((a, b) => b.occ - a.occ);
 
             if (countLabel) {
@@ -4304,8 +4433,8 @@
                             <div class="flex items-center gap-2 flex-wrap">
                                 <span class="w-5 h-5 rounded-md bg-slate-900 text-white font-black text-[10px] flex items-center justify-center">#${idx + 1}</span>
                                 <span class="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-200 text-[10px] font-bold uppercase tracking-wider">${report.agency}</span>
-                                <span class="text-[11px] font-semibold text-gray-400">• ${report.date}</span>
-                                <span class="text-[11px] font-semibold text-gray-400">• ${report.pages} Pages</span>
+                                <span class="text-[11px] font-semibold text-gray-400">â€¢ ${report.date}</span>
+                                <span class="text-[11px] font-semibold text-gray-400">â€¢ ${report.pages} Pages</span>
                             </div>
                             
                             <!-- Occurrence Frequency Badge -->
@@ -4356,7 +4485,7 @@
             if (window.lucide) lucide.createIcons();
         }
 
-        // ── FULL REPORT DOCUMENT VIEWER ENGINE ──
+        // â”€â”€ FULL REPORT DOCUMENT VIEWER ENGINE â”€â”€
         let currentFullViewingReportId = null;
 
         function openFullReportViewer(reportId, targetKeyword) {
@@ -4798,7 +4927,7 @@ if (typeof module !== 'undefined' && module.exports) {
  */
 
 const IS_MOCK_ENV = true;
-const MOCK_BANNER_TEXT = "MOCK DATA — For demonstration and system evaluation only. Not for official statutory submission.";
+const MOCK_BANNER_TEXT = "MOCK DATA â€” For demonstration and system evaluation only. Not for official statutory submission.";
 
 const MOCK_SUBSIDIARIES = [
     { id: 'SECL', name: 'South Eastern Coalfields Limited', hq: 'Bilaspur, Chhattisgarh', mineCount: 68, state: 'Chhattisgarh & MP' },
@@ -5181,7 +5310,7 @@ Continuous highwall radar tracking indicates 0.02 mm bench displacement, validat
     },
     {
         id: 'PQ-LS-UNSTARRED-4052',
-        title: 'Lok Sabha Unstarred Question No. 4052 — Coal Production Targets & Overburden Removal',
+        title: 'Lok Sabha Unstarred Question No. 4052 â€” Coal Production Targets & Overburden Removal',
         type: 'Parliamentary Inquiry Response',
         subsidiary: 'CIL',
         publishedDate: '24 Jul 2024',
@@ -5195,7 +5324,7 @@ Overburden removal across opencast pits stood at 1,960 Million CuM. Specific mea
     },
     {
         id: 'PQ-RS-STARRED-219',
-        title: 'Rajya Sabha Starred Question No. 219 — Highwall Slope Stability & Sump Dewatering',
+        title: 'Rajya Sabha Starred Question No. 219 â€” Highwall Slope Stability & Sump Dewatering',
         type: 'Parliamentary Inquiry Response',
         subsidiary: 'CIL',
         publishedDate: '12 Aug 2024',
@@ -5394,7 +5523,7 @@ if (typeof module !== 'undefined' && module.exports) {
 /**
  * @file reportsRepository.js
  * @description Single Data Access Layer interface and implementations for RSHPS Reports Center.
- * UI components NEVER access mock data directly — they only call this repository interface.
+ * UI components NEVER access mock data directly â€” they only call this repository interface.
  */
 
 class IReportsRepository {
@@ -5826,7 +5955,7 @@ class DatabaseReportsRepository extends IReportsRepository {
     }
 }
 
-// ── REPOSITORY FACTORY ──
+// â”€â”€ REPOSITORY FACTORY â”€â”€
 let activeReportsRepositoryInstance = null;
 
 function getReportsRepository() {
@@ -5919,7 +6048,7 @@ window.RSHPS_REPORTS_STATE = {
     currentLibraryDoc: null
 };
 
-// ── INITIALIZATION ──
+// â”€â”€ INITIALIZATION â”€â”€
 async function initReportsCenter() {
     const repo = getReportsRepository();
     try {
@@ -5942,7 +6071,7 @@ if (typeof document !== 'undefined') {
     }
 }
 
-// ── DATA REFRESH ──
+// â”€â”€ DATA REFRESH â”€â”€
 async function refreshReportData() {
     const repo = getReportsRepository();
     const cfg = window.RSHPS_REPORTS_STATE.config;
@@ -5960,7 +6089,7 @@ async function refreshReportData() {
     });
 }
 
-// ── STEP SWITCHING ──
+// â”€â”€ STEP SWITCHING â”€â”€
 function setBuilderStep(stepNumber) {
     window.RSHPS_REPORTS_STATE.currentStep = stepNumber;
     renderReportBuilderUI();
@@ -5979,7 +6108,7 @@ function prevBuilderStep() {
     }
 }
 
-// ── CONFIGURATION MUTATORS ──
+// â”€â”€ CONFIGURATION MUTATORS â”€â”€
 async function updateQueryType(type) {
     const state = window.RSHPS_REPORTS_STATE;
     state.config.queryType = type;
@@ -6036,7 +6165,7 @@ function moveSectionOrder(sectionId, direction) {
     renderLivePreview();
 }
 
-// ── RENDER STEP BUILDER WIZARD (LEFT PANEL) ──
+// â”€â”€ RENDER STEP BUILDER WIZARD (LEFT PANEL) â”€â”€
 function renderReportBuilderUI() {
     const container = document.getElementById('report-wizard-step-content');
     const stepTabsContainer = document.getElementById('report-wizard-step-tabs');
@@ -6093,10 +6222,10 @@ function renderReportBuilderUI() {
                                     ${cfg.queryType === 'parliamentary' ? `
                                         <div class="mt-2.5 flex items-center gap-2 flex-wrap">
                                             <span class="px-2 py-0.5 rounded bg-orange-100 text-amber-950 font-mono text-[10px] font-bold border border-orange-200">
-                                                🏛️ ${cfg.parliamentaryMeta.house} (${cfg.parliamentaryMeta.type}) #${cfg.parliamentaryMeta.number} &bull; ${cfg.parliamentaryMeta.answerDate}
+                                                ðŸ›ï¸ ${cfg.parliamentaryMeta.house} (${cfg.parliamentaryMeta.type}) #${cfg.parliamentaryMeta.number} &bull; ${cfg.parliamentaryMeta.answerDate}
                                             </span>
                                             <button onclick="event.stopPropagation(); openQueryConfigModal('parliamentary')" class="px-2 py-0.5 rounded bg-white hover:bg-gray-100 border border-gray-300 text-[10px] font-bold text-[#B0420C] flex items-center gap-1 shadow-2xs">
-                                                <span>⚙ Edit Reference Details</span>
+                                                <span>âš™ Edit Reference Details</span>
                                             </button>
                                         </div>
                                     ` : ''}
@@ -6116,10 +6245,10 @@ function renderReportBuilderUI() {
                                     ${cfg.queryType === 'comparison' ? `
                                         <div class="mt-2.5 flex items-center gap-2 flex-wrap">
                                             <span class="px-2 py-0.5 rounded bg-orange-100 text-amber-950 font-mono text-[10px] font-bold border border-orange-200">
-                                                ⚖️ Comparing ${cfg.mineIds.length} Entities: ${selectedMines.map(m=>m.name).slice(0,3).join(', ')}${selectedMines.length > 3 ? '...' : ''}
+                                                âš–ï¸ Comparing ${cfg.mineIds.length} Entities: ${selectedMines.map(m=>m.name).slice(0,3).join(', ')}${selectedMines.length > 3 ? '...' : ''}
                                             </span>
                                             <button onclick="event.stopPropagation(); openQueryConfigModal('comparison')" class="px-2 py-0.5 rounded bg-white hover:bg-gray-100 border border-gray-300 text-[10px] font-bold text-[#B0420C] flex items-center gap-1 shadow-2xs">
-                                                <span>⚙ Configure Comparison Scope</span>
+                                                <span>âš™ Configure Comparison Scope</span>
                                             </button>
                                         </div>
                                     ` : ''}
@@ -6139,10 +6268,10 @@ function renderReportBuilderUI() {
                                     ${cfg.queryType === 'single_mine' ? `
                                         <div class="mt-2.5 flex items-center gap-2 flex-wrap">
                                             <span class="px-2 py-0.5 rounded bg-orange-100 text-amber-950 font-mono text-[10px] font-bold border border-orange-200">
-                                                ⛏️ Selected: ${selectedSingleMine.name} (${selectedSingleMine.subsidiary} - ${selectedSingleMine.capacity} MTY)
+                                                â›ï¸ Selected: ${selectedSingleMine.name} (${selectedSingleMine.subsidiary} - ${selectedSingleMine.capacity} MTY)
                                             </span>
                                             <button onclick="event.stopPropagation(); openQueryConfigModal('single_mine')" class="px-2 py-0.5 rounded bg-white hover:bg-gray-100 border border-gray-300 text-[10px] font-bold text-[#B0420C] flex items-center gap-1 shadow-2xs">
-                                                <span>⚙ Change Selected Mine</span>
+                                                <span>âš™ Change Selected Mine</span>
                                             </button>
                                         </div>
                                     ` : ''}
@@ -6162,10 +6291,10 @@ function renderReportBuilderUI() {
                                     ${cfg.queryType === 'subsidiary' ? `
                                         <div class="mt-2.5 flex items-center gap-2 flex-wrap">
                                             <span class="px-2 py-0.5 rounded bg-orange-100 text-amber-950 font-mono text-[10px] font-bold border border-orange-200">
-                                                🏢 ${activeSub} Command (${cfg.mineIds.length} Mines Included)
+                                                ðŸ¢ ${activeSub} Command (${cfg.mineIds.length} Mines Included)
                                             </span>
                                             <button onclick="event.stopPropagation(); openQueryConfigModal('subsidiary')" class="px-2 py-0.5 rounded bg-white hover:bg-gray-100 border border-gray-300 text-[10px] font-bold text-[#B0420C] flex items-center gap-1 shadow-2xs">
-                                                <span>⚙ Change Subsidiary Scope</span>
+                                                <span>âš™ Change Subsidiary Scope</span>
                                             </button>
                                         </div>
                                     ` : ''}
@@ -6269,7 +6398,7 @@ function renderReportBuilderUI() {
     if (window.lucide) lucide.createIcons();
 }
 
-// ── POPUP QUERY CONFIGURATION MODAL (SMALL WINDOW) ──
+// â”€â”€ POPUP QUERY CONFIGURATION MODAL (SMALL WINDOW) â”€â”€
 function openQueryConfigModal(type) {
     const modal = document.getElementById('report-query-config-modal');
     const titleEl = document.getElementById('query-config-modal-title');
@@ -6324,7 +6453,7 @@ function openQueryConfigModal(type) {
                         <label class="block text-[11px] font-bold text-gray-700">Mines Included in Reply Scope (${cfg.mineIds.length} of ${state.loadedMines.length} Selected)</label>
                         <div class="flex items-center gap-1.5">
                             <button type="button" onclick="setPqMinesPreset('all')" class="px-2.5 py-1 rounded bg-[#16191C] hover:bg-black text-white text-[10px] font-bold transition-colors cursor-pointer shadow-2xs">
-                                ✓ Select All Mines (${state.loadedMines.length})
+                                âœ“ Select All Mines (${state.loadedMines.length})
                             </button>
                             <button type="button" onclick="setPqMinesPreset('top4')" class="px-2 py-1 rounded bg-gray-200 hover:bg-gray-300 text-[10px] font-bold text-gray-800 transition-colors cursor-pointer">
                                 Top Pits
@@ -6363,7 +6492,7 @@ function openQueryConfigModal(type) {
                 <!-- Search Input -->
                 <div class="relative">
                     <input type="text" id="modal-mine-search" oninput="filterModalMinesList(this.value)" placeholder="Search mine name, subsidiary, coalfield..." class="w-full pl-8 pr-3 py-2 bg-gray-50 border border-gray-300 rounded-xl font-medium text-xs focus:bg-white focus:ring-1 focus:ring-[#B0420C]">
-                    <span class="absolute left-2.5 top-2.5 text-gray-400 text-xs">🔍</span>
+                    <span class="absolute left-2.5 top-2.5 text-gray-400 text-xs">ðŸ”</span>
                 </div>
 
                 <!-- Mines Card Grid -->
@@ -6472,7 +6601,7 @@ function openQueryConfigModal(type) {
                     <div class="flex items-center justify-between">
                         <span class="text-[11px] font-bold text-gray-700">Currently Selected for Comparison (${cfg.mineIds.length} Mines):</span>
                         <span class="text-[10px] font-mono font-bold ${cfg.mineIds.length >= 2 ? 'text-emerald-700' : 'text-amber-700'}">
-                            ${cfg.mineIds.length >= 2 ? '✓ Ready for Comparison' : '⚠️ Select at least 2 mines'}
+                            ${cfg.mineIds.length >= 2 ? 'âœ“ Ready for Comparison' : 'âš ï¸ Select at least 2 mines'}
                         </span>
                     </div>
                     <div class="flex items-center gap-2 flex-wrap" id="modal-comp-selected-tags">
@@ -6491,19 +6620,19 @@ function openQueryConfigModal(type) {
                     <label class="block text-[11px] font-bold text-gray-700 mb-1.5">Quick Comparison Presets (1-Click Selection):</label>
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
                         <button type="button" onclick="setComparisonPreset('top2')" class="p-2 rounded-lg bg-white hover:bg-orange-50 border border-gray-200 hover:border-orange-300 text-left transition-colors cursor-pointer">
-                            <div class="font-bold text-[11px] text-[#16191C]">★ Top 2 Mega-Titans</div>
+                            <div class="font-bold text-[11px] text-[#16191C]">â˜… Top 2 Mega-Titans</div>
                             <div class="text-[9px] text-gray-500 font-mono">Gevra vs Kusmunda</div>
                         </button>
                         <button type="button" onclick="setComparisonPreset('top3')" class="p-2 rounded-lg bg-white hover:bg-orange-50 border border-gray-200 hover:border-orange-300 text-left transition-colors cursor-pointer">
-                            <div class="font-bold text-[11px] text-[#16191C]">★ Top 3 Opencast</div>
+                            <div class="font-bold text-[11px] text-[#16191C]">â˜… Top 3 Opencast</div>
                             <div class="text-[9px] text-gray-500 font-mono">Gevra, Kusmunda, Jayant</div>
                         </button>
                         <button type="button" onclick="setComparisonPreset('cross_sub')" class="p-2 rounded-lg bg-white hover:bg-orange-50 border border-gray-200 hover:border-orange-300 text-left transition-colors cursor-pointer">
-                            <div class="font-bold text-[11px] text-[#16191C]">★ Cross-Subsidiary</div>
+                            <div class="font-bold text-[11px] text-[#16191C]">â˜… Cross-Subsidiary</div>
                             <div class="text-[9px] text-gray-500 font-mono">SECL vs NCL vs MCL</div>
                         </button>
                         <button type="button" onclick="setComparisonPreset('quality_diff')" class="p-2 rounded-lg bg-white hover:bg-orange-50 border border-gray-200 hover:border-orange-300 text-left transition-colors cursor-pointer">
-                            <div class="font-bold text-[11px] text-[#16191C]">★ Caloric vs Bulk</div>
+                            <div class="font-bold text-[11px] text-[#16191C]">â˜… Caloric vs Bulk</div>
                             <div class="text-[9px] text-gray-500 font-mono">G4 (6240) vs G11 vs G5</div>
                         </button>
                     </div>
@@ -6515,27 +6644,27 @@ function openQueryConfigModal(type) {
                     <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
                         <label class="flex items-center gap-2 p-2 bg-white rounded-lg border border-gray-200 cursor-pointer hover:border-[#B0420C] text-[11px]">
                             <input type="checkbox" checked disabled class="rounded text-[#B0420C] focus:ring-[#B0420C]">
-                            <span class="font-bold text-gray-800">📈 YoY Output Growth (%)</span>
+                            <span class="font-bold text-gray-800">ðŸ“ˆ YoY Output Growth (%)</span>
                         </label>
                         <label class="flex items-center gap-2 p-2 bg-white rounded-lg border border-gray-200 cursor-pointer hover:border-[#B0420C] text-[11px]">
                             <input type="checkbox" checked disabled class="rounded text-[#B0420C] focus:ring-[#B0420C]">
-                            <span class="font-bold text-gray-800">🚜 Stripping Ratio (CuM/T)</span>
+                            <span class="font-bold text-gray-800">ðŸšœ Stripping Ratio (CuM/T)</span>
                         </label>
                         <label class="flex items-center gap-2 p-2 bg-white rounded-lg border border-gray-200 cursor-pointer hover:border-[#B0420C] text-[11px]">
                             <input type="checkbox" checked disabled class="rounded text-[#B0420C] focus:ring-[#B0420C]">
-                            <span class="font-bold text-gray-800">⚙️ HEMM Fleet Availability</span>
+                            <span class="font-bold text-gray-800">âš™ï¸ HEMM Fleet Availability</span>
                         </label>
                         <label class="flex items-center gap-2 p-2 bg-white rounded-lg border border-gray-200 cursor-pointer hover:border-[#B0420C] text-[11px]">
                             <input type="checkbox" checked disabled class="rounded text-[#B0420C] focus:ring-[#B0420C]">
-                            <span class="font-bold text-gray-800">⚡ OMS Productivity (T/MS)</span>
+                            <span class="font-bold text-gray-800">âš¡ OMS Productivity (T/MS)</span>
                         </label>
                         <label class="flex items-center gap-2 p-2 bg-white rounded-lg border border-gray-200 cursor-pointer hover:border-[#B0420C] text-[11px]">
                             <input type="checkbox" checked disabled class="rounded text-[#B0420C] focus:ring-[#B0420C]">
-                            <span class="font-bold text-gray-800">🔬 Seam Caloric Grade (GCV)</span>
+                            <span class="font-bold text-gray-800">ðŸ”¬ Seam Caloric Grade (GCV)</span>
                         </label>
                         <label class="flex items-center gap-2 p-2 bg-white rounded-lg border border-gray-200 cursor-pointer hover:border-[#B0420C] text-[11px]">
                             <input type="checkbox" checked disabled class="rounded text-[#B0420C] focus:ring-[#B0420C]">
-                            <span class="font-bold text-gray-800">🛡️ DGMS Safety Compliance</span>
+                            <span class="font-bold text-gray-800">ðŸ›¡ï¸ DGMS Safety Compliance</span>
                         </label>
                     </div>
                 </div>
@@ -6549,7 +6678,7 @@ function openQueryConfigModal(type) {
 
                     <div class="relative mb-2">
                         <input type="text" id="modal-comp-mine-search" oninput="filterModalCompMinesList(this.value)" placeholder="Search mine name, subsidiary, coalfield, grade..." class="w-full pl-8 pr-3 py-1.5 bg-gray-50 border border-gray-300 rounded-lg font-medium text-xs focus:bg-white focus:ring-1 focus:ring-[#B0420C]">
-                        <span class="absolute left-2.5 top-2 text-gray-400 text-xs">🔍</span>
+                        <span class="absolute left-2.5 top-2 text-gray-400 text-xs">ðŸ”</span>
                     </div>
 
                     <div id="modal-comp-mines-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-52 overflow-y-auto custom-scrollbar p-2 bg-gray-50 rounded-xl border border-gray-200">
@@ -6717,7 +6846,7 @@ async function setComparisonPreset(preset) {
     openQueryConfigModal('comparison');
 }
 
-// ── VISUALIZATION METADATA & INTELLIGENT RECOMMENDATIONS ──
+// â”€â”€ VISUALIZATION METADATA & INTELLIGENT RECOMMENDATIONS â”€â”€
 function getAvailableVisualizations(sectionId) {
     const registry = {
         production: [
@@ -6796,7 +6925,7 @@ function getVisFormatMeta(formatId) {
     return map[formatId] || { label: 'Visualization', icon: 'bar-chart-2' };
 }
 
-// ── IN-PLACE VISUALIZATION TRANSFORM CONTROLS ──
+// â”€â”€ IN-PLACE VISUALIZATION TRANSFORM CONTROLS â”€â”€
 function toggleSectionVisDropdown(secId, event) {
     if (event) event.stopPropagation();
     const allMenus = document.querySelectorAll('[id^="vis-menu-"]');
@@ -6899,7 +7028,7 @@ function exportSingleSectionCSV(secId) {
     document.body.removeChild(link);
 }
 
-// ── VISUALIZATION DISPATCHER & RENDERERS ──
+// â”€â”€ VISUALIZATION DISPATCHER & RENDERERS â”€â”€
 function renderSectionVisualizationContent(sec, currentVis, selectedMines, metricsData) {
     if (sec.id === 'production') {
         return renderProductionVis(currentVis, selectedMines, metricsData);
@@ -6986,7 +7115,7 @@ function renderProductionVis(format, selectedMines, metricsData) {
                                     <td class="p-2.5 border-r border-gray-200 text-right font-mono text-gray-600">${r.target.toFixed(2)}</td>
                                     <td class="p-2.5 border-r border-gray-200 text-center font-mono">
                                         <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${r.yoyGrowth >= 10 ? 'bg-emerald-100 text-emerald-900 border border-emerald-300' : (r.yoyGrowth >= 0 ? 'bg-blue-100 text-blue-900 border border-blue-300' : 'bg-rose-100 text-rose-900')}">
-                                            ${r.yoyGrowth >= 0 ? '+' : ''}${r.yoyGrowth.toFixed(1)}% YoY ↗
+                                            ${r.yoyGrowth >= 0 ? '+' : ''}${r.yoyGrowth.toFixed(1)}% YoY â†—
                                         </span>
                                     </td>
                                     <td class="p-2.5 border-r border-gray-200 text-right font-mono font-bold ${r.achievement >= 95 ? 'text-emerald-700' : 'text-amber-700'}">
@@ -7444,7 +7573,7 @@ function renderOverburdenVis(format, selectedMines, metricsData) {
                                     </td>
                                     <td class="p-2.5 border-r border-gray-200 text-center">
                                         <span class="px-1.5 py-0.5 rounded text-[9px] font-bold ${parseFloat(r.sr) <= 2.6 ? 'bg-emerald-100 text-emerald-900' : (parseFloat(r.sr) <= 3.4 ? 'bg-amber-100 text-amber-900' : 'bg-slate-100 text-slate-900')}">
-                                            ${parseFloat(r.sr) <= 2.6 ? '⚡ Optimal Low-SR' : (parseFloat(r.sr) <= 3.4 ? '⚖️ Standard Bench' : '🚜 High-Volume OB')}
+                                            ${parseFloat(r.sr) <= 2.6 ? 'âš¡ Optimal Low-SR' : (parseFloat(r.sr) <= 3.4 ? 'âš–ï¸ Standard Bench' : 'ðŸšœ High-Volume OB')}
                                         </span>
                                     </td>
                                     <td class="p-2.5 text-center">
@@ -7626,7 +7755,7 @@ function renderHemmVis(format, selectedMines, metricsData) {
                                     <td class="p-2.5 border-r border-gray-200 text-right font-mono font-black text-emerald-800 bg-emerald-50/30">${f.meanAvail}</td>
                                     <td class="p-2.5 border-r border-gray-200 text-center font-mono font-bold text-gray-700">${f.shovelDumperMatch}</td>
                                     <td class="p-2.5 text-center">
-                                        <span class="px-2 py-0.5 rounded text-[9px] font-bold bg-emerald-100 text-emerald-900 border border-emerald-300">✓ DGMS &ge;85%</span>
+                                        <span class="px-2 py-0.5 rounded text-[9px] font-bold bg-emerald-100 text-emerald-900 border border-emerald-300">âœ“ DGMS &ge;85%</span>
                                     </td>
                                 </tr>
                             `).join('')}
@@ -7641,7 +7770,7 @@ function renderHemmVis(format, selectedMines, metricsData) {
                 <div class="p-4 bg-white border border-gray-200 rounded-xl space-y-3">
                     <div class="flex items-center justify-between text-[11px]">
                         <div class="font-bold text-gray-800">HEMM Availability vs DGMS Statutory 85.0% Benchmark</div>
-                        <div class="text-[10px] text-emerald-700 font-bold">✓ All operations meet statutory threshold</div>
+                        <div class="text-[10px] text-emerald-700 font-bold">âœ“ All operations meet statutory threshold</div>
                     </div>
                     <div class="space-y-3">
                         ${compFleet.map(f => {
@@ -7961,7 +8090,7 @@ function renderEnvironmentVis(format, selectedMines, metricsData) {
                 <span>MoEFCC Environmental Clearances &amp; Eco-Restoration</span>
             </div>
             <p>
-                Continuous Ambient Air Quality Monitoring (CAAQM) confirmed PM10 values at <strong>74.2 µg/m³</strong> (against 100 µg/m³ statutory standard) and PM2.5 at <strong>38.5 µg/m³</strong> (against 60 µg/m³ standard). Overburden dump bio-reclamation has planted over <strong>2.4 Million native trees</strong> across stabilized slopes.
+                Continuous Ambient Air Quality Monitoring (CAAQM) confirmed PM10 values at <strong>74.2 Âµg/mÂ³</strong> (against 100 Âµg/mÂ³ statutory standard) and PM2.5 at <strong>38.5 Âµg/mÂ³</strong> (against 60 Âµg/mÂ³ standard). Overburden dump bio-reclamation has planted over <strong>2.4 Million native trees</strong> across stabilized slopes.
             </p>
         </div>
     `;
@@ -7987,7 +8116,7 @@ function renderFinancialsVis(format, selectedMines, metricsData) {
     `;
 }
 
-// ── LIVE PREVIEW RENDERER (RIGHT PANEL) ──
+// â”€â”€ LIVE PREVIEW RENDERER (RIGHT PANEL) â”€â”€
 function renderLivePreview() {
     const paper = document.getElementById('report-live-preview-document');
     if (!paper) return;
@@ -8049,9 +8178,9 @@ function renderLivePreview() {
             
             const seam = m.seams?.[0] || { grade: 'G4', gcv: 6240, ashPercent: 18.4 };
 
-            let recognitionBadge = `👑 Volume Titan (${currP.toFixed(1)} MT)`;
-            if (idx === 1 && m.id.includes('KUSMUNDA')) recognitionBadge = `⚡ Stripping Efficiency Leader (1:2.4)`;
-            else if (idx === 2 || yoyGrowth > 12) recognitionBadge = `🚀 Growth Velocity Leader (+${yoyGrowth.toFixed(1)}%)`;
+            let recognitionBadge = `ðŸ‘‘ Volume Titan (${currP.toFixed(1)} MT)`;
+            if (idx === 1 && m.id.includes('KUSMUNDA')) recognitionBadge = `âš¡ Stripping Efficiency Leader (1:2.4)`;
+            else if (idx === 2 || yoyGrowth > 12) recognitionBadge = `ðŸš€ Growth Velocity Leader (+${yoyGrowth.toFixed(1)}%)`;
 
             return `
                 <div class="p-3.5 bg-gray-50/80 rounded-xl border border-gray-300 space-y-2.5 flex-1 min-w-[200px] shadow-2xs">
@@ -8074,7 +8203,7 @@ function renderLivePreview() {
                         <div class="flex justify-between items-center text-[11px]">
                             <span class="text-gray-500 font-medium">YoY Growth:</span>
                             <span class="font-mono font-bold text-emerald-700 bg-emerald-100/70 px-1.5 py-0.2 rounded text-[10px]">
-                                +${yoyGrowth.toFixed(1)}% ↗
+                                +${yoyGrowth.toFixed(1)}% â†—
                             </span>
                         </div>
                         <div class="flex justify-between items-center text-[11px]">
@@ -8158,11 +8287,11 @@ function renderLivePreview() {
                                         return `
                                             <button onclick="setSectionVisualization('${sec.id}', '${v.id}', event)" class="w-full px-3 py-1.5 text-left flex items-center justify-between hover:bg-gray-50 transition-colors ${isSelected ? 'font-bold text-[#B0420C] bg-orange-50/40' : 'text-gray-700 font-medium'}">
                                                 <div class="flex items-center gap-2">
-                                                    <span class="w-3.5 text-center text-xs">${isSelected ? '✓' : ''}</span>
+                                                    <span class="w-3.5 text-center text-xs">${isSelected ? 'âœ“' : ''}</span>
                                                     <i data-lucide="${v.icon}" class="w-3.5 h-3.5 ${isSelected ? 'text-[#B0420C]' : 'text-gray-400'}"></i>
                                                     <span>${v.label}</span>
                                                 </div>
-                                                ${v.isRecommended ? `<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-100 text-amber-900 border border-amber-300">★ Recommended</span>` : ''}
+                                                ${v.isRecommended ? `<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-100 text-amber-900 border border-amber-300">â˜… Recommended</span>` : ''}
                                             </button>
                                         `;
                                     }).join('')}
@@ -8197,13 +8326,13 @@ function renderLivePreview() {
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-gray-800">
                     <div class="p-3 bg-white rounded-lg border border-orange-200/80 space-y-1">
-                        <div class="font-bold text-gray-900 text-[11px]">🏆 Growth &amp; Capacity Synergies</div>
+                        <div class="font-bold text-gray-900 text-[11px]">ðŸ† Growth &amp; Capacity Synergies</div>
                         <div class="text-gray-600 leading-relaxed text-[11px]">
                             Benchmarking highlights a positive YoY output growth across surveyed pits (+11.8% group average), with mechanized coal clearance delivering above-target fulfillment in high-capacity corridors.
                         </div>
                     </div>
                     <div class="p-3 bg-white rounded-lg border border-orange-200/80 space-y-1">
-                        <div class="font-bold text-gray-900 text-[11px]">🚜 Stripping Cost &amp; Blending Strategy</div>
+                        <div class="font-bold text-gray-900 text-[11px]">ðŸšœ Stripping Cost &amp; Blending Strategy</div>
                         <div class="text-gray-600 leading-relaxed text-[11px]">
                             Significant stripping ratio variance (1:2.4 to 1:3.8 CuM/T) suggests strategic thermal coal blending opportunities between high-caloric G4 horizons and high-throughput G11 composite seams.
                         </div>
@@ -8275,7 +8404,7 @@ function renderLivePreview() {
             <!-- Persistent MOCK DATA footer badge -->
             <div class="mt-4 text-center">
                 <span class="px-2 py-0.5 rounded text-[9px] font-bold uppercase bg-amber-100 text-amber-900 border border-amber-300">
-                    MOCK DATA — FOR SYSTEM DEMONSTRATION PURPOSES ONLY
+                    MOCK DATA â€” FOR SYSTEM DEMONSTRATION PURPOSES ONLY
                 </span>
             </div>
 
@@ -8285,7 +8414,7 @@ function renderLivePreview() {
     if (window.lucide) lucide.createIcons();
 }
 
-// ── SOURCE VERIFICATION SNAPSHOT MODAL ──
+// â”€â”€ SOURCE VERIFICATION SNAPSHOT MODAL â”€â”€
 function openVerificationSnapshotModal(params) {
     const {
         docId = 'SECL-GEVRA-OCP-2024',
@@ -8309,7 +8438,7 @@ function openVerificationSnapshotModal(params) {
 
     const doc = MOCK_DOCUMENTS.find(d => d.id === docId) || MOCK_DOCUMENTS[0];
     if (caption) {
-        caption.textContent = `Source Document: ${doc.id} • Page ${pageNum} of ${doc.pageCount} (${doc.subsidiary})`;
+        caption.textContent = `Source Document: ${doc.id} â€¢ Page ${pageNum} of ${doc.pageCount} (${doc.subsidiary})`;
     }
     if (fullDocBtn) {
         fullDocBtn.onclick = () => {
@@ -8485,7 +8614,7 @@ function closeVerificationSnapshotModal() {
     if (modal) modal.classList.add('hidden');
 }
 
-// ── FULL TECHNICAL DOCUMENT VIEWER ──
+// â”€â”€ FULL TECHNICAL DOCUMENT VIEWER â”€â”€
 function openDocumentViewerModal(docId, highlightParams = {}) {
     const modal = document.getElementById('report-document-viewer-modal');
     const content = document.getElementById('report-document-viewer-body');
@@ -8514,7 +8643,7 @@ function openDocumentViewerModal(docId, highlightParams = {}) {
             <div class="px-6 py-2.5 bg-gradient-to-r from-amber-500/20 via-orange-500/10 to-transparent border-b border-amber-300 flex items-center justify-between text-xs shrink-0">
                 <div class="flex items-center gap-2 font-bold text-amber-950 flex-wrap">
                     <span class="w-2.5 h-2.5 rounded-full bg-[#B0420C] animate-pulse"></span>
-                    <span>📍 Verified Citation Target:</span>
+                    <span>ðŸ“ Verified Citation Target:</span>
                     <span class="font-mono bg-amber-200 px-2 py-0.5 rounded text-amber-950 border border-amber-400 font-black">${highlightEntity} &bull; ${highlightValue}</span>
                     <span class="text-gray-600 font-normal">(Referenced in ${tableNum ? `Table ${tableNum}` : 'Technical Record'}, Page ${pageNum})</span>
                 </div>
@@ -8876,7 +9005,7 @@ function closeDocumentViewerModal() {
     if (modal) modal.classList.add('hidden');
 }
 
-// ── SAVED TEMPLATES / CONFIGURATIONS ──
+// â”€â”€ SAVED TEMPLATES / CONFIGURATIONS â”€â”€
 async function saveCurrentReportConfig() {
     const name = prompt('Enter a title for this report configuration template:', window.RSHPS_REPORTS_STATE.config.name);
     if (!name || !name.trim()) return;
@@ -8933,8 +9062,8 @@ async function deleteSavedReportConfig(configId) {
     renderSavedTemplatesList();
 }
 
-// ── EXPORT ACTIONS ──
-// ── EXPORT ACTIONS ──
+// â”€â”€ EXPORT ACTIONS â”€â”€
+// â”€â”€ EXPORT ACTIONS â”€â”€
 function executeReportExport(format) {
     const state = window.RSHPS_REPORTS_STATE;
     const cov = state.coverageReport;
@@ -8970,7 +9099,7 @@ function getCleanReportDocumentHtml() {
         if (txt.startsWith('[') && (txt.includes(']') || txt.includes('ISP') || txt.includes('Scheme') || txt.includes('DGMS') || txt.includes('CMR') || txt.includes('EC'))) {
             const span = document.createElement('span');
             span.setAttribute('style', 'font-size: 8.5pt; font-family: monospace; color: #78350f; background-color: #fef3c7; padding: 1pt 4pt; border: 1px solid #fde68a; border-radius: 2pt;');
-            span.textContent = txt.replace('→', '').replace('&rarr;', '').trim();
+            span.textContent = txt.replace('â†’', '').replace('&rarr;', '').trim();
             el.replaceWith(span);
         }
     });
@@ -9307,14 +9436,14 @@ function handleInlineNarrativeEdit(text) {
             'gis': [
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     maxZoom: 19,
-                    attribution: '© OpenStreetMap contributors'
+                    attribution: 'Â© OpenStreetMap contributors'
                 })
             ],
             'geological': [
                 // Clean, light-neutral geological cartographic base with clear boundaries (no watermark)
                 L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
                     maxZoom: 19,
-                    attribution: '© Esri, HERE, Garmin, GSI / CMPDI Geological'
+                    attribution: 'Â© Esri, HERE, Garmin, GSI / CMPDI Geological'
                 }),
                 L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}', {
                     maxZoom: 19,
@@ -9324,7 +9453,7 @@ function handleInlineNarrativeEdit(text) {
             'satellite': [
                 L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
                     maxZoom: 19,
-                    attribution: '© Esri, Maxar, Earthstar Geographics'
+                    attribution: 'Â© Esri, Maxar, Earthstar Geographics'
                 }),
                 L.tileLayer('https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
                     maxZoom: 19,
@@ -9334,7 +9463,7 @@ function handleInlineNarrativeEdit(text) {
             'topo': [
                 L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
                     maxZoom: 19,
-                    attribution: '© Esri, USGS, FAO, NPS'
+                    attribution: 'Â© Esri, USGS, FAO, NPS'
                 })
             ]
         };
@@ -9508,7 +9637,7 @@ function handleInlineNarrativeEdit(text) {
                 typeEl.className = 'text-xs font-extrabold text-amber-800 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200';
             }
             if (nameEl) nameEl.textContent = p.name;
-            if (locEl) locEl.textContent = `${p.basin} • ${p.state} • Reserves: ${p.estimated_reserves_bt} BT`;
+            if (locEl) locEl.textContent = `${p.basin} â€¢ ${p.state} â€¢ Reserves: ${p.estimated_reserves_bt} BT`;
 
             if (listEl) {
                 listEl.innerHTML = `
@@ -9535,7 +9664,7 @@ function handleInlineNarrativeEdit(text) {
                     <div class="space-y-2">
                         <div class="p-3.5 bg-gray-50 hover:bg-[#eefcce]/50 rounded-2xl border border-gray-200/70 transition-all cursor-pointer group" onclick="alertBox('Viewing: Geological Memoir & Resource Evaluation for ' + '${p.name}')">
                             <div class="flex items-center justify-between mb-1">
-                                <span class="text-[10px] font-extrabold uppercase text-gray-400">GSI / CMPDI MEMOIR • 2024</span>
+                                <span class="text-[10px] font-extrabold uppercase text-gray-400">GSI / CMPDI MEMOIR â€¢ 2024</span>
                                 <span class="text-[10px] font-black text-green-700 bg-green-100 px-2 py-0.5 rounded-full">100% Match</span>
                             </div>
                             <h5 class="text-xs font-black text-gray-900 group-hover:text-black leading-snug">Geological Evaluation & Coal Seam Correlation: ${p.name}</h5>
@@ -9559,7 +9688,7 @@ function handleInlineNarrativeEdit(text) {
                 typeEl.className = 'text-xs font-extrabold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200';
             }
             if (nameEl) nameEl.textContent = p.name;
-            if (locEl) locEl.textContent = `${p.coalfield} • Capacity: ${p.capacity_mtpa} MTPA • ${p.status}`;
+            if (locEl) locEl.textContent = `${p.coalfield} â€¢ Capacity: ${p.capacity_mtpa} MTPA â€¢ ${p.status}`;
 
             if (listEl) {
                 listEl.innerHTML = `
@@ -9594,7 +9723,7 @@ function handleInlineNarrativeEdit(text) {
                 typeEl.className = 'text-xs font-extrabold text-sky-800 bg-sky-50 px-2.5 py-0.5 rounded-full border border-sky-200';
             }
             if (nameEl) nameEl.textContent = p.borehole_id;
-            if (locEl) locEl.textContent = `${p.coalfield} • Depth: ${p.total_depth_m}m • Collar El: ${p.collar_elevation_m}m`;
+            if (locEl) locEl.textContent = `${p.coalfield} â€¢ Depth: ${p.total_depth_m}m â€¢ Collar El: ${p.collar_elevation_m}m`;
 
             if (listEl) {
                 listEl.innerHTML = `
@@ -9895,7 +10024,7 @@ function handleInlineNarrativeEdit(text) {
                             <p class="text-xs text-gray-500 font-semibold">${props.district ? props.district + ', ' : ''}${props.state}</p>
                             <p class="text-[11px] font-bold text-orange-600 mt-0.5">Type: ${props.type}</p>
                             <button onclick="showMineDetails('${props.mine_id}')" class="mt-2.5 w-full py-1.5 bg-[#111111] text-[#a3e635] text-[11px] font-black rounded-lg hover:bg-black transition-all cursor-pointer">
-                                View Linked Reports →
+                                View Linked Reports â†’
                             </button>
                         </div>
                     `, { className: 'mine-popup', closeButton: false, autoPan: false });
@@ -9932,7 +10061,7 @@ function handleInlineNarrativeEdit(text) {
                     typeEl.className = 'text-xs font-extrabold text-orange-600 bg-orange-50 px-2.5 py-0.5 rounded-full border border-orange-200';
                 }
                 if (nameEl) nameEl.textContent = data.mine_name || initialProps?.name || 'Coal Mine';
-                if (locEl) locEl.textContent = `ID: ${mineId} • ${data.reports?.length || 0} Reports Linked`;
+                if (locEl) locEl.textContent = `ID: ${mineId} â€¢ ${data.reports?.length || 0} Reports Linked`;
 
                 if (listEl) {
                     if (!data.reports || data.reports.length === 0) {
@@ -9941,7 +10070,7 @@ function handleInlineNarrativeEdit(text) {
                         listEl.innerHTML = data.reports.map(r => `
                             <div class="p-3.5 mb-2.5 bg-gray-50 hover:bg-[#eefcce]/50 rounded-2xl border border-gray-200/70 transition-all cursor-pointer group" onclick="openReportDocModal('${r.report_id}')">
                                 <div class="flex items-center justify-between mb-1">
-                                    <span class="text-[10px] font-extrabold uppercase text-gray-400">${r.format} • ${r.year}</span>
+                                    <span class="text-[10px] font-extrabold uppercase text-gray-400">${r.format} â€¢ ${r.year}</span>
                                     <span class="text-[10px] font-black text-green-700 bg-green-100 px-2 py-0.5 rounded-full">${Math.round((r.confidence_score||0.95)*100)}% Match</span>
                                 </div>
                                 <h5 class="text-xs font-black text-gray-900 group-hover:text-black leading-snug">${r.title}</h5>
@@ -9968,10 +10097,10 @@ function handleInlineNarrativeEdit(text) {
                         <div class="bg-white w-full max-w-2xl max-h-[80vh] rounded-[2rem] p-6 shadow-2xl flex flex-col overflow-hidden border border-gray-100">
                             <div class="flex items-center justify-between border-b border-gray-100 pb-3 mb-3">
                                 <div>
-                                    <span class="text-[10px] font-black uppercase tracking-wider text-[#84cc16] bg-[#eefcce] px-2.5 py-0.5 rounded-md">${data.subsidiary} • ${data.year}</span>
+                                    <span class="text-[10px] font-black uppercase tracking-wider text-[#84cc16] bg-[#eefcce] px-2.5 py-0.5 rounded-md">${data.subsidiary} â€¢ ${data.year}</span>
                                     <h4 class="text-sm font-black text-gray-900 mt-1">${data.title}</h4>
                                 </div>
-                                <button onclick="this.closest('.fixed').remove()" class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 font-bold">✕</button>
+                                <button onclick="this.closest('.fixed').remove()" class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 font-bold">âœ•</button>
                             </div>
                             <div class="flex-1 overflow-y-auto custom-scrollbar text-xs font-medium text-gray-700 leading-relaxed whitespace-pre-line p-4 bg-gray-50 rounded-xl border border-gray-200/60 font-mono">
                                 ${data.content}
@@ -9995,6 +10124,7 @@ function handleInlineNarrativeEdit(text) {
 
 </body>
 </html>
+
 
 
 
