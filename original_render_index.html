@@ -629,6 +629,7 @@
                     
                     
                     
+                    
                     <!-- ================= INSIGHTS VIEW (ADMIN) ================= -->
                     <div id="page-insights" class="page-view flex-col space-y-6">
                         <!-- Main Grid: Clean Radial Word Map + Detail Studio -->
@@ -643,43 +644,53 @@
                                         <div>
                                             <div class="flex items-center gap-2.5">
                                                 <h3 class="font-extrabold text-[#0f172a] text-base sm:text-lg tracking-tight">Interactive Word Map</h3>
-                                                <span class="px-2 py-0.5 bg-gray-100 text-gray-500 font-bold text-[9px] uppercase tracking-wider rounded border border-gray-200">Semantic Graph</span>
+                                                <span class="px-2 py-0.5 bg-emerald-50 text-emerald-700 font-bold text-[9px] uppercase tracking-wider rounded border border-emerald-200">Semantic Graph</span>
                                                 <span class="text-[10px] text-gray-400 font-semibold">• 1,284 Indexed Reports</span>
                                             </div>
-                                            <p class="text-xs font-medium text-gray-400 mt-0.5">Explore high-frequency mining terms and discover relationships across indexed reports.</p>
+                                            <p class="text-xs font-medium text-gray-500 mt-0.5">Explore high-frequency mining terms and discover relationships across indexed reports.</p>
                                         </div>
                                         <div class="flex items-center gap-2">
-                                            <span class="text-[11px] font-bold text-gray-500 bg-gray-50 px-3 py-1.5 rounded-xl border border-gray-200/70 flex items-center gap-1.5">
-                                                <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Live Model
+                                            <span class="text-[11px] font-bold text-gray-600 bg-gray-50 px-3 py-1.5 rounded-xl border border-gray-200/70 flex items-center gap-1.5">
+                                                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Live Model
                                             </span>
                                         </div>
                                     </div>
 
-                                    <!-- Category Filter Bar (Clean Understated Style) -->
+                                    <!-- Category Filter Bar (Clean Understated Style matching CMPDI palette) -->
                                     <div class="flex items-center gap-1.5 sm:gap-2 overflow-x-auto custom-scrollbar pb-2 pt-1 mb-2">
                                         <button onclick="filterTopicCategory('all')" id="topic-filter-all" class="topic-cat-btn active-cat px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all bg-[#0f172a] text-white shadow-2xs">All Documents</button>
-                                        <button onclick="filterTopicCategory('production')" id="topic-filter-production" class="topic-cat-btn px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-gray-50 hover:bg-gray-100 text-gray-600 border border-gray-200/60 hover:text-[#0f172a]">Production</button>
-                                        <button onclick="filterTopicCategory('geological')" id="topic-filter-geological" class="topic-cat-btn px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-gray-50 hover:bg-gray-100 text-gray-600 border border-gray-200/60 hover:text-[#0f172a]">Geological</button>
-                                        <button onclick="filterTopicCategory('environmental')" id="topic-filter-environmental" class="topic-cat-btn px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-gray-50 hover:bg-gray-100 text-gray-600 border border-gray-200/60 hover:text-[#0f172a]">Environmental</button>
-                                        <button onclick="filterTopicCategory('safety')" id="topic-filter-safety" class="topic-cat-btn px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-gray-50 hover:bg-gray-100 text-gray-600 border border-gray-200/60 hover:text-[#0f172a]">Safety &amp; Operations</button>
-                                        <button onclick="filterTopicCategory('exploration')" id="topic-filter-exploration" class="topic-cat-btn px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-gray-50 hover:bg-gray-100 text-gray-600 border border-gray-200/60 hover:text-[#0f172a]">Exploration</button>
+                                        <button onclick="filterTopicCategory('production')" id="topic-filter-production" class="topic-cat-btn px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-gray-50 hover:bg-emerald-50 text-gray-600 hover:text-emerald-700 border border-gray-200/70 flex items-center gap-1.5">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-[#16a34a]"></span> Production
+                                        </button>
+                                        <button onclick="filterTopicCategory('geological')" id="topic-filter-geological" class="topic-cat-btn px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-gray-50 hover:bg-sky-50 text-gray-600 hover:text-sky-700 border border-gray-200/70 flex items-center gap-1.5">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-[#0284c7]"></span> Geological
+                                        </button>
+                                        <button onclick="filterTopicCategory('environmental')" id="topic-filter-environmental" class="topic-cat-btn px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-gray-50 hover:bg-amber-50 text-gray-600 hover:text-amber-700 border border-gray-200/70 flex items-center gap-1.5">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-[#ea580c]"></span> Environmental
+                                        </button>
+                                        <button onclick="filterTopicCategory('safety')" id="topic-filter-safety" class="topic-cat-btn px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-gray-50 hover:bg-rose-50 text-gray-600 hover:text-rose-700 border border-gray-200/70 flex items-center gap-1.5">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-[#e11d48]"></span> Safety &amp; Operations
+                                        </button>
+                                        <button onclick="filterTopicCategory('exploration')" id="topic-filter-exploration" class="topic-cat-btn px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-gray-50 hover:bg-cyan-50 text-gray-600 hover:text-cyan-700 border border-gray-200/70 flex items-center gap-1.5">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-[#0369a1]"></span> Exploration
+                                        </button>
                                     </div>
                                 </div>
 
-                                <!-- Radial Typographic Canvas Container (Clean Studio Aesthetic) -->
-                                <div id="radial-cloud-container" class="relative w-full h-[450px] sm:h-[490px] rounded-2xl bg-[#fafafa] border border-gray-200/70 overflow-hidden flex items-center justify-center select-none my-2">
+                                <!-- Radial Typographic Canvas Container (Subtle cool off-white tint with central depth) -->
+                                <div id="radial-cloud-container" style="background: radial-gradient(circle at 50% 50%, #ffffff 0%, #f8fafc 75%, #f1f5f9 100%);" class="relative w-full h-[450px] sm:h-[490px] rounded-2xl border border-gray-200/80 overflow-hidden flex items-center justify-center select-none my-2">
                                     
                                     <!-- Ultra-subtle background guide lines -->
                                     <svg class="absolute inset-0 w-full h-full pointer-events-none" xmlns="http://www.w3.org/2000/svg">
                                         <!-- 2 faint reference rings -->
-                                        <circle cx="50%" cy="50%" r="115" fill="none" stroke="#e2e8f0" stroke-width="0.75" stroke-dasharray="2,6" opacity="0.6" />
-                                        <circle cx="50%" cy="50%" r="200" fill="none" stroke="#e2e8f0" stroke-width="0.75" stroke-dasharray="2,6" opacity="0.4" />
+                                        <circle cx="50%" cy="50%" r="115" fill="none" stroke="#cbd5e1" stroke-width="0.75" stroke-dasharray="2,6" opacity="0.45" />
+                                        <circle cx="50%" cy="50%" r="200" fill="none" stroke="#cbd5e1" stroke-width="0.75" stroke-dasharray="2,6" opacity="0.30" />
                                         
-                                        <!-- Dynamic Selective Connector Lines (Only drawn for active/selected topic) -->
+                                        <!-- Dynamic Selective Connector Lines (Colored with topic accent at subtle opacity) -->
                                         <g id="radial-connector-lines"></g>
                                     </svg>
 
-                                    <!-- Radial Word Nodes rendered dynamically as pure typography -->
+                                    <!-- Radial Word Nodes rendered dynamically as pure typography with category color -->
                                     <div id="radial-word-nodes-layer" class="absolute inset-0 w-full h-full pointer-events-auto"></div>
 
                                     <!-- Floating Tooltip (Clean Minimalist Design) -->
@@ -697,18 +708,17 @@
 
                                 </div>
 
-                                <!-- Card Footer & Minimal Understated Legend -->
+                                <!-- Card Footer & Category Color Legend -->
                                 <div class="pt-3 border-t border-gray-100 flex flex-wrap items-center justify-between gap-3 text-xs text-gray-500 font-medium">
                                     <div class="flex items-center gap-4 flex-wrap text-[11px]">
-                                        <span class="font-bold text-gray-600">Categories:</span>
-                                        <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-[#15803d]"></span> Production</span>
-                                        <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-[#0284c7]"></span> Geological</span>
-                                        <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-[#b45309]"></span> Environmental</span>
-                                        <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-[#be123c]"></span> Safety</span>
-                                        <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-[#0e7490]"></span> Exploration</span>
+                                        <span class="font-bold text-gray-700">Categories:</span>
+                                        <span class="flex items-center gap-1.5 font-semibold text-[#15803d]"><span class="w-2 h-2 rounded-full bg-[#16a34a]"></span> Production</span>
+                                        <span class="flex items-center gap-1.5 font-semibold text-[#0369a1]"><span class="w-2 h-2 rounded-full bg-[#0284c7]"></span> Geological</span>
+                                        <span class="flex items-center gap-1.5 font-semibold text-[#c2410c]"><span class="w-2 h-2 rounded-full bg-[#ea580c]"></span> Environmental</span>
+                                        <span class="flex items-center gap-1.5 font-semibold text-[#be123c]"><span class="w-2 h-2 rounded-full bg-[#e11d48]"></span> Safety &amp; Ops</span>
                                     </div>
-                                    <div class="text-[10px] text-gray-400 font-semibold tracking-wider uppercase">
-                                        Size → Occurrence &bull; Position → Relevance &bull; Color → Category
+                                    <div class="text-[10px] text-gray-400 font-bold tracking-wider uppercase">
+                                        Size → Occurrence &bull; Color → Category &bull; Lines → Semantic Relation
                                     </div>
                                 </div>
 
@@ -723,7 +733,7 @@
                                     <div class="border-b border-gray-100 pb-3.5">
                                         <div class="flex items-center justify-between mb-1.5">
                                             <span class="text-[10px] font-extrabold uppercase tracking-wider text-gray-400">TOPIC DETAIL</span>
-                                            <span id="detail-topic-badge" class="px-2.5 py-0.5 bg-gray-100 text-gray-700 border border-gray-200 rounded font-bold text-[10px] uppercase">Mining Operations</span>
+                                            <span id="detail-topic-badge" class="px-2.5 py-0.5 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded font-bold text-[10px] uppercase">Mining Operations</span>
                                         </div>
                                         <div class="flex items-center justify-between">
                                             <h3 id="detail-topic-name" class="text-xl sm:text-2xl font-black text-[#0f172a] tracking-tight">Overburden</h3>
@@ -745,7 +755,7 @@
                                         </div>
                                         <div class="p-3 rounded-xl bg-gray-50/80 border border-gray-200/60">
                                             <div class="text-[10px] font-bold uppercase text-gray-400 tracking-wider">Relevance</div>
-                                            <div id="detail-topic-rel" class="text-lg font-black text-[#0f172a] mt-0.5">94.2%</div>
+                                            <div id="detail-topic-rel" class="text-lg font-black text-emerald-600 mt-0.5">94.2%</div>
                                         </div>
                                         <div class="p-3 rounded-xl bg-gray-50/80 border border-gray-200/60">
                                             <div class="text-[10px] font-bold uppercase text-gray-400 tracking-wider">Category</div>
@@ -770,7 +780,7 @@
                                         </div>
                                     </div>
 
-                                    <!-- Related Topics (Clickable minimal chips) -->
+                                    <!-- Related Topics (Clickable chips with category indicators) -->
                                     <div>
                                         <h4 class="text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">Related Topics</h4>
                                         <div id="detail-related-chips" class="flex flex-wrap gap-1.5">
@@ -779,8 +789,8 @@
                                     </div>
 
                                     <!-- AI Insight -->
-                                    <div class="p-3 bg-gray-50/90 rounded-xl border border-gray-200/70">
-                                        <div class="flex items-center gap-1.5 text-[10px] font-bold uppercase text-gray-500 tracking-wider mb-1">
+                                    <div class="p-3 bg-emerald-50/40 rounded-xl border border-emerald-200/60">
+                                        <div class="flex items-center gap-1.5 text-[10px] font-bold uppercase text-emerald-800 tracking-wider mb-1">
                                             <i data-lucide="sparkles" class="w-3.5 h-3.5 text-emerald-600"></i> AI Insight
                                         </div>
                                         <p id="detail-ai-insight" class="text-xs font-medium text-gray-800 leading-relaxed">
@@ -804,7 +814,7 @@
                                 <!-- Action Button: Query in Assistant / Load in Reports -->
                                 <div class="mt-4 pt-3 border-t border-gray-100 flex gap-2">
                                     <button onclick="queryTopicInAssistant(currentSelectedTopicKey)" class="flex-1 py-2.5 bg-[#0f172a] text-white rounded-xl font-bold text-xs shadow-sm hover:bg-black active:scale-95 transition-all flex items-center justify-center gap-1.5">
-                                        <i data-lucide="bot" class="w-3.5 h-3.5"></i> <span>Query in GeoAI</span>
+                                        <i data-lucide="bot" class="w-3.5 h-3.5 text-emerald-400"></i> <span>Query in GeoAI</span>
                                     </button>
                                     <button onclick="selectKeyword(currentSelectedTopicKey)" class="py-2.5 px-3.5 bg-gray-100 hover:bg-gray-200 text-[#0f172a] rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-1.5" title="Load into Report Builder">
                                         <i data-lucide="file-text" class="w-3.5 h-3.5"></i> <span>Build Report</span>
@@ -820,21 +830,21 @@
                             <div class="flex items-center justify-between mb-4">
                                 <div>
                                     <h3 class="font-extrabold text-[#0f172a] text-base tracking-tight">Enterprise Cluster Breakdown</h3>
-                                    <p class="text-xs font-medium text-gray-400">Semantic density clusters analyzed across 1,284 technical repositories</p>
+                                    <p class="text-xs font-medium text-gray-500">Semantic density clusters analyzed across 1,284 technical repositories</p>
                                 </div>
-                                <span class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500"><i data-lucide="layers" class="w-4 h-4"></i></span>
+                                <span class="w-8 h-8 rounded-full bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold text-xs"><i data-lucide="layers" class="w-4 h-4"></i></span>
                             </div>
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <div onclick="selectTopicNode('Extraction')" class="p-4 rounded-xl bg-gray-50/70 hover:bg-white hover:shadow-sm transition-all cursor-pointer border border-gray-200/70">
-                                    <div class="flex justify-between items-center mb-1"><span class="font-bold text-xs text-[#0f172a]">Extraction &amp; Output</span><span class="text-[11px] font-bold text-emerald-700">42%</span></div>
+                                <div onclick="selectTopicNode('Extraction')" class="p-4 rounded-xl bg-gray-50/70 hover:bg-white hover:shadow-sm transition-all cursor-pointer border border-gray-200/70 group">
+                                    <div class="flex justify-between items-center mb-1"><span class="font-bold text-xs text-[#0f172a] group-hover:text-emerald-700 transition-colors">Extraction &amp; Output</span><span class="text-[11px] font-extrabold text-emerald-600">42%</span></div>
                                     <p class="text-[11px] text-gray-500 font-medium">High correlation with SECL &amp; MCL production logs.</p>
                                 </div>
-                                <div onclick="selectTopicNode('Reclamation')" class="p-4 rounded-xl bg-gray-50/70 hover:bg-white hover:shadow-sm transition-all cursor-pointer border border-gray-200/70">
-                                    <div class="flex justify-between items-center mb-1"><span class="font-bold text-xs text-[#0f172a]">Environmental &amp; Clearances</span><span class="text-[11px] font-bold text-amber-700">28%</span></div>
+                                <div onclick="selectTopicNode('Reclamation')" class="p-4 rounded-xl bg-gray-50/70 hover:bg-white hover:shadow-sm transition-all cursor-pointer border border-gray-200/70 group">
+                                    <div class="flex justify-between items-center mb-1"><span class="font-bold text-xs text-[#0f172a] group-hover:text-amber-700 transition-colors">Environmental &amp; Clearances</span><span class="text-[11px] font-extrabold text-amber-600">28%</span></div>
                                     <p class="text-[11px] text-gray-500 font-medium">Environmental impact and NBWL forest clearance audits.</p>
                                 </div>
-                                <div onclick="selectTopicNode('Geological Reserve')" class="p-4 rounded-xl bg-gray-50/70 hover:bg-white hover:shadow-sm transition-all cursor-pointer border border-gray-200/70">
-                                    <div class="flex justify-between items-center mb-1"><span class="font-bold text-xs text-[#0f172a]">Geological Reserves &amp; Logs</span><span class="text-[11px] font-bold text-sky-700">30%</span></div>
+                                <div onclick="selectTopicNode('Geological Reserve')" class="p-4 rounded-xl bg-gray-50/70 hover:bg-white hover:shadow-sm transition-all cursor-pointer border border-gray-200/70 group">
+                                    <div class="flex justify-between items-center mb-1"><span class="font-bold text-xs text-[#0f172a] group-hover:text-sky-700 transition-colors">Geological Reserves &amp; Logs</span><span class="text-[11px] font-extrabold text-sky-600">30%</span></div>
                                     <p class="text-[11px] text-gray-500 font-medium">Verified core seam depth &amp; borehole lithology metrics.</p>
                                 </div>
                             </div>
@@ -2741,6 +2751,7 @@
 
 
     
+    
     <!-- ================= MINING TOPIC INTELLIGENCE CLEAN TYPOGRAPHIC ENGINE ================= -->
     <style>
         .topic-word-node {
@@ -2750,7 +2761,7 @@
             user-select: none;
         }
         .topic-word-node:hover {
-            transform: translate(-50%, -50%) scale(1.1) !important;
+            transform: translate(-50%, -50%) scale(1.09) !important;
             z-index: 25 !important;
         }
         .topic-word-node.node-selected {
@@ -2762,8 +2773,8 @@
             opacity: 1 !important;
         }
         .topic-word-node.node-dimmed {
-            opacity: 0.28 !important;
-            filter: grayscale(80%);
+            opacity: 0.25 !important;
+            filter: grayscale(85%);
         }
     </style>
 
@@ -2773,7 +2784,7 @@
             'Extraction': {
                 name: 'Extraction',
                 category: 'production',
-                catLabel: 'Mining Operations',
+                catLabel: 'Production Operations',
                 occ: 720,
                 docs: 290,
                 rel: 99.0,
@@ -2789,7 +2800,7 @@
             'Coal Seam': {
                 name: 'Coal Seam',
                 category: 'geological',
-                catLabel: 'Geological Structure',
+                catLabel: 'Geological Stratum',
                 occ: 612,
                 docs: 248,
                 rel: 98.0,
@@ -2805,7 +2816,7 @@
             'Overburden': {
                 name: 'Overburden',
                 category: 'production',
-                catLabel: 'Mining Operations',
+                catLabel: 'Production Operations',
                 occ: 486,
                 docs: 173,
                 rel: 94.2,
@@ -2853,7 +2864,7 @@
             'Stripping Ratio': {
                 name: 'Stripping Ratio',
                 category: 'production',
-                catLabel: 'Mine Economics',
+                catLabel: 'Production Operations',
                 occ: 395,
                 docs: 148,
                 rel: 90.5,
@@ -2869,7 +2880,7 @@
             'Seam Thickness': {
                 name: 'Seam Thickness',
                 category: 'geological',
-                catLabel: 'Stratigraphy',
+                catLabel: 'Geological Stratigraphy',
                 occ: 385,
                 docs: 142,
                 rel: 89.0,
@@ -2917,7 +2928,7 @@
             'Seam Depth': {
                 name: 'Seam Depth',
                 category: 'geological',
-                catLabel: 'Stratigraphy',
+                catLabel: 'Geological Stratigraphy',
                 occ: 340,
                 docs: 130,
                 rel: 86.5,
@@ -2933,7 +2944,7 @@
             'Drilling & Blasting': {
                 name: 'Drilling & Blasting',
                 category: 'safety',
-                catLabel: 'Mine Operations',
+                catLabel: 'Operations & Safety',
                 occ: 330,
                 docs: 125,
                 rel: 85.0,
@@ -2949,7 +2960,7 @@
             'Shovel-Dumper': {
                 name: 'Shovel-Dumper',
                 category: 'production',
-                catLabel: 'Heavy Earth Moving Machinery',
+                catLabel: 'HEMM Production',
                 occ: 320,
                 docs: 122,
                 rel: 85.0,
@@ -2964,8 +2975,8 @@
             },
             'Borehole': {
                 name: 'Borehole',
-                category: 'exploration',
-                catLabel: 'Exploration Survey',
+                category: 'geological',
+                catLabel: 'Geological Exploration',
                 occ: 310,
                 docs: 118,
                 rel: 84.0,
@@ -2980,7 +2991,7 @@
             },
             'Exploration': {
                 name: 'Exploration',
-                category: 'exploration',
+                category: 'geological',
                 catLabel: 'Geological Exploration',
                 occ: 295,
                 docs: 110,
@@ -3013,7 +3024,7 @@
             'Dragline': {
                 name: 'Dragline',
                 category: 'production',
-                catLabel: 'Heavy Earth Moving Machinery',
+                catLabel: 'HEMM Production',
                 occ: 280,
                 docs: 105,
                 rel: 80.0,
@@ -3045,7 +3056,7 @@
             'Ash Content': {
                 name: 'Ash Content',
                 category: 'safety',
-                catLabel: 'Coal Quality & Chemistry',
+                catLabel: 'Coal Quality & Safety',
                 occ: 270,
                 docs: 104,
                 rel: 78.5,
@@ -3061,7 +3072,7 @@
             'Calorific Value': {
                 name: 'Calorific Value',
                 category: 'safety',
-                catLabel: 'Coal Quality & Chemistry',
+                catLabel: 'Coal Quality & Safety',
                 occ: 265,
                 docs: 100,
                 rel: 77.8,
@@ -3077,7 +3088,7 @@
             'Subsidence': {
                 name: 'Subsidence',
                 category: 'environmental',
-                catLabel: 'Geotechnical & Environment',
+                catLabel: 'Environmental Geotech',
                 occ: 260,
                 docs: 98,
                 rel: 77.0,
@@ -3093,7 +3104,7 @@
             'Pit Geometry': {
                 name: 'Pit Geometry',
                 category: 'safety',
-                catLabel: 'Mine Design',
+                catLabel: 'Operations & Safety',
                 occ: 250,
                 docs: 95,
                 rel: 76.0,
@@ -3109,7 +3120,7 @@
             'Recovery Factor': {
                 name: 'Recovery Factor',
                 category: 'production',
-                catLabel: 'Resource Efficiency',
+                catLabel: 'Production Operations',
                 occ: 240,
                 docs: 92,
                 rel: 78.0,
@@ -3125,7 +3136,7 @@
             'Beneficiation': {
                 name: 'Beneficiation',
                 category: 'production',
-                catLabel: 'Coal Processing',
+                catLabel: 'Coal Beneficiation',
                 occ: 215,
                 docs: 85,
                 rel: 74.0,
@@ -3141,7 +3152,7 @@
             'Mine Closure': {
                 name: 'Mine Closure',
                 category: 'environmental',
-                catLabel: 'Mine Life Cycle',
+                catLabel: 'Environmental Life Cycle',
                 occ: 210,
                 docs: 80,
                 rel: 72.0,
@@ -3161,49 +3172,53 @@
         let currentTrendTimeRange = '3Y';
         let topicTrendChartInstance = null;
 
-        // Clean, Serious Enterprise Category Colors (Muted, Understated)
+        // CMPDI Enterprise Category Color System
+        // 1. Primary/Production: Lime green (#15803d / #16a34a)
+        // 2. Geological: Restrained Cyan/Blue (#0369a1 / #0284c7)
+        // 3. Environmental: Restrained Orange (#c2410c / #ea580c)
+        // 4. Safety/Operations: Muted Coral/Red (#be123c / #e11d48)
         const TOPIC_CATEGORY_THEMES = {
             'production': {
-                dotColor: '#15803d',
-                textColor: '#0f172a',
+                dotColor: '#16a34a',
+                textColor: '#15803d',
                 hoverColor: '#166534',
-                lineStroke: '#94a3b8',
+                lineStroke: 'rgba(22, 163, 74, 0.45)',
                 badgeBg: 'bg-emerald-50',
                 badgeText: 'text-emerald-800',
                 badgeBorder: 'border-emerald-200'
             },
             'geological': {
                 dotColor: '#0284c7',
-                textColor: '#0f172a',
-                hoverColor: '#0369a1',
-                lineStroke: '#94a3b8',
+                textColor: '#0369a1',
+                hoverColor: '#075985',
+                lineStroke: 'rgba(2, 132, 199, 0.45)',
                 badgeBg: 'bg-sky-50',
                 badgeText: 'text-sky-800',
                 badgeBorder: 'border-sky-200'
             },
             'environmental': {
-                dotColor: '#b45309',
-                textColor: '#0f172a',
-                hoverColor: '#92400e',
-                lineStroke: '#94a3b8',
+                dotColor: '#ea580c',
+                textColor: '#c2410c',
+                hoverColor: '#9a3412',
+                lineStroke: 'rgba(234, 88, 12, 0.45)',
                 badgeBg: 'bg-amber-50',
                 badgeText: 'text-amber-800',
                 badgeBorder: 'border-amber-200'
             },
             'safety': {
-                dotColor: '#be123c',
-                textColor: '#0f172a',
+                dotColor: '#e11d48',
+                textColor: '#be123c',
                 hoverColor: '#9f1239',
-                lineStroke: '#94a3b8',
+                lineStroke: 'rgba(225, 29, 72, 0.45)',
                 badgeBg: 'bg-rose-50',
                 badgeText: 'text-rose-800',
                 badgeBorder: 'border-rose-200'
             },
             'exploration': {
-                dotColor: '#0e7490',
-                textColor: '#0f172a',
-                hoverColor: '#155e75',
-                lineStroke: '#94a3b8',
+                dotColor: '#0284c7',
+                textColor: '#0369a1',
+                hoverColor: '#075985',
+                lineStroke: 'rgba(2, 132, 199, 0.45)',
                 badgeBg: 'bg-cyan-50',
                 badgeText: 'text-cyan-800',
                 badgeBorder: 'border-cyan-200'
@@ -3232,35 +3247,36 @@
             const selectedData = MINING_TOPICS[currentSelectedTopicKey];
             const selPosX = centerX + (selectedData.dx || 0) * scaleX;
             const selPosY = centerY + (selectedData.dy || 0) * scaleY;
+            const selTheme = TOPIC_CATEGORY_THEMES[selectedData.category] || TOPIC_CATEGORY_THEMES['production'];
 
             Object.keys(MINING_TOPICS).forEach(key => {
                 const item = MINING_TOPICS[key];
                 const isMatchingCategory = currentTopicCategoryFilter === 'all' || 
                                            item.category === currentTopicCategoryFilter ||
-                                           (currentTopicCategoryFilter === 'exploration' && (item.category === 'exploration' || key === 'Borehole' || key === 'Exploration'));
+                                           (currentTopicCategoryFilter === 'exploration' && (key === 'Borehole' || key === 'Exploration' || item.category === 'geological'));
 
                 const isSelected = key === currentSelectedTopicKey;
                 const isRelated = selectedData && selectedData.related && selectedData.related.includes(key);
 
-                // Compute exact position with gentle scale
+                // Compute exact position with scale
                 const posX = centerX + (item.dx || 0) * scaleX;
                 const posY = centerY + (item.dy || 0) * scaleY;
 
-                // Typographic Hierarchy by Occurrence
-                let fontClass = 'text-[11.5px] font-medium text-slate-600';
-                if (item.occ >= 700) {
-                    fontClass = 'text-[20px] sm:text-[22px] font-black text-[#0f172a] tracking-tight';
-                } else if (item.occ >= 600) {
-                    fontClass = 'text-[17px] sm:text-[18.5px] font-extrabold text-[#0f172a] tracking-tight';
-                } else if (item.occ >= 450) {
-                    fontClass = 'text-[15px] sm:text-[16px] font-bold text-[#1e293b]';
-                } else if (item.occ >= 380) {
-                    fontClass = 'text-[13.5px] sm:text-[14px] font-semibold text-[#1e293b]';
-                } else if (item.occ >= 300) {
-                    fontClass = 'text-[12px] sm:text-[12.5px] font-medium text-slate-700';
-                }
-
                 const theme = TOPIC_CATEGORY_THEMES[item.category] || TOPIC_CATEGORY_THEMES['production'];
+
+                // Typographic Hierarchy by Occurrence Frequency
+                let sizeClass = 'text-[12px] sm:text-[12.5px] font-medium';
+                if (item.occ >= 700) {
+                    sizeClass = 'text-[20px] sm:text-[22px] font-black tracking-tight';
+                } else if (item.occ >= 600) {
+                    sizeClass = 'text-[17px] sm:text-[18.5px] font-extrabold tracking-tight';
+                } else if (item.occ >= 450) {
+                    sizeClass = 'text-[15px] sm:text-[16px] font-bold';
+                } else if (item.occ >= 380) {
+                    sizeClass = 'text-[13.5px] sm:text-[14px] font-semibold';
+                } else if (item.occ >= 300) {
+                    sizeClass = 'text-[12.5px] sm:text-[13px] font-semibold';
+                }
 
                 // Draw thin, crisp connection line ONLY from selected keyword to its related terms
                 if (linesGroup && isRelated && !isSelected && isMatchingCategory) {
@@ -3269,50 +3285,59 @@
                     line.setAttribute('y1', selPosY);
                     line.setAttribute('x2', posX);
                     line.setAttribute('y2', posY);
-                    line.setAttribute('stroke', '#cbd5e1');
-                    line.setAttribute('stroke-width', '1.2');
-                    line.setAttribute('stroke-dasharray', '2,3');
+                    line.setAttribute('stroke', selTheme.lineStroke || '#cbd5e1');
+                    line.setAttribute('stroke-width', '1.4');
+                    line.setAttribute('stroke-dasharray', '3,3');
                     linesGroup.appendChild(line);
                 }
 
-                // Clean Typography Element (No heavy pill container!)
+                // Clean Typography Element (No heavy pill container, color on text + dot)
                 const nodeEl = document.createElement('div');
                 nodeEl.id = 'node-' + key.replace(/[^a-zA-Z0-9]/g, '-');
-                nodeEl.className = `topic-word-node absolute flex items-center gap-1.5 px-1.5 py-0.5 rounded-md ${fontClass}`;
+                nodeEl.className = `topic-word-node absolute flex items-center gap-1.5 px-1.5 py-0.5 rounded-md ${sizeClass}`;
                 nodeEl.style.left = `${posX}px`;
                 nodeEl.style.top = `${posY}px`;
                 nodeEl.style.transform = 'translate(-50%, -50%)';
 
                 // Category Dot
-                const dotHtml = `<span class="w-1.5 h-1.5 rounded-full inline-block shrink-0 opacity-80" style="background-color:${theme.dotColor}"></span>`;
+                const dotHtml = `<span class="w-1.5 h-1.5 rounded-full inline-block shrink-0 shadow-2xs" style="background-color:${theme.dotColor}"></span>`;
 
                 if (isSelected) {
-                    // Selected state: refined clean underline / white card container
+                    // Selected state: subtle lime-green / dark underline & white backdrop highlight (NOT a giant pill)
                     nodeEl.classList.add('node-selected');
                     nodeEl.innerHTML = `
-                        <div class="bg-white border border-[#0f172a] shadow-md px-3 py-1 rounded-lg flex items-center gap-1.5">
+                        <div class="bg-white/95 border-b-2 border-[#16a34a] shadow-xs px-2.5 py-0.5 rounded-md flex items-center gap-1.5">
                             ${dotHtml}
                             <span class="font-black text-[#0f172a]">${item.name}</span>
                         </div>
                     `;
                 } else {
+                    nodeEl.style.color = theme.textColor;
                     nodeEl.innerHTML = `${dotHtml}<span>${item.name}</span>`;
                     
                     if (!isMatchingCategory) {
                         nodeEl.classList.add('node-dimmed');
                     } else if (isRelated) {
                         nodeEl.classList.add('node-related');
-                        nodeEl.classList.remove('text-slate-600', 'text-slate-700');
-                        nodeEl.classList.add('text-[#0f172a]', 'font-bold');
+                        nodeEl.style.color = theme.hoverColor || theme.textColor;
+                        nodeEl.style.fontWeight = '800';
                     } else {
-                        // Regular unselected nodes are slightly quieter when something is selected
-                        nodeEl.style.opacity = '0.75';
+                        // Regular unselected nodes remain slightly quiet
+                        nodeEl.style.opacity = '0.78';
                     }
                 }
 
                 // Event Listeners
-                nodeEl.onmouseenter = (e) => showRadialTooltip(e, item);
-                nodeEl.onmouseleave = hideRadialTooltip;
+                nodeEl.onmouseenter = (e) => {
+                    showRadialTooltip(e, item);
+                    if (!isSelected) nodeEl.style.color = theme.hoverColor;
+                };
+                nodeEl.onmouseleave = () => {
+                    hideRadialTooltip();
+                    if (!isSelected && isMatchingCategory) {
+                        nodeEl.style.color = isRelated ? (theme.hoverColor || theme.textColor) : theme.textColor;
+                    }
+                };
                 nodeEl.onclick = () => selectTopicNode(key);
 
                 container.appendChild(nodeEl);
@@ -3403,8 +3428,8 @@
             selectTopicNode(topicKey);
             const container = document.getElementById('radial-cloud-container');
             if (container) {
-                container.classList.add('ring-1', 'ring-[#0f172a]');
-                setTimeout(() => container.classList.remove('ring-1', 'ring-[#0f172a]'), 500);
+                container.classList.add('ring-1', 'ring-[#16a34a]');
+                setTimeout(() => container.classList.remove('ring-1', 'ring-[#16a34a]'), 500);
             }
         }
 
@@ -3413,11 +3438,11 @@
             currentTopicCategoryFilter = cat;
             document.querySelectorAll('.topic-cat-btn').forEach(btn => {
                 btn.classList.remove('bg-[#0f172a]', 'text-white', 'shadow-2xs');
-                btn.classList.add('bg-gray-50', 'text-gray-600', 'border-gray-200/60');
+                btn.classList.add('bg-gray-50', 'text-gray-600', 'border-gray-200/70');
             });
             const activeBtn = document.getElementById('topic-filter-' + cat);
             if (activeBtn) {
-                activeBtn.classList.remove('bg-gray-50', 'text-gray-600', 'border-gray-200/60');
+                activeBtn.classList.remove('bg-gray-50', 'text-gray-600', 'border-gray-200/70');
                 activeBtn.classList.add('bg-[#0f172a]', 'text-white', 'shadow-2xs');
             }
             renderRadialWordCloud();
@@ -3438,7 +3463,7 @@
             if (data) updateTopicTrendChart(data);
         }
 
-        // Update Trend Chart with Chart.js
+        // Update Trend Chart with Chart.js using CMPDI color accents
         function updateTopicTrendChart(data) {
             const canvas = document.getElementById('topicTrendCanvas');
             if (!canvas) return;
@@ -3482,8 +3507,8 @@
 
             const ctx = canvas.getContext('2d');
             const gradient = ctx.createLinearGradient(0, 0, 0, 90);
-            gradient.addColorStop(0, 'rgba(15, 23, 42, 0.08)');
-            gradient.addColorStop(1, 'rgba(15, 23, 42, 0.00)');
+            gradient.addColorStop(0, theme.lineStroke || 'rgba(22, 163, 74, 0.2)');
+            gradient.addColorStop(1, 'rgba(255, 255, 255, 0.00)');
 
             topicTrendChartInstance = new Chart(ctx, {
                 type: 'line',
@@ -3491,14 +3516,14 @@
                     labels: labels,
                     datasets: [{
                         data: points,
-                        borderColor: '#0f172a',
-                        borderWidth: 1.8,
+                        borderColor: theme.dotColor || '#16a34a',
+                        borderWidth: 2,
                         backgroundColor: gradient,
                         fill: true,
                         tension: 0.35,
                         pointRadius: 2.5,
                         pointBackgroundColor: '#ffffff',
-                        pointBorderColor: '#0f172a',
+                        pointBorderColor: theme.dotColor || '#16a34a',
                         pointBorderWidth: 1.5,
                         pointHoverRadius: 4.5
                     }]
