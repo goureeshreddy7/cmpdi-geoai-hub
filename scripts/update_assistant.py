@@ -108,6 +108,7 @@ floating_assistant_block = f'''
             height: min(520px, calc(100vh - 130px));
             max-height: calc(100vh - 130px);
             transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 10005;
         }}
 
         /* Viewport-Safe Expanded Center Studio Mode */
@@ -122,15 +123,15 @@ floating_assistant_block = f'''
             height: min(650px, calc(100vh - 80px)) !important;
             max-height: calc(100vh - 80px) !important;
             margin: 0 !important;
-            z-index: 10001 !important;
+            z-index: 10010 !important;
             box-shadow: 0 30px 90px -15px rgba(0,0,0,0.5), 0 0 0 1px rgba(0,0,0,0.1) !important;
         }}
     </style>
 
-    <!-- Expanded Backdrop Overlay -->
-    <div id="geoai-chat-backdrop" class="fixed inset-0 bg-black/40 backdrop-blur-xs z-[10000] hidden opacity-0 transition-opacity duration-300" onclick="toggleExpandFloatingChat(event)"></div>
+    <!-- Expanded Backdrop Overlay (Strictly behind assistant window) -->
+    <div id="geoai-chat-backdrop" class="fixed inset-0 bg-black/40 backdrop-blur-xs z-[9995] hidden opacity-0 transition-opacity duration-300 pointer-events-auto" onclick="toggleExpandFloatingChat(event)"></div>
 
-    <div id="geoai-floating-assistant-root" class="fixed bottom-6 right-6 z-[9999] font-['Inter',sans-serif] flex flex-col items-end pointer-events-none select-none">
+    <div id="geoai-floating-assistant-root" class="fixed bottom-6 right-6 z-[10000] font-['Inter',sans-serif] flex flex-col items-end pointer-events-none select-none">
         
         <!-- Floating Interactive Chat Window -->
         <div id="geoai-floating-chat-window" class="pointer-events-auto bg-white rounded-[2.25rem] border border-gray-200/90 shadow-[0_24px_70px_-15px_rgba(0,0,0,0.4),0_0_0_1px_rgba(0,0,0,0.06)] overflow-hidden flex flex-col origin-bottom-right mb-3.5 opacity-0 scale-95 translate-y-4 pointer-events-none" style="display: none;">
@@ -317,6 +318,10 @@ floating_assistant_block = f'''
             if (window.lucide) lucide.createIcons();
             const msgs = document.getElementById('floating-chat-messages');
             if (msgs) setTimeout(() => msgs.scrollTop = msgs.scrollHeight, 150);
+            setTimeout(() => {{
+                const inp = document.getElementById('floating-chat-input');
+                if (inp) inp.focus();
+            }}, 200);
         }}
 
         function sendFloatingPreset(promptText) {{
@@ -449,6 +454,7 @@ floating_assistant_block = f'''
             if (!isFloatingChatOpen) return;
             const chatWin = document.getElementById('geoai-floating-chat-window');
             const triggerBtn = document.getElementById('geoai-floating-trigger-container');
+            const backdrop = document.getElementById('geoai-chat-backdrop');
             
             if (chatWin && !chatWin.contains(event.target) && triggerBtn && !triggerBtn.contains(event.target)) {{
                 closeFloatingChat();
@@ -462,4 +468,4 @@ html = html.replace('</body>', f'{floating_assistant_block}\n</body>')
 with open(ORIGINAL_HTML_PATH, 'w', encoding='utf-8') as f:
     f.write(html)
 
-print("Updated original_render_index.html with Viewport-Safe Expand Modal successfully!")
+print("Updated original_render_index.html with correct z-indexes and full interactivity!")
