@@ -102,26 +102,38 @@ floating_assistant_block = f'''
             pointer-events: auto;
         }}
 
-        /* Floating Window Expand Transitions */
-        #geoai-floating-chat-window.chat-expanded {{
-            width: 780px !important;
-            height: 700px !important;
-            max-width: calc(100vw - 32px) !important;
-            max-height: calc(100vh - 40px) !important;
+        /* Floating Window Base Transition */
+        #geoai-floating-chat-window {{
+            width: min(420px, calc(100vw - 32px));
+            height: min(520px, calc(100vh - 130px));
+            max-height: calc(100vh - 130px);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }}
 
-        #geoai-floating-chat-window {{
-            transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1), 
-                        height 0.3s cubic-bezier(0.16, 1, 0.3, 1), 
-                        transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), 
-                        opacity 0.25s ease-out;
+        /* Viewport-Safe Expanded Center Studio Mode */
+        #geoai-floating-chat-window.chat-expanded {{
+            position: fixed !important;
+            top: 50% !important;
+            left: 50% !important;
+            right: auto !important;
+            bottom: auto !important;
+            transform: translate(-50%, -50%) !important;
+            width: min(860px, calc(100vw - 48px)) !important;
+            height: min(650px, calc(100vh - 80px)) !important;
+            max-height: calc(100vh - 80px) !important;
+            margin: 0 !important;
+            z-index: 10001 !important;
+            box-shadow: 0 30px 90px -15px rgba(0,0,0,0.5), 0 0 0 1px rgba(0,0,0,0.1) !important;
         }}
     </style>
+
+    <!-- Expanded Backdrop Overlay -->
+    <div id="geoai-chat-backdrop" class="fixed inset-0 bg-black/40 backdrop-blur-xs z-[10000] hidden opacity-0 transition-opacity duration-300" onclick="toggleExpandFloatingChat(event)"></div>
 
     <div id="geoai-floating-assistant-root" class="fixed bottom-6 right-6 z-[9999] font-['Inter',sans-serif] flex flex-col items-end pointer-events-none select-none">
         
         <!-- Floating Interactive Chat Window -->
-        <div id="geoai-floating-chat-window" class="pointer-events-auto bg-white rounded-[2.25rem] border border-gray-200/90 shadow-[0_24px_70px_-15px_rgba(0,0,0,0.4),0_0_0_1px_rgba(0,0,0,0.06)] overflow-hidden flex flex-col origin-bottom-right mb-4 opacity-0 scale-95 translate-y-4 pointer-events-none" style="width: 420px; height: 580px; max-width: calc(100vw - 32px); max-height: calc(100vh - 110px); display: none;">
+        <div id="geoai-floating-chat-window" class="pointer-events-auto bg-white rounded-[2.25rem] border border-gray-200/90 shadow-[0_24px_70px_-15px_rgba(0,0,0,0.4),0_0_0_1px_rgba(0,0,0,0.06)] overflow-hidden flex flex-col origin-bottom-right mb-3.5 opacity-0 scale-95 translate-y-4 pointer-events-none" style="display: none;">
             
             <!-- Chat Header -->
             <div class="px-5 py-4 bg-[#111111] text-white flex items-center justify-between border-b border-gray-800 shrink-0 select-none">
@@ -206,7 +218,7 @@ floating_assistant_block = f'''
                 <span class="tracking-tight text-gray-100">Namaste ! how may I help you?</span>
             </div>
 
-            <!-- Avatar Glowing Circle (Bigger 82px avatar) -->
+            <!-- Avatar Glowing Circle (Bigger 84px avatar) -->
             <div class="assistant-avatar-halo relative w-20 h-20 sm:w-[84px] sm:h-[84px] rounded-full border-[3.5px] border-[#a3e635] bg-white transition-all duration-300 group-hover:scale-105 group-active:scale-95 flex items-center justify-center p-0.5">
                 <img src="{avatar_b64}" alt="GeoAI Assistant" class="w-full h-full object-cover rounded-full">
                 
@@ -256,7 +268,19 @@ floating_assistant_block = f'''
         function closeFloatingChat(e) {{
             if (e) e.stopPropagation();
             const win = document.getElementById('geoai-floating-chat-window');
+            const backdrop = document.getElementById('geoai-chat-backdrop');
             if (!win) return;
+            
+            // If expanded, collapse first
+            if (isFloatingChatExpanded) {{
+                toggleExpandFloatingChat();
+            }}
+
+            if (backdrop) {{
+                backdrop.classList.add('opacity-0');
+                setTimeout(() => backdrop.classList.add('hidden'), 250);
+            }}
+
             win.classList.remove('opacity-100', 'scale-100', 'translate-y-0');
             win.classList.add('opacity-0', 'scale-95', 'translate-y-4', 'pointer-events-none');
             setTimeout(() => {{
@@ -271,14 +295,24 @@ floating_assistant_block = f'''
             if (e) e.stopPropagation();
             const win = document.getElementById('geoai-floating-chat-window');
             const icon = document.getElementById('floating-chat-expand-icon');
+            const backdrop = document.getElementById('geoai-chat-backdrop');
             if (!win) return;
+
             isFloatingChatExpanded = !isFloatingChatExpanded;
             if (isFloatingChatExpanded) {{
                 win.classList.add('chat-expanded');
                 if (icon) icon.setAttribute('data-lucide', 'minimize-2');
+                if (backdrop) {{
+                    backdrop.classList.remove('hidden');
+                    requestAnimationFrame(() => backdrop.classList.remove('opacity-0'));
+                }}
             }} else {{
                 win.classList.remove('chat-expanded');
                 if (icon) icon.setAttribute('data-lucide', 'maximize-2');
+                if (backdrop) {{
+                    backdrop.classList.add('opacity-0');
+                    setTimeout(() => backdrop.classList.add('hidden'), 250);
+                }}
             }}
             if (window.lucide) lucide.createIcons();
             const msgs = document.getElementById('floating-chat-messages');
@@ -428,4 +462,4 @@ html = html.replace('</body>', f'{floating_assistant_block}\n</body>')
 with open(ORIGINAL_HTML_PATH, 'w', encoding='utf-8') as f:
     f.write(html)
 
-print("Updated original_render_index.html with adjusted sizes and adjacent positioning!")
+print("Updated original_render_index.html with Viewport-Safe Expand Modal successfully!")
