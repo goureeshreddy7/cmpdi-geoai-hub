@@ -1861,11 +1861,14 @@ radial_cloud_js = '''
     </script>
 '''
 
-# Replace JS engine before </body>
-js_marker = '<!-- ================= MINING TOPIC INTELLIGENCE'
-js_start = html.find(js_marker)
+# Replace JS engine and modals before </body>
+modal_marker = '<!-- ================= TOPIC DOCUMENTS EXPLORER MODAL'
+js_start = html.find(modal_marker)
+if js_start == -1:
+    js_start = html.find('<!-- ================= MINING TOPIC INTELLIGENCE')
+
 if js_start != -1:
-    body_pos = html.find('</body>', js_start)
+    body_pos = html.rfind('</body>')
     if body_pos != -1:
         html = html[:js_start] + radial_cloud_js + '\n' + html[body_pos:]
         print("Updated JavaScript engine with CMPDI brand color typographic renderer & Documents Explorer")
