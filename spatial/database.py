@@ -1,4 +1,4 @@
-"""
+﻿"""
 Database connection and session management for CMPDIPS spatial module.
 Supports PostgreSQL (with PostGIS) or SQLite (fallback for local dev).
 """
@@ -11,7 +11,7 @@ DATABASE_URL = os.getenv("DATABASE_URL", "")
 
 # Auto-detect: use PostgreSQL if configured, else fall back to SQLite
 if DATABASE_URL and DATABASE_URL.startswith("postgresql"):
-    engine = create_engine(DATABASE_URL, echo=False, pool_pre_ping=True)
+    engine = create_engine(DATABASE_URL.replace("postgresql://", "postgresql+psycopg2://", 1) if DATABASE_URL.startswith("postgresql://") else DATABASE_URL, echo=False, pool_pre_ping=True)
     DB_TYPE = "postgresql"
 else:
     ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -33,9 +33,10 @@ Base = declarative_base()
 
 
 def get_db():
-    """FastAPI dependency — yields a DB session and auto-closes."""
+    """FastAPI dependency â€” yields a DB session and auto-closes."""
     db = SessionLocal()
     try:
         yield db
     finally:
         db.close()
+
