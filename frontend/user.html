@@ -936,6 +936,8 @@
                     
                     
                     
+                    
+                    
                     <!-- ================= INSIGHTS VIEW (ADMIN) ================= -->
                     <div id="page-insights" class="page-view flex-col space-y-6">
                         <!-- Main Grid: Clean Radial Word Map + Detail Studio -->
@@ -1049,16 +1051,24 @@
                                         </div>
                                     </div>
 
-                                    <!-- Key Metrics Grid -->
+                                    <!-- Key Metrics Grid with Clickable Documents Window Trigger -->
                                     <div class="grid grid-cols-2 gap-2.5">
                                         <div class="p-3 rounded-xl bg-gray-50/80 border border-gray-200/60">
                                             <div class="text-[10px] font-bold uppercase text-gray-400 tracking-wider">Occurrences</div>
                                             <div id="detail-topic-occ" class="text-lg font-black text-[#0f172a] mt-0.5">486</div>
                                         </div>
-                                        <div class="p-3 rounded-xl bg-gray-50/80 border border-gray-200/60">
-                                            <div class="text-[10px] font-bold uppercase text-gray-400 tracking-wider">Documents</div>
-                                            <div id="detail-topic-docs" class="text-lg font-black text-[#0f172a] mt-0.5">173</div>
+                                        
+                                        <!-- CLICKABLE DOCUMENTS CARD -->
+                                        <div onclick="openTopicDocumentsModal(currentSelectedTopicKey)" class="p-3 rounded-xl bg-gray-50/80 hover:bg-emerald-50/50 hover:border-emerald-300 border border-gray-200/60 cursor-pointer transition-all group relative">
+                                            <div class="flex items-center justify-between">
+                                                <div class="text-[10px] font-bold uppercase text-gray-400 group-hover:text-emerald-700 transition-colors tracking-wider flex items-center gap-1">
+                                                    Documents <i data-lucide="external-link" class="w-2.5 h-2.5 opacity-60 group-hover:opacity-100"></i>
+                                                </div>
+                                                <span class="text-[9px] font-extrabold text-emerald-700 bg-emerald-100/70 px-1.5 py-0.5 rounded border border-emerald-200/60 group-hover:bg-emerald-600 group-hover:text-white transition-all">Explore</span>
+                                            </div>
+                                            <div id="detail-topic-docs" class="text-lg font-black text-[#0f172a] mt-0.5 group-hover:text-emerald-700 transition-colors">173</div>
                                         </div>
+
                                         <div class="p-3 rounded-xl bg-gray-50/80 border border-gray-200/60">
                                             <div class="text-[10px] font-bold uppercase text-gray-400 tracking-wider">Relevance</div>
                                             <div id="detail-topic-rel" class="text-lg font-black text-emerald-600 mt-0.5">94.2%</div>
@@ -1144,6 +1154,71 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- ================= TOPIC DOCUMENTS EXPLORER MODAL ================= -->
+                        <div id="topic-documents-modal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 animate-fadeIn" onclick="handleDocModalBackdropClick(event)">
+                            <div class="bg-white rounded-3xl shadow-2xl border border-gray-200 w-full max-w-3xl max-h-[88vh] flex flex-col overflow-hidden transform transition-all" onclick="event.stopPropagation()">
+                                
+                                <!-- Modal Header -->
+                                <div class="px-6 py-4.5 border-b border-gray-100 flex items-center justify-between bg-slate-50/70">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 rounded-2xl bg-emerald-500/10 text-emerald-700 flex items-center justify-center border border-emerald-500/20 shadow-2xs">
+                                            <i data-lucide="file-text" class="w-5 h-5"></i>
+                                        </div>
+                                        <div>
+                                            <div class="flex items-center gap-2">
+                                                <h3 class="font-black text-[#0f172a] text-base sm:text-lg tracking-tight">Indexed Reports Explorer</h3>
+                                                <span id="doc-modal-keyword-badge" class="px-2.5 py-0.5 rounded-md text-[11px] font-black bg-emerald-100 text-emerald-800 border border-emerald-200">Overburden</span>
+                                            </div>
+                                            <p class="text-xs text-gray-500 font-medium">Documents sorted in descending order of keyword occurrences</p>
+                                        </div>
+                                    </div>
+                                    <button onclick="closeTopicDocumentsModal()" class="w-8 h-8 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-black flex items-center justify-center transition-all">
+                                        <i data-lucide="x" class="w-4 h-4"></i>
+                                    </button>
+                                </div>
+
+                                <!-- Search Bar & Keyword Switcher -->
+                                <div class="px-6 py-3.5 border-b border-gray-100 bg-white space-y-2.5">
+                                    <div class="relative">
+                                        <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                                        <input type="text" id="doc-keyword-search-input" oninput="handleDocKeywordSearch(this.value)" placeholder="Search any keyword or report title (e.g. Extraction, Coal Seam, Stripping Ratio)..." class="w-full pl-10 pr-10 py-2.5 bg-gray-50/80 border border-gray-200 rounded-xl text-xs font-semibold text-[#0f172a] placeholder-gray-400 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all">
+                                        <button id="doc-search-clear-btn" onclick="clearDocKeywordSearch()" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                                            <i data-lucide="x-circle" class="w-4 h-4"></i>
+                                        </button>
+                                    </div>
+
+                                    <!-- Quick Keyword Switcher Chips -->
+                                    <div class="flex items-center gap-1.5 overflow-x-auto custom-scrollbar pb-1 text-xs">
+                                        <span class="text-[10px] uppercase font-bold text-gray-400 shrink-0 mr-1">Quick Keywords:</span>
+                                        <div id="modal-quick-keywords" class="flex gap-1.5 shrink-0"></div>
+                                    </div>
+                                </div>
+
+                                <!-- Document Count & Sorting Indicator -->
+                                <div class="px-6 py-2.5 bg-gray-50/70 border-b border-gray-100 flex items-center justify-between text-xs text-gray-500 font-semibold">
+                                    <div id="doc-modal-count-label" class="font-bold text-gray-700">Showing matching technical reports</div>
+                                    <div class="flex items-center gap-1.5 text-emerald-700 font-bold text-[11px]">
+                                        <i data-lucide="arrow-down-narrow-wide" class="w-3.5 h-3.5"></i> Sorted by Max Occurrence
+                                    </div>
+                                </div>
+
+                                <!-- Documents List Container -->
+                                <div id="doc-modal-list" class="p-6 space-y-3 overflow-y-auto max-h-[50vh] custom-scrollbar bg-slate-50/30">
+                                    <!-- Rendered dynamically -->
+                                </div>
+
+                                <!-- Modal Footer -->
+                                <div class="px-6 py-3.5 border-t border-gray-100 bg-white flex items-center justify-between text-xs text-gray-500">
+                                    <span class="text-[11px] font-medium text-gray-400">Indexed across CMPDI, CIL, SECL, MCL &amp; BCCL technical repositories</span>
+                                    <button onclick="closeTopicDocumentsModal()" class="px-4 py-1.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-[#0f172a] font-bold text-xs transition-all">
+                                        Close
+                                    </button>
+                                </div>
+
+                            </div>
+                        </div>
+
                     </div>
 
                     <!-- ================= AI QUERY STUDIO WITH CHAT HISTORY ================= -->
@@ -3053,6 +3128,8 @@
     
     
     
+    
+    
     <!-- ================= MINING TOPIC INTELLIGENCE CLEAN TYPOGRAPHIC ENGINE ================= -->
     <style>
         .topic-word-node {
@@ -3474,10 +3551,6 @@
         let topicTrendChartInstance = null;
 
         // CMPDI Enterprise Category Color System
-        // 1. Primary/Production: Lime green (#15803d / #16a34a)
-        // 2. Geological: Restrained Cyan/Blue (#0369a1 / #0284c7)
-        // 3. Environmental: Restrained Orange (#c2410c / #ea580c)
-        // 4. Safety/Operations: Muted Coral/Red (#be123c / #e11d48)
         const TOPIC_CATEGORY_THEMES = {
             'production': {
                 dotColor: '#16a34a',
@@ -3525,6 +3598,204 @@
                 badgeBorder: 'border-cyan-200'
             }
         };
+
+        // ── COMPREHENSIVE INDEXED REPORTS DATABASE ──
+        const INDEXED_REPORTS_DATABASE = [
+            {
+                id: 'CMPDI-GEO-2024-JHA-IV',
+                title: 'CMPDI/RI-II/GEO/2024 - Jharia Coalfield Block IV Detailed Geological Assessment',
+                agency: 'CMPDI RI-II Dhanbad',
+                type: 'Exploration & Stratigraphy Memoir',
+                date: 'Sep 2024',
+                pages: 142,
+                keywords: {
+                    'Overburden': 54,
+                    'Coal Seam': 88,
+                    'Seam Thickness': 42,
+                    'Seam Depth': 38,
+                    'Stripping Ratio': 31,
+                    'Borehole': 65,
+                    'Geological Reserve': 49,
+                    'Extraction': 36,
+                    'Ash Content': 27,
+                    'Drilling & Blasting': 19
+                },
+                snippet: 'Extensive core drilling across 42 boreholes establishes continuous parting thickness with overburden bench stability requiring highwall monitoring.'
+            },
+            {
+                id: 'SECL-GEVRA-OCP-2024',
+                title: 'SECL Gevra Mega-Opencast Pit Phase-VI HEMM & Overburden Removal Audit',
+                agency: 'SECL Bilaspur',
+                type: 'Annual Mine Performance Audit',
+                date: 'Aug 2024',
+                pages: 188,
+                keywords: {
+                    'Overburden': 76,
+                    'Stripping Ratio': 62,
+                    'Dragline': 48,
+                    'Extraction': 82,
+                    'ROM Production': 59,
+                    'Shovel-Dumper': 44,
+                    'Slope Stability': 35,
+                    'Pit Geometry': 28,
+                    'Drilling & Blasting': 32
+                },
+                snippet: 'Walking dragline side-casting handled over 42.6 MCuM of overburden in harmony with rapid shovel-dumper circuit synchronization.'
+            },
+            {
+                id: 'MCL-TALCHER-ANN-2024',
+                title: 'MCL Talcher Basin Seam Extraction & Volume Reconciliation Report',
+                agency: 'MCL Sambalpur',
+                type: 'Monthly Dispatch & Yield Ledger',
+                date: 'Jul 2024',
+                pages: 96,
+                keywords: {
+                    'Extraction': 94,
+                    'ROM Production': 71,
+                    'Coal Seam': 58,
+                    'Beneficiation': 39,
+                    'Calorific Value': 46,
+                    'Ash Content': 38,
+                    'Overburden': 41,
+                    'Recovery Factor': 33,
+                    'Stripping Ratio': 29
+                },
+                snippet: 'Run-of-Mine coal extraction ledgers surpassed quarterly benchmarks with raw coal washed through heavy media cyclone circuits.'
+            },
+            {
+                id: 'CMPDI-ENV-EIA-2024',
+                title: 'MoEFCC Comprehensive EIA & Progressive Mine Closure Plan for Korba OC Basins',
+                agency: 'CMPDI Environmental Directorate',
+                type: 'Statutory Environmental Impact Audit',
+                date: 'Jun 2024',
+                pages: 210,
+                keywords: {
+                    'Reclamation': 68,
+                    'Groundwater': 58,
+                    'Mine Closure': 52,
+                    'Subsidence': 44,
+                    'Overburden': 36,
+                    'Slope Stability': 28,
+                    'Mine Ventilation': 22,
+                    'Exploration': 18
+                },
+                snippet: 'Biological reclamation of internal dump slopes restored 145 hectares while hydro-geological piezometer networks tracked groundwater rebound.'
+            },
+            {
+                id: 'BCCL-DHA-STRATA-2024',
+                title: 'BCCL Koyla Bhawan Underground Strata Control & Ventilation Safety Review',
+                agency: 'BCCL Dhanbad',
+                type: 'Geotechnical Safety Audit',
+                date: 'May 2024',
+                pages: 115,
+                keywords: {
+                    'Mine Ventilation': 74,
+                    'Slope Stability': 48,
+                    'Subsidence': 51,
+                    'Coal Seam': 45,
+                    'Seam Depth': 39,
+                    'Groundwater': 31,
+                    'Drilling & Blasting': 26,
+                    'Mine Closure': 21
+                },
+                snippet: 'Continuous airflow anemometry and methane drainage manifolds maintain ventilation safety across depillaring panels.'
+            },
+            {
+                id: 'CMPDI-NMET-EXPL-2024',
+                title: 'NMET High-Resolution 2D Seismic & Deep Borehole Core Exploration Folio',
+                agency: 'CMPDI Exploration Directorate',
+                type: 'National Coal Inventory Exploration',
+                date: 'Apr 2024',
+                pages: 164,
+                keywords: {
+                    'Borehole': 89,
+                    'Exploration': 78,
+                    'Geological Reserve': 72,
+                    'Coal Seam': 66,
+                    'Seam Thickness': 53,
+                    'Seam Depth': 47,
+                    'Ash Content': 34,
+                    'Recovery Factor': 29
+                },
+                snippet: 'Deep coring validation delineated virgin geological reserves in Raniganj sub-basin with detailed lithology column correlation.'
+            },
+            {
+                id: 'CCL-NORTH-KARAN-2023',
+                title: 'CCL North Karanpura Coal Washery & Quality Grade Certification Audit',
+                agency: 'CCL Ranchi',
+                type: 'Coal Beneficiation Technical Study',
+                date: 'Nov 2023',
+                pages: 88,
+                keywords: {
+                    'Beneficiation': 64,
+                    'Calorific Value': 58,
+                    'Ash Content': 52,
+                    'ROM Production': 45,
+                    'Extraction': 39,
+                    'Coal Seam': 32,
+                    'Recovery Factor': 28,
+                    'Overburden': 19
+                },
+                snippet: 'Proximate analysis verified reduction of ash content from 41% to 28%, significantly uplifting Gross Calorific Value (GCV).'
+            },
+            {
+                id: 'WCL-NAGPUR-SLOPE-2023',
+                title: 'WCL Highwall Slope Stability Radar Assessment & Pit Design Parameters',
+                agency: 'WCL Nagpur',
+                type: 'DGMS Geotechnical Safety Audit',
+                date: 'Oct 2023',
+                pages: 104,
+                keywords: {
+                    'Slope Stability': 67,
+                    'Pit Geometry': 59,
+                    'Drilling & Blasting': 48,
+                    'Overburden': 43,
+                    'Stripping Ratio': 37,
+                    'Groundwater': 33,
+                    'Shovel-Dumper': 29,
+                    'Extraction': 25
+                },
+                snippet: 'Interferometric slope stability radar detected zero millimetric displacement along the 72-degree highwall bench crests.'
+            },
+            {
+                id: 'ECL-RANIGANJ-SUBS-2023',
+                title: 'ECL Raniganj Coalfield Longwall Subsidence & Environmental Monitoring',
+                agency: 'ECL Sanctoria',
+                type: 'Surface Strata Deformation Report',
+                date: 'Aug 2023',
+                pages: 130,
+                keywords: {
+                    'Subsidence': 62,
+                    'Groundwater': 49,
+                    'Reclamation': 41,
+                    'Coal Seam': 38,
+                    'Seam Depth': 35,
+                    'Mine Closure': 30,
+                    'Mine Ventilation': 24
+                },
+                snippet: 'Continuous laser leveling showed strata subsidence compaction stabilized within 90 days following longwall caving extraction.'
+            },
+            {
+                id: 'CMPDI-RES-AUDIT-2023',
+                title: 'CMPDI All-India Coal Reserve Balance Ledger & Seam Extraction Factor Audit',
+                agency: 'CMPDI Central Planning HQ',
+                type: 'National Statistical Compilation',
+                date: 'Jun 2023',
+                pages: 240,
+                keywords: {
+                    'Geological Reserve': 92,
+                    'Recovery Factor': 75,
+                    'Extraction': 68,
+                    'Coal Seam': 61,
+                    'Overburden': 47,
+                    'ROM Production': 44,
+                    'Exploration': 41,
+                    'Seam Thickness': 38,
+                    'Seam Depth': 36
+                },
+                snippet: 'National coal inventory reconciliation proves 361.4 Billion Tonnes of reserves with surface mining recovery factor reaching 91.2%.'
+            }
+        ];
 
         // Render Clean Typographic Radial Word Map
         function renderRadialWordCloud() {
@@ -3623,7 +3894,6 @@
                         nodeEl.style.color = theme.hoverColor || theme.textColor;
                         nodeEl.style.fontWeight = '800';
                     } else {
-                        // Regular unselected nodes remain slightly quiet
                         nodeEl.style.opacity = '0.78';
                     }
                 }
@@ -3700,7 +3970,7 @@
                 badgeEl.className = `px-2.5 py-0.5 rounded font-bold text-[10px] uppercase border ${theme.badgeBg} ${theme.badgeText} ${theme.badgeBorder}`;
             }
 
-            // Update Related Topics Chips (Clean Understated Style)
+            // Update Related Topics Chips
             const relatedContainer = document.getElementById('detail-related-chips');
             if (relatedContainer) {
                 relatedContainer.innerHTML = (data.related || []).map(relKey => {
@@ -3860,10 +4130,231 @@
             });
         }
 
-        // Query selected topic directly in GeoAI
-        function queryTopicInAssistant(topicKey) {
-            const data = MINING_TOPICS[topicKey] || { name: topicKey };
-            const prompt = `Provide a comprehensive technical summary of "${data.name}" across CMPDI geological exploration and mine production reports.`;
+        // ── TOPIC DOCUMENTS MODAL CONTROLS & RANKING ENGINE ──
+        let activeModalSearchKeyword = 'Overburden';
+
+        function openTopicDocumentsModal(keyword) {
+            activeModalSearchKeyword = keyword || currentSelectedTopicKey || 'Overburden';
+            const modal = document.getElementById('topic-documents-modal');
+            const searchInput = document.getElementById('doc-keyword-search-input');
+            if (!modal) return;
+
+            if (searchInput) searchInput.value = activeModalSearchKeyword;
+            renderModalQuickKeywordChips();
+            renderTopicDocuments(activeModalSearchKeyword);
+
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function closeTopicDocumentsModal() {
+            const modal = document.getElementById('topic-documents-modal');
+            if (modal) {
+                modal.classList.add('hidden');
+                document.body.style.overflow = '';
+            }
+        }
+
+        function handleDocModalBackdropClick(e) {
+            if (e.target.id === 'topic-documents-modal') {
+                closeTopicDocumentsModal();
+            }
+        }
+
+        // Quick Keyword Filter Chips inside the modal
+        function renderModalQuickKeywordChips() {
+            const container = document.getElementById('modal-quick-keywords');
+            if (!container) return;
+
+            const popularKeys = ['Overburden', 'Extraction', 'Coal Seam', 'Stripping Ratio', 'Borehole', 'Slope Stability', 'Groundwater', 'Dragline', 'Beneficiation'];
+            container.innerHTML = popularKeys.map(k => {
+                const isCurrent = k.toLowerCase() === activeModalSearchKeyword.toLowerCase();
+                const theme = MINING_TOPICS[k] ? TOPIC_CATEGORY_THEMES[MINING_TOPICS[k].category] : TOPIC_CATEGORY_THEMES['production'];
+                return `
+                    <button onclick="setModalSearchKeyword('${k}')" class="px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all flex items-center gap-1.5 ${isCurrent ? 'bg-[#0f172a] text-white shadow-xs' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}">
+                        <span class="w-1.5 h-1.5 rounded-full" style="background-color:${theme.dotColor}"></span>
+                        <span>${k}</span>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function setModalSearchKeyword(keyword) {
+            const searchInput = document.getElementById('doc-keyword-search-input');
+            if (searchInput) searchInput.value = keyword;
+            activeModalSearchKeyword = keyword;
+            renderModalQuickKeywordChips();
+            renderTopicDocuments(keyword);
+        }
+
+        function handleDocKeywordSearch(query) {
+            const clearBtn = document.getElementById('doc-search-clear-btn');
+            if (clearBtn) {
+                if (query && query.trim().length > 0) {
+                    clearBtn.classList.remove('hidden');
+                } else {
+                    clearBtn.classList.add('hidden');
+                }
+            }
+            activeModalSearchKeyword = query.trim();
+            renderTopicDocuments(query.trim());
+        }
+
+        function clearDocKeywordSearch() {
+            const searchInput = document.getElementById('doc-keyword-search-input');
+            if (searchInput) searchInput.value = '';
+            handleDocKeywordSearch('');
+        }
+
+        // Render documents sorted by maximum occurrences of the queried keyword
+        function renderTopicDocuments(keywordQuery) {
+            const listContainer = document.getElementById('doc-modal-list');
+            const countLabel = document.getElementById('doc-modal-count-label');
+            const keywordBadge = document.getElementById('doc-modal-keyword-badge');
+            if (!listContainer) return;
+
+            const targetKey = keywordQuery || 'All Technical Documents';
+            if (keywordBadge) {
+                keywordBadge.textContent = targetKey;
+            }
+
+            // Find matching reports and calculate occurrence count for the queried keyword
+            let matchedReports = [];
+
+            INDEXED_REPORTS_DATABASE.forEach(doc => {
+                let occurrenceCount = 0;
+                let isMatch = false;
+
+                if (!keywordQuery) {
+                    // Show all documents with highest topic count
+                    const counts = Object.values(doc.keywords || {});
+                    occurrenceCount = counts.length > 0 ? Math.max(...counts) : 10;
+                    isMatch = true;
+                } else {
+                    // Search in explicit keywords map (case-insensitive exact & fuzzy match)
+                    const normalizedQuery = keywordQuery.toLowerCase();
+                    Object.keys(doc.keywords || {}).forEach(k => {
+                        if (k.toLowerCase().includes(normalizedQuery) || normalizedQuery.includes(k.toLowerCase())) {
+                            occurrenceCount = Math.max(occurrenceCount, doc.keywords[k]);
+                            isMatch = true;
+                        }
+                    });
+
+                    // Search in title/snippet/agency if not in explicit keywords
+                    if (!isMatch && (doc.title.toLowerCase().includes(normalizedQuery) || doc.snippet.toLowerCase().includes(normalizedQuery))) {
+                        occurrenceCount = Math.floor(Math.random() * 18) + 12; // Simulated occurrence
+                        isMatch = true;
+                    }
+                }
+
+                if (isMatch) {
+                    matchedReports.push({
+                        ...doc,
+                        occ: occurrenceCount
+                    });
+                }
+            });
+
+            // ── CRITICAL: SORT IN DESCENDING ORDER BY MAXIMUM NUMBER OF OCCURRENCES ──
+            matchedReports.sort((a, b) => b.occ - a.occ);
+
+            if (countLabel) {
+                countLabel.innerHTML = `Found <span class="font-extrabold text-[#0f172a]">${matchedReports.length} Indexed Reports</span> matching "<span class="text-emerald-700">${targetKey}</span>"`;
+            }
+
+            if (matchedReports.length === 0) {
+                listContainer.innerHTML = `
+                    <div class="py-12 text-center">
+                        <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 mx-auto mb-3">
+                            <i data-lucide="file-search" class="w-6 h-6"></i>
+                        </div>
+                        <h4 class="font-bold text-gray-700 text-sm">No Indexed Documents Found</h4>
+                        <p class="text-xs text-gray-400 mt-1 max-w-sm mx-auto">Try searching for high-frequency terms like "Extraction", "Coal Seam", "Overburden", or "Drilling".</p>
+                    </div>
+                `;
+                if (window.lucide) lucide.createIcons();
+                return;
+            }
+
+            // Render Document Cards
+            listContainer.innerHTML = matchedReports.map((report, idx) => {
+                const maxOcc = matchedReports[0]?.occ || 1;
+                const occPercent = Math.min(100, Math.round((report.occ / maxOcc) * 100));
+
+                // Highlight keyword in snippet
+                let snippetHtml = report.snippet;
+                if (keywordQuery && keywordQuery.length > 2) {
+                    const cleanQuery = keywordQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                    const regex = new RegExp(`(${cleanQuery})`, 'gi');
+                    snippetHtml = snippetHtml.replace(regex, '<span class="bg-amber-100 text-amber-900 font-bold px-1 rounded">$1</span>');
+                }
+
+                return `
+                    <div class="p-4 rounded-2xl bg-white border border-gray-200/90 hover:border-emerald-500/80 hover:shadow-md transition-all group">
+                        
+                        <!-- Top Meta & Occurrences Count -->
+                        <div class="flex items-start justify-between gap-3 mb-2">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <span class="w-5 h-5 rounded-md bg-slate-900 text-white font-black text-[10px] flex items-center justify-center">#${idx + 1}</span>
+                                <span class="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-200 text-[10px] font-bold uppercase tracking-wider">${report.agency}</span>
+                                <span class="text-[11px] font-semibold text-gray-400">• ${report.date}</span>
+                                <span class="text-[11px] font-semibold text-gray-400">• ${report.pages} Pages</span>
+                            </div>
+                            
+                            <!-- Occurrence Frequency Badge -->
+                            <div class="flex items-center gap-2 shrink-0">
+                                <div class="text-right">
+                                    <div class="text-xs font-black text-[#0f172a] group-hover:text-emerald-700 transition-colors flex items-center gap-1 justify-end">
+                                        <i data-lucide="hash" class="w-3 h-3 text-emerald-600"></i> ${report.occ} <span class="text-[10px] font-semibold text-gray-400">Mentions</span>
+                                    </div>
+                                    <div class="w-20 h-1.5 bg-gray-100 rounded-full overflow-hidden mt-0.5">
+                                        <div class="h-full bg-emerald-500 rounded-full" style="width:${occPercent}%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Report Title -->
+                        <h4 class="font-extrabold text-[#0f172a] text-sm leading-snug group-hover:text-emerald-800 transition-colors mb-1.5">
+                            ${report.title}
+                        </h4>
+
+                        <!-- Snippet with Keyword Context -->
+                        <p class="text-xs font-medium text-gray-600 leading-relaxed bg-gray-50/80 p-2.5 rounded-xl border border-gray-100 mb-3">
+                            ${snippetHtml}
+                        </p>
+
+                        <!-- Bottom Action & Tags -->
+                        <div class="flex items-center justify-between pt-2 border-t border-gray-100 text-[11px]">
+                            <div class="flex items-center gap-2">
+                                <span class="text-gray-400 font-medium">Top Correlated Terms:</span>
+                                <div class="flex gap-1 flex-wrap">
+                                    ${Object.keys(report.keywords || {}).slice(0, 3).map(k => `
+                                        <button onclick="setModalSearchKeyword('${k}')" class="px-2 py-0.5 bg-gray-100 hover:bg-emerald-50 hover:text-emerald-700 rounded text-[10px] font-bold text-gray-600 transition-colors">
+                                            ${k} (${report.keywords[k]})
+                                        </button>
+                                    `).join('')}
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button onclick="launchReportGeoAIQuery('${report.id}', '${targetKey}')" class="px-3 py-1.5 rounded-lg bg-[#0f172a] hover:bg-emerald-700 text-white font-bold text-[11px] flex items-center gap-1.5 transition-all shadow-2xs">
+                                    <i data-lucide="bot" class="w-3 h-3 text-emerald-400"></i> Query Report
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                `;
+            }).join('');
+
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function launchReportGeoAIQuery(reportId, keyword) {
+            closeTopicDocumentsModal();
+            const prompt = `Analyze document ID [${reportId}] and provide all technical insights, data parameters and excerpts regarding the keyword "${keyword}".`;
             
             if (window.location.hash === '#query') {
                 sendPresetPrompt(prompt);
@@ -3872,6 +4363,11 @@
                 sendFloatingPreset(prompt);
             }
         }
+
+        // Close modal on Escape key
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeTopicDocumentsModal();
+        });
 
         // Initialize when insights page is displayed or on window resize
         function initTopicIntelligence() {
