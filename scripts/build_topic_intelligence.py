@@ -10,25 +10,6 @@ with open(ORIGINAL_HTML_PATH, 'r', encoding='utf-8') as f:
 new_insights_html = '''
                     <!-- ================= INSIGHTS VIEW (ADMIN) ================= -->
                     <div id="page-insights" class="page-view flex-col space-y-6">
-                        <!-- Top Banner Header -->
-                        <div class="bg-white rounded-[2rem] p-6 sm:p-8 border border-gray-200/80 card-elevate flex flex-col md:flex-row md:items-center justify-between gap-4">
-                            <div>
-                                <span class="px-3 py-1 bg-[#eefcce] text-[#111111] font-extrabold text-[11px] rounded-full inline-block mb-2 border border-[#d9f99d]">Semantic Intelligence</span>
-                                <h2 class="text-2xl sm:text-3xl font-black text-[#111111] tracking-tight">Topic Insights & Semantic Map</h2>
-                                <p class="text-gray-500 text-xs sm:text-sm font-medium mt-1">Explore high-frequency mining terms and discover relationships across indexed reports.</p>
-                            </div>
-                            <div class="flex items-center gap-3 shrink-0">
-                                <div class="px-4 py-2.5 bg-gray-50 border border-gray-200/80 rounded-2xl text-center">
-                                    <div class="text-[10px] text-gray-400 font-extrabold uppercase tracking-wider">Indexed Files</div>
-                                    <div class="text-base font-black text-[#111111]">1,284</div>
-                                </div>
-                                <div class="px-4 py-2.5 bg-gray-50 border border-gray-200/80 rounded-2xl text-center">
-                                    <div class="text-[10px] text-gray-400 font-extrabold uppercase tracking-wider">Confidence</div>
-                                    <div class="text-base font-black text-[#84cc16]">98.2%</div>
-                                </div>
-                            </div>
-                        </div>
-
                         <!-- Main Grid: Radial Word Map + Detail Studio -->
                         <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
                             
