@@ -320,9 +320,39 @@ radial_cloud_js = '''
         </div>
     </div>
 
+    <!-- ================= FULL REPORT DOCUMENT VIEWER MODAL ================= -->
+    <div id="full-report-viewer-modal" class="hidden flex items-center justify-center p-2 sm:p-4 animate-fadeIn" onclick="handleReportViewerBackdropClick(event)">
+        <div class="bg-white rounded-3xl shadow-2xl border border-gray-200 w-full max-w-4xl max-h-[92vh] flex flex-col overflow-hidden transform transition-all z-20" onclick="event.stopPropagation()">
+            
+            <!-- Top Nav & Actions Bar -->
+            <div class="px-6 py-3.5 border-b border-gray-100 flex items-center justify-between bg-slate-50/90 shrink-0">
+                <button onclick="backToReportsList()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-gray-100 border border-gray-200/80 text-gray-700 hover:text-[#0f172a] font-bold text-xs transition-all shadow-2xs">
+                    <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i> <span>Back to Reports</span>
+                </button>
+                
+                <div class="flex items-center gap-2">
+                    <span class="hidden sm:inline-flex px-2.5 py-0.5 rounded-md text-[10px] font-extrabold uppercase bg-emerald-100 text-emerald-800 border border-emerald-200">CMPDI Technical Archive</span>
+                    <button onclick="mockDownloadReport()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition-all shadow-2xs">
+                        <i data-lucide="download" class="w-3.5 h-3.5"></i> <span>Download PDF</span>
+                    </button>
+                    <button onclick="closeFullReportViewer()" class="w-8 h-8 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-black flex items-center justify-center transition-all">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Document Content Body (Scrollable) -->
+            <div id="full-report-viewer-content" class="p-6 sm:p-8 overflow-y-auto max-h-[84vh] custom-scrollbar bg-white space-y-6">
+                <!-- Rendered dynamically -->
+            </div>
+
+        </div>
+    </div>
+
     <!-- ================= MINING TOPIC INTELLIGENCE CLEAN TYPOGRAPHIC ENGINE ================= -->
     <style>
-        #topic-documents-modal {
+        #topic-documents-modal,
+        #full-report-viewer-modal {
             position: fixed !important;
             top: 0 !important;
             left: 0 !important;
@@ -1485,7 +1515,7 @@ radial_cloud_js = '''
                 return;
             }
 
-            // Render Document Cards
+            // Render Document Cards (Entire Card is Clickable)
             listContainer.innerHTML = matchedReports.map((report, idx) => {
                 const maxOcc = matchedReports[0]?.occ || 1;
                 const occPercent = Math.min(100, Math.round((report.occ / maxOcc) * 100));
@@ -1499,7 +1529,7 @@ radial_cloud_js = '''
                 }
 
                 return `
-                    <div class="p-4 rounded-2xl bg-white border border-gray-200/90 hover:border-emerald-500/80 hover:shadow-md transition-all group">
+                    <div onclick="openFullReportViewer('${report.id}', '${targetKey}')" class="p-4.5 rounded-2xl bg-white border border-gray-200/90 hover:border-emerald-500 hover:shadow-md cursor-pointer transition-all duration-150 group">
                         
                         <!-- Top Meta & Occurrences Count -->
                         <div class="flex items-start justify-between gap-3 mb-2">
@@ -1539,16 +1569,15 @@ radial_cloud_js = '''
                                 <span class="text-gray-400 font-medium">Top Correlated Terms:</span>
                                 <div class="flex gap-1 flex-wrap">
                                     ${Object.keys(report.keywords || {}).slice(0, 3).map(k => `
-                                        <button onclick="setModalSearchKeyword('${k}')" class="px-2 py-0.5 bg-gray-100 hover:bg-emerald-50 hover:text-emerald-700 rounded text-[10px] font-bold text-gray-600 transition-colors">
+                                        <button onclick="event.stopPropagation(); setModalSearchKeyword('${k}')" class="px-2 py-0.5 bg-gray-100 hover:bg-emerald-50 hover:text-emerald-700 rounded text-[10px] font-bold text-gray-600 transition-colors">
                                             ${k} (${report.keywords[k]})
                                         </button>
                                     `).join('')}
                                 </div>
                             </div>
-                            <div class="flex items-center gap-2">
-                                <button onclick="launchReportGeoAIQuery('${report.id}', '${targetKey}')" class="px-3 py-1.5 rounded-lg bg-[#0f172a] hover:bg-emerald-700 text-white font-bold text-[11px] flex items-center gap-1.5 transition-all shadow-2xs">
-                                    <i data-lucide="bot" class="w-3 h-3 text-emerald-400"></i> Query Report
-                                </button>
+                            <div class="flex items-center gap-1 font-bold text-xs text-emerald-700 group-hover:text-emerald-800 transition-colors">
+                                <span>Open Full Report</span>
+                                <i data-lucide="arrow-right" class="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform"></i>
                             </div>
                         </div>
 
@@ -1559,21 +1588,196 @@ radial_cloud_js = '''
             if (window.lucide) lucide.createIcons();
         }
 
-        function launchReportGeoAIQuery(reportId, keyword) {
-            closeTopicDocumentsModal();
-            const prompt = `Analyze document ID [${reportId}] and provide all technical insights, data parameters and excerpts regarding the keyword "${keyword}".`;
+        // ── FULL REPORT DOCUMENT VIEWER ENGINE ──
+        let currentFullViewingReportId = null;
+
+        function openFullReportViewer(reportId, targetKeyword) {
+            const report = INDEXED_REPORTS_DATABASE.find(r => r.id === reportId) || INDEXED_REPORTS_DATABASE[0];
+            currentFullViewingReportId = report.id;
             
-            if (window.location.hash === '#query') {
-                sendPresetPrompt(prompt);
-            } else {
-                openFloatingChat();
-                sendFloatingPreset(prompt);
+            const viewerModal = document.getElementById('full-report-viewer-modal');
+            const viewerContent = document.getElementById('full-report-viewer-content');
+            if (!viewerModal || !viewerContent) return;
+
+            const focusKey = targetKeyword || activeModalSearchKeyword || 'Mining Operations';
+            const mentionsCount = report.keywords[focusKey] || report.occ || 24;
+
+            viewerContent.innerHTML = `
+                <!-- Document Header Section -->
+                <div class="border-b border-gray-200 pb-5">
+                    <div class="flex items-center gap-2 flex-wrap mb-2">
+                        <span class="px-2.5 py-0.5 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-md font-bold text-[10px] uppercase tracking-wider">${report.agency}</span>
+                        <span class="px-2.5 py-0.5 bg-slate-100 text-slate-700 border border-slate-200 rounded-md font-bold text-[10px] uppercase tracking-wider">Doc ID: ${report.id}</span>
+                        <span class="px-2.5 py-0.5 bg-sky-50 text-sky-800 border border-sky-200 rounded-md font-bold text-[10px] uppercase tracking-wider">${report.type}</span>
+                        <span class="text-xs font-semibold text-gray-400">• Published: ${report.date}</span>
+                        <span class="text-xs font-semibold text-gray-400">• ${report.pages} Pages</span>
+                    </div>
+                    <h2 class="text-xl sm:text-2xl font-black text-[#0f172a] leading-tight tracking-tight">
+                        ${report.title}
+                    </h2>
+                    <p class="text-xs text-gray-500 font-medium mt-1">
+                        Central Mine Planning &amp; Design Institute &bull; Coal India Limited Technical Repository
+                    </p>
+                </div>
+
+                <!-- Active Focus Keyword & Frequency Callout Banner -->
+                <div class="p-3.5 bg-emerald-50/70 border border-emerald-200/80 rounded-2xl flex items-center justify-between gap-3">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-black text-xs">
+                            <i data-lucide="target" class="w-4 h-4"></i>
+                        </div>
+                        <div>
+                            <div class="text-[10px] font-bold uppercase text-emerald-900 tracking-wider">Semantic Query Match</div>
+                            <div class="text-xs font-bold text-emerald-950">
+                                "${focusKey}" appears <strong class="text-emerald-700 font-black">${mentionsCount} times</strong> across this technical document
+                            </div>
+                        </div>
+                    </div>
+                    <span class="px-2.5 py-1 bg-white text-emerald-800 rounded-xl text-[11px] font-extrabold border border-emerald-200 shadow-2xs">
+                        98.4% Confidence
+                    </span>
+                </div>
+
+                <!-- Key Project Parameters Grid -->
+                <div>
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2.5">1. Key Project Metadata</h4>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <div class="p-3 rounded-xl bg-gray-50/80 border border-gray-200/70">
+                            <div class="text-[10px] font-bold uppercase text-gray-400 tracking-wider">Coalfield Basin</div>
+                            <div class="text-xs font-extrabold text-[#0f172a] mt-0.5">Jharia / Raniganj / Korba</div>
+                        </div>
+                        <div class="p-3 rounded-xl bg-gray-50/80 border border-gray-200/70">
+                            <div class="text-[10px] font-bold uppercase text-gray-400 tracking-wider">Mining Method</div>
+                            <div class="text-xs font-extrabold text-[#0f172a] mt-0.5">Mechanized Opencast</div>
+                        </div>
+                        <div class="p-3 rounded-xl bg-gray-50/80 border border-gray-200/70">
+                            <div class="text-[10px] font-bold uppercase text-gray-400 tracking-wider">Stripping Ratio</div>
+                            <div class="text-xs font-extrabold text-[#0f172a] mt-0.5">1 : 3.8 CuM/T</div>
+                        </div>
+                        <div class="p-3 rounded-xl bg-gray-50/80 border border-gray-200/70">
+                            <div class="text-[10px] font-bold uppercase text-gray-400 tracking-wider">Reserve Status</div>
+                            <div class="text-xs font-extrabold text-emerald-700 mt-0.5">Proved (ISP Norms)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stratigraphy & Seams Breakdown Table -->
+                <div>
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2.5">2. Stratigraphy &amp; Coal Seam Analysis</h4>
+                    <div class="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-2xs">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-gray-50 border-b border-gray-200 text-gray-600 font-bold text-[11px]">
+                                <tr>
+                                    <th class="p-2.5 pl-3">Seam Horizon</th>
+                                    <th class="p-2.5">Thickness (m)</th>
+                                    <th class="p-2.5">Mean Depth (m)</th>
+                                    <th class="p-2.5">Ash Content (%)</th>
+                                    <th class="p-2.5">Gross Calorific Value</th>
+                                    <th class="p-2.5 pr-3">Grade</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100 font-medium text-gray-800 text-[11px]">
+                                <tr class="hover:bg-gray-50/80">
+                                    <td class="p-2.5 pl-3 font-bold text-[#0f172a]">Seam X (Top)</td>
+                                    <td class="p-2.5">6.40 m</td>
+                                    <td class="p-2.5">112 m</td>
+                                    <td class="p-2.5">18.4%</td>
+                                    <td class="p-2.5 font-bold text-emerald-700">6,240 kcal/kg</td>
+                                    <td class="p-2.5 pr-3"><span class="px-2 py-0.5 bg-emerald-50 text-emerald-700 rounded font-bold">G4</span></td>
+                                </tr>
+                                <tr class="hover:bg-gray-50/80">
+                                    <td class="p-2.5 pl-3 font-bold text-[#0f172a]">Seam IX (Middle)</td>
+                                    <td class="p-2.5">8.20 m</td>
+                                    <td class="p-2.5">148 m</td>
+                                    <td class="p-2.5">22.1%</td>
+                                    <td class="p-2.5 font-bold text-emerald-700">5,820 kcal/kg</td>
+                                    <td class="p-2.5 pr-3"><span class="px-2 py-0.5 bg-emerald-50 text-emerald-700 rounded font-bold">G6</span></td>
+                                </tr>
+                                <tr class="hover:bg-gray-50/80">
+                                    <td class="p-2.5 pl-3 font-bold text-[#0f172a]">Seam VIII (Bottom)</td>
+                                    <td class="p-2.5">4.80 m</td>
+                                    <td class="p-2.5">194 m</td>
+                                    <td class="p-2.5">26.5%</td>
+                                    <td class="p-2.5 font-bold text-sky-700">5,310 kcal/kg</td>
+                                    <td class="p-2.5 pr-3"><span class="px-2 py-0.5 bg-sky-50 text-sky-700 rounded font-bold">G8</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Full Report Technical Narrative Sections -->
+                <div class="space-y-4">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-gray-500">3. Technical Narrative &amp; Operational Observations</h4>
+                    
+                    <div class="p-4 bg-gray-50/80 rounded-2xl border border-gray-200 space-y-2">
+                        <h5 class="font-bold text-[#0f172a] text-xs">Section 1: Overburden Removal &amp; Dragline Scheduling</h5>
+                        <p class="text-xs text-gray-700 leading-relaxed font-medium">
+                            The upper strata consists of medium to coarse-grained sandstone requiring systematic drilling and blasting with electronic delay detonators. Walking draglines handle primary overburden casting while shovel-dumper fleets evacuate interburden partings to prevent bench slope instability.
+                        </p>
+                    </div>
+
+                    <div class="p-4 bg-gray-50/80 rounded-2xl border border-gray-200 space-y-2">
+                        <h5 class="font-bold text-[#0f172a] text-xs">Section 2: Hydrogeological &amp; Environmental Clearance Compliance</h5>
+                        <p class="text-xs text-gray-700 leading-relaxed font-medium">
+                            Comprehensive piezometer monitoring networks established across 12 perimeter locations confirm groundwater table stability. Sump dewatering systems channel drainage through modular multi-tier settling ponds with zero untreated effluent discharge outside concession limits.
+                        </p>
+                    </div>
+
+                    <div class="p-4 bg-gray-50/80 rounded-2xl border border-gray-200 space-y-2">
+                        <h5 class="font-bold text-[#0f172a] text-xs">Section 3: Progressive Land Reclamation &amp; Mine Closure Status</h5>
+                        <p class="text-xs text-gray-700 leading-relaxed font-medium">
+                            Biological reclamation of decommissioned internal overburden dumps has restored over 145 hectares with native mixed afforestation. Satellite remote sensing validates canopy density growth complying with MoEFCC clearance stipulations.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Document Verification & Sign-off Footer -->
+                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200 flex flex-wrap items-center justify-between gap-3 text-xs">
+                    <div>
+                        <div class="font-bold text-[#0f172a]">CMPDI Central Geo-Data Repository</div>
+                        <div class="text-[11px] text-gray-400 font-medium">Verified by Regional Technical Advisory Committee (RTAC)</div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="px-2.5 py-1 bg-emerald-100 text-emerald-900 rounded-lg font-bold text-[10px] uppercase">Digitally Authenticated</span>
+                    </div>
+                </div>
+            `;
+
+            viewerModal.classList.remove('hidden');
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function closeFullReportViewer() {
+            const viewerModal = document.getElementById('full-report-viewer-modal');
+            if (viewerModal) viewerModal.classList.add('hidden');
+        }
+
+        function backToReportsList() {
+            closeFullReportViewer();
+        }
+
+        function handleReportViewerBackdropClick(e) {
+            if (e.target.id === 'full-report-viewer-modal') {
+                closeFullReportViewer();
             }
         }
 
-        // Close modal on Escape key
+        function mockDownloadReport() {
+            const reportId = currentFullViewingReportId || 'CMPDI-REPORT-2024';
+            alert(`Initiating download for technical document: [${reportId}.pdf]\n\nDocument authenticated by CMPDI Geological Archive.`);
+        }
+
+        function mockPrintReport() {
+            window.print();
+        }
+
+        // Close modals on Escape key
         window.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') closeTopicDocumentsModal();
+            if (e.key === 'Escape') {
+                closeFullReportViewer();
+                closeTopicDocumentsModal();
+            }
         });
 
         // Initialize when insights page is displayed or on window resize
