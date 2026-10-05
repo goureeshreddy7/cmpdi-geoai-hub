@@ -10114,10 +10114,16 @@ function handleInlineNarrativeEdit(text) {
                 minesMapInstance.invalidateSize();
             }
         });
-    </script>
+    
+        // ══ VERIFY DESK LOAD ON INIT (Admin) ══════════════════════════
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(loadVerifyDocs, 2000);
+        });
+        </script>
 
 </body>
 </html>
+
 
 
 

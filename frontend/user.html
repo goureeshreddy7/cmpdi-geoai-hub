@@ -10120,10 +10120,110 @@ function handleInlineNarrativeEdit(text) {
                 minesMapInstance.invalidateSize();
             }
         });
-    </script>
+    
+        // ══ UPLOAD + VERIFY OVERRIDE (authoritative version) ══════════
+        let _selectedFile = null;
+
+        // Re-wire file input on DOM ready
+        document.addEventListener('DOMContentLoaded', function() {
+            var fi = document.getElementById('real-file-input');
+            if (fi) fi.addEventListener('change', function() {
+                handleFileSelected(this.files[0]);
+            });
+            // Load verify docs on page init
+            setTimeout(loadVerifyDocs, 1500);
+        });
+
+        function handleFileSelected(file) {
+            if (!file) return;
+            _selectedFile = file;
+            var area = document.getElementById('upload-selected-area');
+            var fnEl = document.getElementById('upload-filename');
+            var fsEl = document.getElementById('upload-filesize');
+            if (fnEl) fnEl.textContent = file.name;
+            if (fsEl) fsEl.textContent = (file.size / 1024).toFixed(1) + ' KB';
+            if (area) {
+                area.classList.remove('hidden');
+                area.style.display = 'flex';
+            }
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        async function submitRealUpload() {
+            if (!_selectedFile) { alert('Please select a file first.'); return; }
+            var sub = (document.getElementById('upload-subsidiary-sel') || {}).value
+                      || localStorage.getItem('cmpdi_subsidiary') || 'General';
+            var progArea = document.getElementById('upload-progress-area');
+            var progBar  = document.getElementById('upload-progress-bar');
+            var progText = document.getElementById('upload-progress-text');
+            var selArea  = document.getElementById('upload-selected-area');
+            var queue    = document.getElementById('upload-queue-list');
+
+            if (selArea)  { selArea.classList.add('hidden'); selArea.style.display = 'none'; }
+            if (progArea) { progArea.classList.remove('hidden'); progArea.style.display = 'block'; }
+            if (progBar)  progBar.style.width = '20%';
+            if (progText) progText.textContent = 'Uploading to server...';
+
+            var formData = new FormData();
+            formData.append('file', _selectedFile);
+            formData.append('subsidiary', sub);
+            formData.append('doc_category', 'General Report');
+
+            try {
+                if (progBar) progBar.style.width = '50%';
+                if (progText) progText.textContent = 'Indexing with AI...';
+
+                var token = localStorage.getItem('cmpdi_token') || '';
+                var resp = await fetch(API_BASE + '/api/upload', {
+                    method: 'POST',
+                    headers: { 'Authorization': 'Bearer ' + token },
+                    body: formData
+                });
+                var data = await resp.json();
+
+                if (progBar) progBar.style.width = '100%';
+
+                if (!resp.ok) {
+                    if (progArea) { progArea.classList.add('hidden'); progArea.style.display = 'none'; }
+                    alert('Upload failed: ' + (data.detail || resp.statusText));
+                    return;
+                }
+
+                setTimeout(function() {
+                    if (progArea) { progArea.classList.add('hidden'); progArea.style.display = 'none'; }
+                    // Add to queue list
+                    if (queue) {
+                        var p = queue.querySelector('p');
+                        if (p) queue.innerHTML = '';
+                        var row = document.createElement('div');
+                        row.className = 'flex items-center justify-between p-4 bg-gray-50 border border-gray-200 rounded-2xl mb-2';
+                        row.innerHTML = '<div class="flex items-center gap-3"><div class="w-9 h-9 rounded-xl bg-white shadow-sm flex items-center justify-center"><i data-lucide="file-text" class="w-5 h-5 text-green-600"></i></div><div><p class="font-extrabold text-xs text-gray-900">' + data.filename + '</p><p class="text-[10px] text-gray-500 font-bold">' + data.chunks + ' chunks • ' + data.pages + ' pages</p></div></div><span class="text-[10px] font-black text-green-700 bg-green-50 px-2 py-1 rounded-md border border-green-200">✓ Indexed</span>';
+                        queue.prepend(row);
+                        if (typeof lucide !== 'undefined') lucide.createIcons();
+                    }
+                    // Save to verify desk
+                    var docInfo = {
+                        filename: data.filename,
+                        subsidiary: sub,
+                        chunks: data.chunks,
+                        pages: data.pages,
+                        uploadedAt: new Date().toLocaleTimeString()
+                    };
+                    addDocToVerifyDesk(docInfo);
+                    _selectedFile = null;
+                    alert('✅ Uploaded & indexed: ' + data.filename);
+                }, 500);
+
+            } catch(err) {
+                if (progArea) { progArea.classList.add('hidden'); progArea.style.display = 'none'; }
+                alert('Upload error: ' + err.message);
+            }
+        }
+        </script>
 
 </body>
 </html>
+
 
 
 
