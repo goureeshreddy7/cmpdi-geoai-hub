@@ -331,7 +331,6 @@ radial_cloud_js = '''
                 </button>
                 
                 <div class="flex items-center gap-2.5">
-                    <span class="hidden sm:inline-flex px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-700 border border-slate-300">CMPDI Technical Archive</span>
                     <button onclick="mockDownloadReport()" class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-md bg-[#102A43] hover:bg-[#1E3A5F] text-white font-semibold text-xs transition-colors shadow-2xs border border-[#102A43]">
                         <i data-lucide="download" class="w-3.5 h-3.5"></i> <span>Download PDF</span>
                     </button>
