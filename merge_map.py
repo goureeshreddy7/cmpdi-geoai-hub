@@ -171,7 +171,10 @@ head_css_scripts = '''
         }
     </style>
 '''
-html = html.replace('</head>', f'{head_css_scripts}\n</head>')
+head_end = html.find('</head>')
+if head_end != -1:
+    html = html[:head_end] + f'{head_css_scripts}\n' + html[head_end:]
+
 
 # 2. Add 'Mine Map' sidebar nav button right after 'Dashboard'
 sidebar_map_btn = '''
@@ -1034,14 +1037,17 @@ map_scripts = '''
     </script>
 '''
 
-html = html.replace('</body>', f'{map_scripts}\n</body>')
+body_end = html.rfind('</body>')
+if body_end != -1:
+    html = html[:body_end] + f'{map_scripts}\n' + html[body_end:]
+
 
 # In handleRouting, add map initialization
-old_router_trigger = "if (pageId === 'dashboard' && window.productionChartInstance) {"
+old_router_trigger = "if (pageId === 'reports') {"
 new_router_trigger = """if (pageId === 'map') {
                 setTimeout(initMinesMap, 100);
             }
-            if (pageId === 'dashboard' && window.productionChartInstance) {"""
+            if (pageId === 'reports') {"""
 html = html.replace(old_router_trigger, new_router_trigger)
 
 # Replace hardcoded API_BASE with dynamic origin

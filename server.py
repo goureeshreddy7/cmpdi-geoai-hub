@@ -102,9 +102,15 @@ app.add_middleware(
 )
 
 FRONTEND_DIR = Path(__file__).parent / "frontend"
+REPORTS_DIR = FRONTEND_DIR / "reports"
+DATA_DOCS_DIR = Path(__file__).parent / "data"
 
 if FRONTEND_DIR.exists():
     app.mount("/static", StaticFiles(directory=str(FRONTEND_DIR)), name="static")
+if REPORTS_DIR.exists():
+    app.mount("/reports", StaticFiles(directory=str(REPORTS_DIR)), name="reports")
+if DATA_DOCS_DIR.exists():
+    app.mount("/data", StaticFiles(directory=str(DATA_DOCS_DIR)), name="data")
 
 SUBSIDIARIES = [
     "All Subsidiaries", "ECL", "BCCL", "CCL", "WCL",
