@@ -1641,16 +1641,16 @@ radial_cloud_js = '''
                 <!-- Document Header Section -->
                 <div class="border-b border-slate-200 pb-5">
                     <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-2 flex flex-wrap items-center gap-x-2 gap-y-1">
-                        <span>DOC ID: <strong class="text-slate-800 font-bold">\${report.id}</strong></span>
+                        <span>DOC ID: <strong class="text-slate-800 font-bold">${report.id}</strong></span>
                         <span class="text-slate-300">&bull;</span>
-                        <span>REPORT TYPE: <strong class="text-slate-800 font-bold">\${report.type}</strong></span>
+                        <span>REPORT TYPE: <strong class="text-slate-800 font-bold">${report.type}</strong></span>
                         <span class="text-slate-300">&bull;</span>
-                        <span>PUBLISHED: <strong class="text-slate-800 font-bold">\${report.date}</strong></span>
+                        <span>PUBLISHED: <strong class="text-slate-800 font-bold">${report.date}</strong></span>
                         <span class="text-slate-300">&bull;</span>
-                        <span>PAGE COUNT: <strong class="text-slate-800 font-bold">\${report.pages} Pages</strong></span>
+                        <span>PAGE COUNT: <strong class="text-slate-800 font-bold">${report.pages} Pages</strong></span>
                     </div>
                     <h2 class="text-xl sm:text-2xl font-bold text-[#102A43] leading-snug tracking-tight">
-                        \${report.title}
+                        ${report.title}
                     </h2>
                     <div class="text-xs text-slate-500 font-medium mt-1.5">
                         Central Mine Planning &amp; Design Institute &bull; Coal India Limited Technical Repository
@@ -1665,12 +1665,12 @@ radial_cloud_js = '''
                     </div>
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-0.5">
                         <div class="text-xs text-slate-700 font-medium">
-                            <span class="font-bold text-[#102A43]">"\${focusKey}"</span> appears <strong class="text-[#102A43] font-bold">\${mentionsCount} times</strong> across this technical document.
+                            <span class="font-bold text-[#102A43]">"${focusKey}"</span> appears <strong class="text-[#102A43] font-bold">${mentionsCount} times</strong> across this technical document.
                         </div>
                         <div class="flex items-center gap-6 text-xs shrink-0">
                             <div>
                                 <span class="text-[9px] uppercase font-bold text-slate-400">Occurrences:</span>
-                                <strong class="text-[#102A43] font-bold ml-1 text-sm">\${mentionsCount}</strong>
+                                <strong class="text-[#102A43] font-bold ml-1 text-sm">${mentionsCount}</strong>
                             </div>
                             <div class="border-l border-slate-200 pl-5">
                                 <span class="text-[9px] uppercase font-bold text-slate-400">Confidence:</span>
@@ -1690,29 +1690,29 @@ radial_cloud_js = '''
                             <div class="divide-y divide-slate-200">
                                 <div class="p-3 bg-white flex justify-between items-start gap-2">
                                     <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Coalfield / Mine</span>
-                                    <span class="text-xs font-bold text-[#102A43] text-right">\${coalfield}</span>
+                                    <span class="text-xs font-bold text-[#102A43] text-right">${coalfield}</span>
                                 </div>
                                 <div class="p-3 bg-white flex justify-between items-start gap-2">
                                     <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Mining Method</span>
-                                    <span class="text-xs font-bold text-[#102A43] text-right">\${miningMethod}</span>
+                                    <span class="text-xs font-bold text-[#102A43] text-right">${miningMethod}</span>
                                 </div>
                                 <div class="p-3 bg-white flex justify-between items-start gap-2">
                                     <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Report Type</span>
-                                    <span class="text-xs font-bold text-[#102A43] text-right">\${report.type}</span>
+                                    <span class="text-xs font-bold text-[#102A43] text-right">${report.type}</span>
                                 </div>
                             </div>
                             <div class="divide-y divide-slate-200">
                                 <div class="p-3 bg-white flex justify-between items-start gap-2">
                                     <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Subsidiary / Agency</span>
-                                    <span class="text-xs font-bold text-[#102A43] text-right">\${report.agency}</span>
+                                    <span class="text-xs font-bold text-[#102A43] text-right">${report.agency}</span>
                                 </div>
                                 <div class="p-3 bg-white flex justify-between items-start gap-2">
                                     <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Terrain / Geology</span>
-                                    <span class="text-xs font-bold text-[#102A43] text-right">\${geologyBasin}</span>
+                                    <span class="text-xs font-bold text-[#102A43] text-right">${geologyBasin}</span>
                                 </div>
                                 <div class="p-3 bg-white flex justify-between items-start gap-2">
                                     <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Report Date</span>
-                                    <span class="text-xs font-bold text-[#102A43] text-right">\${report.date}</span>
+                                    <span class="text-xs font-bold text-[#102A43] text-right">${report.date}</span>
                                 </div>
                             </div>
                         </div>
