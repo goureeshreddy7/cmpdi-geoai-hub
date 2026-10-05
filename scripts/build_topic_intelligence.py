@@ -188,17 +188,6 @@ new_insights_html = '''
                                         </div>
                                     </div>
                                 </div>
-
-                                <!-- Action Button: Query in Assistant / Load in Reports -->
-                                <div class="mt-4 pt-3 border-t border-gray-100 flex gap-2">
-                                    <button onclick="queryTopicInAssistant(currentSelectedTopicKey)" class="flex-1 py-2.5 bg-[#0f172a] text-white rounded-xl font-bold text-xs shadow-sm hover:bg-black active:scale-95 transition-all flex items-center justify-center gap-1.5">
-                                        <i data-lucide="bot" class="w-3.5 h-3.5 text-emerald-400"></i> <span>Query in GeoAI</span>
-                                    </button>
-                                    <button onclick="selectKeyword(currentSelectedTopicKey)" class="py-2.5 px-3.5 bg-gray-100 hover:bg-gray-200 text-[#0f172a] rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-1.5" title="Load into Report Builder">
-                                        <i data-lucide="file-text" class="w-3.5 h-3.5"></i> <span>Build Report</span>
-                                    </button>
-                                </div>
-
                             </div>
 
                         </div>
